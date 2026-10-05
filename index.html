@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mes outils</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap">
+<style>
+/* Page d'accueil : une liste courte de cartes, une par outil */
+:root{
+  --ground:#eef0f3; --panel:#ffffff; --ink:#1a1f2b; --ink-2:#4a5263; --ink-3:#7c8496; --line:#d9dde4; --accent:#2f4bd6; --accent-soft:#e3e8fb;
+  --serif:"IBM Plex Serif", Georgia, serif; --sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --ground:#12151c; --panel:#1a1e27; --ink:#e7eaf0; --ink-2:#b3bac8; --ink-3:#848c9c; --line:#2e3441; --accent:#7d93ff; --accent-soft:#252c47; color-scheme:dark; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.55 var(--sans);padding-inline:16px}
+.wrap{max-width:720px;margin:0 auto;padding-block:48px 40px;display:flex;flex-direction:column;gap:22px}
+h1{font:600 28px/1.15 var(--serif);margin:0;letter-spacing:-.01em}
+h1 small{display:block;font:500 13px var(--sans);color:var(--ink-3);letter-spacing:.02em;margin-top:6px}
+.list{display:flex;flex-direction:column;gap:10px}
+a.tool{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;color:inherit;text-decoration:none}
+a.tool:hover{border-color:var(--accent)}
+a.tool:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ic{width:44px;height:44px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font:600 15px var(--serif)}
+.nm{font-weight:600;font-size:16px}
+.ds{color:var(--ink-2);font-size:13.5px;min-width:0}
+.go{color:var(--accent);font-size:20px}
+.tool.soon{opacity:.6;pointer-events:none}
+.note{font-size:12.5px;color:var(--ink-3);margin:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mes outils<small>par Mohand BOUALLAG</small></h1>
+  <div class="list">
+    <a class="tool" href="agora-ia.html">
+      <span class="ic">A</span>
+      <span><div class="nm">Agora IA</div><div class="ds">Plusieurs IA débattent d'une question à partir de tes données, avec vérification des sources, puis un modérateur conclut.</div></span>
+      <span class="go">›</span>
+    </a>
+    <a class="tool soon" href="veille-emploi.html" aria-disabled="true">
+      <span class="ic">V</span>
+      <span><div class="nm">Veille emploi</div><div class="ds">Bientôt en ligne.</div></span>
+      <span class="go">›</span>
+    </a>
+  </div>
+  <p class="note">Les clés et les données restent dans le navigateur de chaque appareil : rien n'est stocké sur ce site.</p>
+</div>
+</body>
+</html>
