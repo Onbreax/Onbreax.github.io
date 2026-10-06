@@ -51,47 +51,74 @@ a.tool:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
       <span class="go">›</span>
     </a>
   </div>
+  <p class="note" id="autostat"></p>
   <p class="note">Les clés et les données restent dans le navigateur de chaque appareil : rien n'est stocké sur ce site.</p>
 </div>
 <script>
 /* Liste automatique : chaque fichier .html déposé dans le dépôt devient une carte.
-   Nom = <title>, texte = <meta name="description">, icône = <link rel="icon">.
+   Nom = <title> (partie avant « — »), texte = <meta name="description">, icône = <link rel="icon">.
    Les pages de redirection (meta refresh) et index.html sont ignorées.
-   Si GitHub ne répond pas, les cartes écrites ci-dessus restent affichées. */
+   Source 1 : API GitHub. Source 2 si elle échoue (limite de requêtes, réseau) : jsDelivr.
+   Si les deux échouent, les cartes écrites ci-dessus restent affichées. */
 (async () => {
   const host = location.hostname, m = host.match(/^([^.]+)\.github\.io$/i);
-  if (!m) return;
-  const repo = `${m[1]}/${host}`, CK = "tools-meta-v1";
+  const owner = m && m[1], repo = host, CK = "tools-meta-v2", st = document.getElementById("autostat");
+  const say = t => { if (st) st.textContent = t; };
   let cache = {}; try { cache = JSON.parse(localStorage.getItem(CK)) || {}; } catch {}
+  function render(tools){
+    tools.sort((a, b) => a.name.localeCompare(b.name, "fr"));
+    document.getElementById("list").innerHTML = tools.map(t => `<a class="tool" href="${encodeURI(t.file)}">
+      ${t.icon ? `<span class="ic logo"><img src="${esc(t.icon)}" alt="" width="34" height="34"></span>` : `<span class="ic">${esc(t.name.charAt(0).toUpperCase())}</span>`}
+      <span><div class="nm">${esc(t.name)}</div><div class="ds">${esc(t.desc)}</div></span>
+      <span class="go">›</span></a>`).join("");
+  }
   const esc = t => String(t || "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  async function listGitHub(){
+    const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents?t=${Date.now()}`, {cache:"no-store"});
+    if (!r.ok) throw new Error("GitHub " + r.status);
+    return (await r.json()).filter(f => f.type === "file").map(f => ({name:f.name, size:f.size, sha:f.sha, url:f.download_url}));
+  }
+  async function listJsDelivr(){
+    const r = await fetch(`https://data.jsdelivr.com/v1/packages/gh/${owner}/${repo}@main?structure=flat`, {cache:"no-store"});
+    if (!r.ok) throw new Error("jsDelivr " + r.status);
+    return ((await r.json()).files || []).filter(f => !f.name.slice(1).includes("/"))
+      .map(f => ({name:f.name.slice(1), size:f.size, sha:f.hash, url:`${f.name.slice(1)}?v=${encodeURIComponent(f.hash)}`}));
+  }
+  // Sur Cloudflare (ou tout hébergeur qui lance build.js), la liste est déjà prête dans tools.json
   try {
-    const r = await fetch(`https://api.github.com/repos/${repo}/contents/`, {headers:{Accept:"application/vnd.github+json"}});
-    if (!r.ok) return;
-    const files = (await r.json()).filter(f => f.type === "file" && /\.html?$/i.test(f.name) && !/^index\.html?$/i.test(f.name) && f.size > 3000);
+    const r = await fetch("tools.json", {cache:"no-store"});
+    if (r.ok){ const tools = await r.json(); if (tools.length){ render(tools); return; } }
+  } catch {}
+  if (!m) return;
+  let files, why = "";
+  try { files = await listGitHub(); } catch (e) { why = e.message; try { files = await listJsDelivr(); } catch (e2) { why += ", " + e2.message; } }
+  if (!files){ say(`Liste automatique indisponible (${why}) : affichage de secours.`); return; }
+  try {
+    files = files.filter(f => /\.html?$/i.test(f.name) && !/^index\.html?$/i.test(f.name) && f.size > 3000);
     const tools = [];
     for (const f of files){
       let meta = cache[f.name];
       if (!meta || meta.sha !== f.sha){
-        const t = await (await fetch(f.download_url)).text();
-        const doc = new DOMParser().parseFromString(t.slice(0, 400000), "text/html");
-        meta = {sha:f.sha,
-          skip: !!doc.querySelector('meta[http-equiv="refresh" i]'),
-          name: (doc.querySelector("title")?.textContent || f.name.replace(/\.html?$/i, "")).trim(),
-          desc: doc.querySelector('meta[name="description"]')?.getAttribute("content") || "",
-          icon: doc.querySelector('link[rel~="icon"]')?.getAttribute("href") || ""};
-        cache[f.name] = meta;
+        try {
+          let r = await fetch(f.url, {cache:"no-store"});
+          if (!r.ok) r = await fetch(encodeURI(f.name), {cache:"no-store"});
+          const doc = new DOMParser().parseFromString(await r.text(), "text/html");
+          const title = (doc.querySelector("title")?.textContent || f.name.replace(/\.html?$/i, "")).trim();
+          meta = {sha:f.sha,
+            skip: !!doc.querySelector('meta[http-equiv="refresh" i]'),
+            name: title.split(/\s+[—–|·]\s+|\s+-\s+/)[0].trim() || title,
+            desc: doc.querySelector('meta[name="description"]')?.getAttribute("content") || "",
+            icon: doc.querySelector('link[rel~="icon"]')?.getAttribute("href") || ""};
+          cache[f.name] = meta;
+        } catch { meta = {skip:false, name:f.name.replace(/\.html?$/i, ""), desc:"", icon:""}; }
       }
       if (!meta.skip) tools.push({file:f.name, ...meta});
     }
     for (const k of Object.keys(cache)) if (!files.some(f => f.name === k)) delete cache[k];
     try { localStorage.setItem(CK, JSON.stringify(cache)); } catch {}
     if (!tools.length) return;
-    tools.sort((a, b) => a.name.localeCompare(b.name, "fr"));
-    document.getElementById("list").innerHTML = tools.map(t => `<a class="tool" href="${encodeURI(t.file)}">
-      ${t.icon ? `<span class="ic logo"><img src="${esc(t.icon)}" alt="" width="34" height="34"></span>` : `<span class="ic">${esc(t.name.charAt(0).toUpperCase())}</span>`}
-      <span><div class="nm">${esc(t.name)}</div><div class="ds">${esc(t.desc)}</div></span>
-      <span class="go">›</span></a>`).join("");
-  } catch (e) { console.warn('auto-list', e); }
+    render(tools); say("");
+  } catch (e) { say("Liste automatique : " + e.message); }
 })();
 </script>
 </body>
