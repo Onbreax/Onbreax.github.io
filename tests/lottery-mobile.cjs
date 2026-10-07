@@ -1,0 +1,29 @@
+const {chromium}=require('playwright'),fs=require('fs'),http=require('http'),path=require('path'),assert=require('assert/strict');
+(async()=>{
+ const assets=path.join(__dirname,'../lottery-metrics-android/app/src/main/assets');
+ let html=fs.readFileSync(path.join(assets,'index.html'),'utf8').replace('})();\n</script>',`window.probe={get current(){return current},LOADED,handleFile,fillMissing,importBackup,exportBackup,missingDates,recordOf,fromRecord,idbAll,idbTx,startup,fetchOfficial,setFetch:fn=>{fetchOfficial=fn}};})();\n</script>`);
+ const server=http.createServer((q,r)=>{const name=path.basename(q.url.split('?')[0]);r.setHeader('Content-Type',name.endsWith('.js')?'text/javascript':'text/html');r.end(name.endsWith('.js')?fs.readFileSync(path.join(assets,name)):html)});await new Promise(ok=>server.listen(0,'127.0.0.1',ok));
+ const browser=await chromium.launch({...(process.env.CHROME_EXECUTABLE?{executablePath:process.env.CHROME_EXECUTABLE}:{}),args:['--no-sandbox']});
+ try{
+ const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.route('https://**/*',r=>r.abort());await page.addInitScript(()=>{window.nativeMessages=[];window.LotteryNative={postMessage:x=>nativeMessages.push(JSON.parse(x))};localStorage.setItem('lottery-auto-sync','false')});
+ await page.goto(`http://127.0.0.1:${server.address().port}`);await page.evaluate(()=>probe.startup);
+ const csv=fs.readFileSync(path.join(__dirname,'../fdj-samples/eurodreams.csv'),'utf8'),lines=csv.trim().split(/\r?\n/),old=[lines[0],...lines.slice(4)].join('\n');
+ await page.evaluate(async text=>probe.handleFile(new File([text],'eurodreams.csv')),old);
+ assert.equal(await page.evaluate(()=>probe.current.parsed.rows.length),lines.length-4);assert.deepEqual(errors,[]);console.log('IMPORT AND PERSIST PASS');
+ await page.reload();await page.evaluate(()=>probe.startup);assert.equal(await page.evaluate(()=>probe.current.parsed.rows.length),lines.length-4);console.log('REOPEN RESTORE PASS');
+ await page.evaluate(async text=>{probe.setFetch(async()=>({text}));await probe.fillMissing(false)},csv);
+ const count=await page.evaluate(()=>probe.current.parsed.rows.length);assert.equal(count,lines.length-1);await page.evaluate(()=>probe.fillMissing(false));assert.equal(await page.evaluate(()=>probe.current.parsed.rows.length),count);console.log('OFFICIAL UPDATE IDEMPOTENT PASS');
+ const gaps=await page.evaluate(()=>{const rows=probe.current.parsed.rows.slice();const missing=rows.splice(15,1)[0];return probe.missingDates(probe.current.parsed.game,rows[0].date,new Date('2026-10-07T12:00:00Z'),rows).some(d=>+d===+missing.date)});assert(gaps);console.log('INTERIOR GAP DETECTION PASS');
+ await page.evaluate(async()=>{probe.setFetch(async()=>{throw new Error('offline')});await probe.fillMissing(false)});assert.equal(await page.evaluate(()=>probe.current.parsed.rows.length),count);console.log('OFFLINE HISTORY PRESERVED PASS');
+ await page.evaluate(()=>probe.exportBackup());const backup=await page.evaluate(()=>JSON.parse(nativeMessages.find(m=>m.action==='save').text));assert(!JSON.stringify(backup).includes('sk-or'));assert.equal(backup.archives[0].rows.length,count);
+ const invalid=JSON.parse(JSON.stringify(backup));invalid.archives[0].rows[0].balls=[99];await page.evaluate(async b=>probe.importBackup(new File([JSON.stringify(b)],'bad.json')),invalid);assert.equal(await page.evaluate(()=>probe.current.parsed.rows.length),count);console.log('BACKUP VALIDATION PASS');
+ await page.evaluate(async()=>{await probe.idbTx('readwrite',s=>s.clear())});await page.reload();await page.evaluate(()=>probe.startup);await page.evaluate(async b=>probe.importBackup(new File([JSON.stringify(b)],'backup.json')),backup);assert.equal(await page.evaluate(()=>probe.current.parsed.rows.length),count);console.log('BACKUP ROUNDTRIP PASS');
+ // A write failure must preserve the previous in-memory and persisted history.
+ await page.evaluate(async text=>{probe.setFetch(async()=>({text}));const old=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(){throw new DOMException('Full','QuotaExceededError')};try{await probe.fillMissing(false)}finally{IDBObjectStore.prototype.put=old}},csv);assert.equal(await page.evaluate(()=>probe.current.parsed.rows.length),count);assert((await page.locator('#orLog').innerText()).includes('non enregistrée'));console.log('STORAGE FAILURE PASS');
+ // Excel date cells and offline reader.
+ await page.addScriptTag({url:'/xlsx.full.min.js'});await page.evaluate(async()=>{const p=probe.current,rows=[['date_de_tirage',...Array.from({length:6},(_,i)=>'boule_'+(i+1)),'numero_dream'],...p.parsed.rows.map(r=>[new Date(r.date),...r.balls,...r.sec])];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows,{cellDates:true}),'Tirages');await probe.handleFile(new File([XLSX.write(wb,{type:'array',bookType:'xlsx',cellDates:true})],'dates.xlsx'))});assert.equal(await page.evaluate(()=>probe.current.fileName),'dates.xlsx');console.log('EXCEL DATE CELLS PASS');
+ await page.locator('#btPoints').fill('5');await page.locator('#btRun').click();await page.waitForFunction(()=>document.querySelector('#btProg').textContent==='terminé');console.log('BACKTEST PASS');
+ const overflow=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,items:[...document.querySelectorAll('body *')].filter(e=>e.getBoundingClientRect().right>innerWidth+1&&getComputedStyle(e).position!=='absolute').slice(0,15).map(e=>[e.tagName,e.id,e.className,Math.round(e.getBoundingClientRect().right)])}));console.log('LAYOUT',overflow);assert(overflow.scroll<=overflow.width);
+ assert.deepEqual(errors,[]);if(process.env.LOTTERY_SCREENSHOT)await page.screenshot({path:process.env.LOTTERY_SCREENSHOT,fullPage:false});
+ }finally{await browser.close();server.close()}
+})().catch(e=>{console.error(e);process.exit(1)});

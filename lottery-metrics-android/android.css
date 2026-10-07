@@ -1,0 +1,13 @@
+@media(max-width:640px){
+ body{padding:12px}.wrap{max-width:100%;padding:0}.brand img{max-width:100%;height:auto}
+ button,.btn{min-height:44px}input,select,textarea{font-size:16px;max-width:100%}
+ .params{grid-template-columns:minmax(0,1fr)}.filebar,.actions,.seg{flex-wrap:wrap}
+ .fname,.fmeta,.fresh,.note,.msg{overflow-wrap:anywhere;max-width:100%}
+ .sh{flex-wrap:wrap;gap:6px}.panel{padding:14px}.ball{flex-shrink:0}
+ .grid{min-width:0}.gnums{flex-wrap:wrap}.cards>*{min-width:0}
+}
+@media(max-width:640px){
+ header{flex-wrap:wrap}.brand{flex:0 1 240px;max-width:100%}.brand img{width:100%;height:auto}
+ header>div{min-width:0}header nav{margin-left:0;width:100%}.chartbox{max-width:100%}
+ .help{overflow-x:auto}
+}

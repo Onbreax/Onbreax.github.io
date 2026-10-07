@@ -184,6 +184,20 @@ footer{color:var(--faint);font-size:12px;text-align:center;margin-top:44px;line-
 footer b{color:var(--muted);font-weight:500}
 #results{display:none}
 input[type=file]{display:none}
+@media(max-width:640px){
+ body{padding:12px}.wrap{max-width:100%;padding:0}.brand img{max-width:100%;height:auto}
+ button,.btn{min-height:44px}input,select,textarea{font-size:16px;max-width:100%}
+ .params{grid-template-columns:minmax(0,1fr)}.filebar,.actions,.seg{flex-wrap:wrap}
+ .fname,.fmeta,.fresh,.note,.msg{overflow-wrap:anywhere;max-width:100%}
+ .sh{flex-wrap:wrap;gap:6px}.panel{padding:14px}.ball{flex-shrink:0}
+ .grid{min-width:0}.gnums{flex-wrap:wrap}.cards>*{min-width:0}
+}
+@media(max-width:640px){
+ header{flex-wrap:wrap}.brand{flex:0 1 240px;max-width:100%}.brand img{width:100%;height:auto}
+ header>div{min-width:0}header nav{margin-left:0;width:100%}.chartbox{max-width:100%}
+ .help{overflow-x:auto}
+}
+
 </style>
 </head>
 <body>
@@ -201,11 +215,11 @@ input[type=file]{display:none}
 <div class="dz" id="dz" role="button" tabindex="0" aria-label="Déposer un historique de tirages FDJ">
   <div class="orbits" aria-hidden="true">●●●●●●</div>
   <h2>Dépose un historique de tirages</h2>
-  <p>Export CSV (ou XLSX) au format actuel du jeu, depuis fdj.fr : EuroDreams, EuroMillions, Loto ou Keno (nouvelle formule). Le jeu est détecté automatiquement et l'analyse complète se recalcule instantanément. Dépose plusieurs archives (une par jeu) pour comparer les jeux entre eux dans le panneau Stratégie. Les archives restent en mémoire dans ce navigateur : au prochain lancement, tout est recalculé sans rien recharger.</p>
+  <p>Export CSV, XLSX ou ZIP au format actuel du jeu, depuis fdj.fr : EuroDreams, EuroMillions, Loto ou Keno (nouvelle formule). Le jeu est détecté automatiquement et l'analyse complète se recalcule instantanément. Dépose plusieurs archives (une par jeu) pour comparer les jeux entre eux dans le panneau Stratégie. Les archives restent en mémoire dans ce navigateur : au prochain lancement, tout est recalculé sans rien recharger.</p>
   <button class="btn" type="button">Choisir un fichier</button>
   <div class="err" id="err"></div>
 </div>
-<input type="file" id="fi" accept=".csv,.txt,.xlsx,.xls" multiple>
+<input type="file" id="fi" accept=".csv,.txt,.xlsx,.xls,.zip" multiple>
 
 <div class="filebar" id="filebar">
   <span class="gbadge" id="gbadge"></span>
@@ -214,10 +228,15 @@ input[type=file]{display:none}
   <span class="fresh" id="fresh"></span>
   <span class="next" id="nextdraw"></span>
   <span class="seg" id="gametabs" style="display:flex;margin-left:0" role="group" aria-label="Jeux chargés"></span>
-  <button class="btn ghost" type="button" id="replace">Ajouter / remplacer un fichier</button>
+  <button class="btn ghost" type="button" id="replace">Ajouter un historique</button>
   <button class="btn ghost" type="button" id="forget" title="Retire cette archive de la mémoire locale du navigateur">Oublier</button>
 </div>
 
+<div class="actions" style="margin:12px 0;flex-wrap:wrap">
+<button type="button" class="btn ghost" id="backupExport">Exporter une sauvegarde</button>
+<button type="button" class="btn ghost" id="backupImport">Importer une sauvegarde</button>
+<input type="file" id="backupFile" accept=".json,application/json" hidden>
+</div>
 <div id="results">
 
   <section id="sec-grids">
@@ -240,24 +259,23 @@ input[type=file]{display:none}
   </section>
 
   <section id="sec-ai">
-    <div class="sh"><h3>IA : mise à jour et questions</h3><span class="sub" id="aisub">clé OpenRouter stockée dans ce navigateur uniquement · recherche web pour les tirages manquants · réponses fondées sur les résultats de cette session</span></div>
+    <div class="sh"><h3>Historique FDJ et questions IA</h3><span class="sub" id="aisub">mise à jour officielle sans clé API · questions facultatives avec OpenRouter</span></div>
     <div class="panel">
       <div class="params" style="margin-bottom:12px">
         <label>Clé OpenRouter<input type="password" id="orKey" placeholder="sk-or-v1-…" autocomplete="off"></label>
-        <label>Modèle (extraction web)<input type="text" id="orModel" list="orModels" placeholder="openai/gpt-4o-mini"></label>
-        <label>Modèle de contrôle (vérification croisée)<input type="text" id="orModel2" list="orModels" placeholder="google/gemini-2.5-flash"></label>
         <label>Modèle (questions)<input type="text" id="orModelQ" list="orModels" placeholder="anthropic/claude-sonnet-4.5"></label>
         <datalist id="orModels">
           <option value="openai/gpt-4o-mini"></option><option value="openai/gpt-4.1-mini"></option><option value="google/gemini-2.5-flash"></option><option value="anthropic/claude-sonnet-4.5"></option><option value="anthropic/claude-haiku-4.5"></option><option value="perplexity/sonar"></option><option value="deepseek/deepseek-chat-v3.1"></option><option value="x-ai/grok-4-fast"></option>
         </datalist>
         <div class="actions">
           <button class="btn ghost" type="button" id="orSave">Enregistrer les réglages</button>
-          <button class="btn" type="button" id="orFill">Compléter les tirages manquants</button>
+          <button class="btn" type="button" id="orFill">Actualiser depuis la FDJ</button>
           <span class="note" id="orStatus" style="margin:0"></span>
         </div>
       </div>
       <div class="log" id="orLog" style="display:none"></div>
-      <div class="note">Mise à jour : pour chaque tirage manquant (dates calculées par l'appli), le modèle lit le web et renvoie un JSON strict ; l'appli vérifie le nombre, les bornes et la date, puis compare avec le modèle de contrôle. Seuls les tirages concordants sont intégrés, marqués <i>complément web</i> (anneau pointillé orange), et remplacés par les lignes officielles au prochain chargement d'une archive FDJ. Ils alimentent fréquences, retards et grilles, pas le modèle de marché (participation, popularité), qui reste calé sur les colonnes officielles de gagnants.</div>
+      <div class="note">Importe une fois ton historique Excel, CSV ou ZIP FDJ : il est conservé sur cet appareil. « Actualiser depuis la FDJ » fusionne l’archive officielle avec les données existantes, sans doublons et sans clé API. Les tirages encore absents des archives restent signalés. La mise à jour automatique vérifie les jeux chargés à l’ouverture, si Internet est disponible.</div>
+      <label class="note"><input type="checkbox" id="autoSync"> Actualiser automatiquement à l’ouverture</label>
       <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
         <div class="chat" id="chat"></div>
         <div style="display:flex;gap:10px;align-items:flex-end;margin-top:10px;flex-wrap:wrap">
@@ -414,7 +432,7 @@ input[type=file]{display:none}
     <p>Rejoue l'historique sans tricher : à chaque point, les quatre grilles sont générées avec les seuls tirages antérieurs, puis confrontées au tirage suivant. La ligne <b>Hasard théorique</b> donne la référence exacte ; <b>Contrôle aléatoire</b> est une grille tirée au sort, évaluée pareil. Les z des quatre philosophies tombent entre −2 et +2 : c'est la démonstration chiffrée, sur tes données, que les grilles valent le hasard. Un z hors de cette bande sur un seul backtest ne prouve rien (cinq grilles corrélées, cela arrive une fois sur dix) ; relance avec un autre point de départ.</p>
 
     <h4>9. IA (facultatif)</h4>
-    <p>Avec une clé OpenRouter, stockée dans ce navigateur : le <b>complément web</b> demande chaque tirage manquant à deux modèles avec recherche web, valide mécaniquement (nombre, bornes, date) et n'intègre que les réponses concordantes, marquées « complément web » ; ces lignes alimentent les grilles mais pas le modèle de marché, et disparaissent au prochain chargement d'une archive officielle. Les <b>questions</b> sont posées à un modèle qui reçoit un résumé chiffré de la session et répond à partir de ces données seulement. Il n'invente pas de numéros et ne génère pas de grilles.</p>
+    <p>L’historique est conservé dans la mémoire locale. La mise à jour lit l’archive FDJ du jeu, vérifie les dates et numéros, puis la fusionne sans doublons avec l’historique. Elle fonctionne sans clé OpenRouter, manuellement ou à l’ouverture si l’option est activée. Les anciens compléments IA sont remplacés lorsqu’un résultat officiel est disponible. Une erreur de connexion ou de sauvegarde laisse l’historique précédent intact. L’export JSON permet de conserver une copie des quatre jeux, sans clé API. Les questions IA restent facultatives et transmettent un résumé de la session au modèle sélectionné via OpenRouter.</p>
 
     <h4>10. Paramètres</h4>
     <p>Les pondérations, la fenêtre de forme et le poids d'impopularité sont modifiables, mais les valeurs par défaut sont de bonnes valeurs : aucun réglage ne fait mieux que le hasard, le backtest le confirmera. Le seul curseur à effet réel est l'impopularité, qui déplace les grilles vers les numéros peu joués et réduit le partage attendu.</p>
@@ -613,51 +631,77 @@ function detectGame(header) {
   return null;
 }
 
-function parseCsv(text) {
+function csvRecords(text) {
   text = text.replace(/^\uFEFF/, '');
-  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
-  if (lines.length < 2) throw new Error('Fichier vide ou illisible.');
-  const sep = (lines[0].split(';').length >= lines[0].split(',').length) ? ';' : ',';
-  const header = lines[0].split(sep).map(h => stripAccents(h.trim().toLowerCase()));
-  const game = detectGame(header);
-  if (!game) throw new Error("Jeu non reconnu : colonnes numero_dream (EuroDreams), etoile_1/etoile_2 (EuroMillions) ou numero_chance (Loto) introuvables. Utilise l'export historique officiel de la FDJ au format actuel du jeu.");
-  const col = (name) => {
-    let i = header.findIndex(h => h === name);
-    if (i < 0) i = header.findIndex(h => h === name.replace(/_/g, ''));
-    return i;
-  };
-  const idx = {
-    date: col('date_de_tirage'),
-    b: Array.from({ length: game.K }, (_, i) => col('boule_' + (i + 1))),
-    sec: game.secCols.map(c => col(c)),
-    mult: col('multiplicateur'),
-  };
-  if (idx.date < 0 || idx.b.some(i => i < 0) || idx.sec.some(i => i < 0)) {
-    throw new Error(`Colonnes attendues introuvables pour ${game.label} (date_de_tirage, boule_1..boule_${game.K}, ${game.secCols.join(', ')}).`);
+  const first = text.split(/\r?\n/)[0], sep = first.split(';').length >= first.split(',').length ? ';' : ',';
+  const out = []; let row = [], value = '', quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (c === '"') { if (quoted && text[i+1] === '"') { value += '"'; i++; } else quoted = !quoted; }
+    else if (!quoted && (c === sep || c === '\n' || c === '\r')) {
+      row.push(value); value = '';
+      if (c !== sep) { if (row.some(x => x.trim())) out.push(row); row = []; if (c === '\r' && text[i+1] === '\n') i++; }
+    } else value += c;
   }
-  const rows = [];
-  const seen = new Set();
-  for (let li = 1; li < lines.length; li++) {
-    const parts = lines[li].split(sep);
-    if (parts.length <= Math.max(idx.date, ...idx.b, ...idx.sec)) continue;
-    const dm = (parts[idx.date] || '').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-    if (!dm) continue;
-    const date = new Date(Date.UTC(+dm[3], +dm[2] - 1, +dm[1]));
-    const balls = idx.b.map(i => parseInt(parts[i], 10));
-    const sec = idx.sec.map(i => parseInt(parts[i], 10));
-    const mult = idx.mult >= 0 ? parseInt(String(parts[idx.mult]).replace(/\D/g, ''), 10) : null;
-    if (balls.some(v => !(v >= 1 && v <= game.poolN))) continue;
-    if (sec.some(v => !(v >= 1 && v <= game.sec.n))) continue;
-    if (new Set(balls).size !== game.K) continue;
-    if (game.sec.type === 'pair' && new Set(sec).size !== 2) continue;
-    const key = date.getTime() + '|' + [...balls].sort((a, b) => a - b).join('-');
-    if (seen.has(key)) continue;
-    seen.add(key);
-    rows.push({ date, balls: [...balls].sort((a, b) => a - b), sec: [...sec].sort((a, b) => a - b), mult, mk: parseMarketCols(game, header, parts) });
+  if (quoted) throw new Error('CSV : guillemets non fermés.');
+  row.push(value); if (row.some(x => x.trim())) out.push(row);
+  return out;
+}
+function drawDate(value) {
+  const s = String(value || '').trim(); let y, m, d;
+  let a = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (a) [,d,m,y] = a;
+  else { a = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:T00:00:00(?:\.000)?Z)?$/); if (!a) throw new Error('Date de tirage invalide : '+s); [,y,m,d] = a; }
+  const date = new Date(Date.UTC(+y,+m-1,+d));
+  if (date.getUTCFullYear() !== +y || date.getUTCMonth() !== +m-1 || date.getUTCDate() !== +d) throw new Error('Date impossible : '+s);
+  return date;
+}
+const FORMULA_START = {loto:'2008-10-06',euromillions:'2016-09-27',eurodreams:'2023-11-06',keno:'2025-11-03'};
+function checkedDraw(game, raw) {
+  const date = drawDate(raw.date instanceof Date ? raw.date.toISOString() : raw.date);
+  if (date.toISOString().slice(0,10) < FORMULA_START[game.id]) throw new Error('Historique '+game.label+' : une ancienne formule est présente. Utilise uniquement la formule actuelle.');
+  if (date.getTime() > Date.now()+86400000) throw new Error('Date de tirage future : '+raw.date);
+  const check = (a, count, max) => Array.isArray(a) && a.length === count && a.every(n=>typeof n==='number' && Number.isInteger(n) && n>=1 && n<=max) && new Set(a).size===count;
+  const nsec = game.sec.type === 'pair' ? 2 : game.sec.type === 'single' ? 1 : 0;
+  if (!check(raw.balls, game.K, game.poolN) || !check(raw.sec || [],nsec,game.sec.n)) throw new Error('Numéros invalides au '+date.toISOString().slice(0,10));
+  const mk = raw.mk && typeof raw.mk==='object' ? JSON.parse(JSON.stringify(raw.mk)) : null;
+  return {date, balls:[...raw.balls].sort((a,b)=>a-b), sec:[...(raw.sec||[])].sort((a,b)=>a-b), mult:[2,3,5,10].includes(raw.mult)?raw.mult:null, mk, web:!!raw.web};
+}
+function sameNumbers(a,b) { return a.balls.join(',')===b.balls.join(',') && a.sec.join(',')===b.sec.join(','); }
+function checkedRows(game, rows, minimum=30) {
+  if (!Array.isArray(rows) || rows.length>50000) throw new Error('Archive invalide ou trop volumineuse.');
+  const byDate = new Map();
+  for (const raw of rows) {
+    const r = checkedDraw(game,raw), key=r.date.getTime(), old=byDate.get(key);
+    if (old && !sameNumbers(old,r)) throw new Error('Deux résultats différents à la même date : '+r.date.toISOString().slice(0,10));
+    byDate.set(key,r);
   }
-  if (rows.length < 30) throw new Error(`Seulement ${rows.length} tirages valides détectés — vérifie que le fichier est bien l'export ${game.label} au format actuel.`);
-  rows.sort((a, b) => a.date - b.date);
-  return { game, rows };
+  if (byDate.size<minimum) throw new Error('Seulement '+byDate.size+' tirages valides : au moins '+minimum+' sont nécessaires.');
+  return [...byDate.values()].sort((a,b)=>a.date-b.date);
+}
+function parseCsv(text) {
+  const records = csvRecords(text); if (records.length<2) throw new Error('Fichier vide ou illisible.');
+  const header = records.shift().map(h=>stripAccents(h.trim().toLowerCase()));
+  const game = detectGame(header); if (!game) throw new Error('Jeu non reconnu : utilise les colonnes de l’archive FDJ.');
+  const col = n=>header.findIndex(h=>h===n || h===n.replace(/_/g,''));
+  const date=col('date_de_tirage'), balls=Array.from({length:game.K},(_,i)=>col('boule_'+(i+1))), sec=game.secCols.map(col), mult=col('multiplicateur');
+  if (date<0 || [...balls,...sec].some(i=>i<0)) throw new Error('Colonnes FDJ manquantes pour '+game.label);
+  const rows=records.map((parts,i)=>{
+    try { return checkedDraw(game,{date:parts[date],balls:balls.map(j=>Number(parts[j])),sec:sec.map(j=>Number(parts[j])),mult:mult<0?null:Number(String(parts[mult]).replace(/^x/i,'')),mk:parseMarketCols(game,header,parts)}); }
+    catch(e) { throw new Error('Ligne '+(i+2)+' : '+e.message); }
+  });
+  return {game,rows:checkedRows(game,rows)};
+}
+function mergeDraws(base, incoming, official=false) {
+  if (base.game.id !== incoming.game.id) throw new Error('Le fichier reçu correspond à un autre jeu.');
+  const map=new Map(base.rows.map(r=>[r.date.getTime(),r])); let added=0, corrected=0;
+  for (const r of incoming.rows) {
+    const old=map.get(r.date.getTime());
+    if (!old) added++;
+    else if (!sameNumbers(old,r)) { if (!official && !old.web) throw new Error('Conflit de résultats au '+r.date.toISOString().slice(0,10)); corrected++; }
+    map.set(r.date.getTime(),r);
+  }
+  return {game:base.game, rows:[...map.values()].sort((a,b)=>a.date-b.date),added,corrected};
 }
 
 // ---------- Analyse complète ----------
@@ -1594,34 +1638,32 @@ function loadSheetJs(){
     const s = document.createElement('script');
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
     s.onload = res;
-    s.onerror = () => rej(new Error("Impossible de charger le lecteur Excel (connexion requise pour les .xlsx). Exporte le fichier en CSV pour un usage 100 % hors-ligne."));
+    s.onerror = () => {sheetJsPromise=null;rej(new Error("Impossible de charger le lecteur Excel (connexion requise pour les .xlsx). Exporte le fichier en CSV pour un usage 100 % hors-ligne."));};
     document.head.appendChild(s);
   });
   return sheetJsPromise;
 }
 
 async function handleFile(file){
-  hideError();
+  await startup;if(dataBusy||btRunning)return;lockData(true);hideError();
   try {
-    const buf = await file.arrayBuffer();
-    let text;
-    if (/\.xlsx?$/i.test(file.name)) {
-      await loadSheetJs();
-      const wb = XLSX.read(buf, {type:'array'});
-      text = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]], {FS:';'});
-    } else {
-      text = decodeBuffer(buf);
-    }
-    const parsed0 = parseCsv(text);
-    const prev = LOADED[parsed0.game.id];
-    const parsed = applySupplements(parsed0, prev ? prev.supplements : []);
-    current = { fileName: file.name, parsed, text, supplements: parsed.supplements, m: prev ? prev.m : null };
-    LOADED[parsed0.game.id] = current;
-    await saveArchive(parsed0.game.id);
-    recompute();
-  } catch(e) {
-    showError(e.message || String(e));
-  }
+    if(file.size>32*1024*1024)throw new Error('Fichier trop volumineux (32 Mo maximum).');
+    const buf=await file.arrayBuffer();let text;
+    if(/\.xlsx?$/i.test(file.name)){
+      await loadSheetJs();const wb=XLSX.read(buf,{type:'array',cellDates:true});
+      text=XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]],{FS:';',dateNF:'dd/mm/yyyy',rawNumbers:true});
+      // Normalize Excel date cells independently of their display format.
+      const sheet=wb.Sheets[wb.SheetNames[0]];
+      for(const key of Object.keys(sheet)){const cell=sheet[key];if(cell&&cell.t==='d'){const d=cell.v;cell.t='s';cell.v=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();delete cell.w;}}
+      text=XLSX.utils.sheet_to_csv(sheet,{FS:';'});
+    }else if(/\.zip$/i.test(file.name))text=await unzipCsv(buf);
+    else text=decodeBuffer(buf);
+    const incoming=parseCsv(text),prev=LOADED[incoming.game.id];
+    const parsed=prev?mergeDraws(prev.parsed,incoming):incoming;
+    const next={fileName:file.name,parsed,m:prev?prev.m:null};
+    await idbPut(recordOf(next));LOADED[parsed.game.id]=next;current=next;resetSession();recompute();
+  }catch(e){showError('Import non enregistré : '+(e.message||String(e)));}
+  finally{lockData(false);}
 }
 
 function showError(msg){ const el = $('err'); el.textContent = msg; el.style.display = 'block'; $('dz').style.display = 'block'; }
@@ -1652,92 +1694,89 @@ function recompute(){
   render(current.fileName, current.A);
 }
 function switchGame(id){
-  if (!LOADED[id] || LOADED[id] === current) return;
-  current = LOADED[id];
+  if (dataBusy || btRunning || !LOADED[id] || LOADED[id] === current) return;
+  current = LOADED[id];resetSession();
   render(current.fileName, current.A);
 }
 
 // ---------- mémoire locale (IndexedDB) ----------
-const IDB = { name: 'grilles-lab', store: 'archives', v: 1 };
-function idbOpen(){
-  return new Promise((res, rej) => {
-    if (!window.indexedDB) return rej(new Error('IndexedDB indisponible'));
-    const q = indexedDB.open(IDB.name, IDB.v);
-    q.onupgradeneeded = () => { const db = q.result; if (!db.objectStoreNames.contains(IDB.store)) db.createObjectStore(IDB.store, { keyPath: 'id' }); };
-    q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error);
-  });
-}
+const IDB = {name:'grilles-lab',store:'archives',v:1};
+function idbOpen(){return new Promise((resolve,reject)=>{
+ const q=indexedDB.open(IDB.name,IDB.v);
+ q.onupgradeneeded=()=>{if(!q.result.objectStoreNames.contains(IDB.store))q.result.createObjectStore(IDB.store,{keyPath:'id'});};
+ q.onsuccess=()=>{q.result.onversionchange=()=>q.result.close();resolve(q.result);};q.onerror=()=>reject(q.error);q.onblocked=()=>reject(new Error('Ferme les autres fenêtres de Lottery Metrics puis réessaie.'));
+});}
 async function idbTx(mode, fn){
-  const db = await idbOpen();
-  return new Promise((res, rej) => { const tx = db.transaction(IDB.store, mode); const st = tx.objectStore(IDB.store); const r = fn(st); tx.oncomplete = () => { db.close(); res(r && r.result !== undefined ? r.result : r); }; tx.onerror = () => { db.close(); rej(tx.error); }; });
+ const db=await idbOpen();return new Promise((resolve,reject)=>{
+  const tx=db.transaction(IDB.store,mode);let request,fail;
+  tx.oncomplete=()=>{db.close();resolve(request&&request.result);};
+  tx.onabort=tx.onerror=()=>{db.close();reject(fail||tx.error||new Error('Échec de la mémoire locale.'));};
+  try{request=fn(tx.objectStore(IDB.store));}catch(e){fail=e;tx.abort();}
+ });
 }
-const idbPut = (rec) => idbTx('readwrite', st => st.put(rec));
-const idbDel = (id) => idbTx('readwrite', st => st.delete(id));
-const idbAll = () => idbTx('readonly', st => st.getAll());
-async function saveArchive(id){
-  const c = LOADED[id]; if (!c || !c.text) return;
-  try { await idbPut({ id, fileName: c.fileName, text: c.text, savedAt: Date.now(), supplements: c.supplements || [] }); } catch (e) { console.warn('mémoire locale', e); }
+const idbPut=rec=>idbTx('readwrite',st=>st.put(rec)), idbAll=()=>idbTx('readonly',st=>st.getAll());
+function recordOf(c){return {id:c.parsed.game.id,fileName:c.fileName,rows:c.parsed.rows,savedAt:Date.now(),m:c.m||null,lastSync:c.lastSync||null};}
+async function saveArchive(id){const c=LOADED[id];if(c)await idbPut(recordOf(c));}
+function fromRecord(rec){
+ if(!rec || !Object.hasOwn(GAMES,rec.id))throw new Error('Jeu de sauvegarde invalide.');
+ const game=GAMES[rec.id];let parsed;
+ if(rec.rows)parsed={game,rows:checkedRows(game,rec.rows)};
+ else {parsed=parseCsv(rec.text);if(parsed.game.id!==rec.id)throw new Error('Archive incohérente.');const extra=(rec.supplements||[]).map(s=>checkedDraw(game,{...s,web:true,mk:null}));parsed=mergeDraws({game,rows:extra},parsed,true);}
+ return {fileName:String(rec.fileName||game.label).slice(0,240),parsed,m:game.playMin&&Number.isInteger(rec.m)&&rec.m>=game.playMin&&rec.m<=game.playMax?rec.m:null,lastSync:typeof rec.lastSync==='string'?rec.lastSync:null,restored:true};
 }
 async function forgetArchive(id){
-  try { await idbDel(id); } catch (e) {}
-  delete LOADED[id];
-  const ids = Object.keys(LOADED);
-  if (ids.length) { current = LOADED[ids[ids.length - 1]]; render(current.fileName, current.A); }
-  else { current = null; $('filebar').style.display = 'none'; $('results').style.display = 'none'; $('dz').style.display = 'block'; }
-}
-// applique les compléments web (tirages postérieurs au fichier) à un parsed
-function applySupplements(parsed, supplements){
-  const base = parsed.rows.filter(r => !r.web);
-  const lastOff = base.length ? base[base.length - 1].date.getTime() : 0;
-  const keep = (supplements || []).filter(s => new Date(s.date + 'T00:00:00Z').getTime() > lastOff);
-  const seen = new Set(base.map(r => r.date.getTime()));
-  const rows = [...base];
-  for (const s of keep) {
-    const t = new Date(s.date + 'T00:00:00Z');
-    if (seen.has(t.getTime())) continue;
-    rows.push({ date: t, balls: [...s.balls].sort((a, b) => a - b), sec: [...(s.sec || [])].sort((a, b) => a - b), mult: s.mult || null, mk: null, web: true, sources: s.sources || [] });
-    seen.add(t.getTime());
-  }
-  rows.sort((a, b) => a.date - b.date);
-  return { game: parsed.game, rows, supplements: keep };
+ if(dataBusy||btRunning)return;
+ try{await idbTx('readwrite',st=>st.delete(id));delete LOADED[id];const ids=Object.keys(LOADED);current=ids.length?LOADED[ids[ids.length-1]]:null;resetSession();if(current)recompute();else{$('filebar').style.display='none';$('results').style.display='none';$('dz').style.display='block';}}
+ catch(e){showError('Suppression non enregistrée : '+e.message);}
 }
 async function restoreArchives(){
-  let recs = [];
-  try { recs = await idbAll(); } catch (e) { return false; }
-  if (!recs || !recs.length) return false;
-  recs.sort((a, b) => a.savedAt - b.savedAt);
-  let any = false;
-  for (const rec of recs) {
-    try {
-      const parsed0 = parseCsv(rec.text);
-      const parsed = applySupplements(parsed0, rec.supplements);
-      LOADED[parsed.game.id] = { fileName: rec.fileName, parsed, text: rec.text, supplements: parsed.supplements, m: null, restored: true };
-      current = LOADED[parsed.game.id]; any = true;
-    } catch (e) { console.warn('archive illisible', rec.id, e); }
-  }
-  if (any) recompute();
-  return any;
+ try{const recs=await idbAll();recs.sort((a,b)=>a.savedAt-b.savedAt);const errors=[];
+ for(const rec of recs){try{const c=fromRecord(rec);LOADED[c.parsed.game.id]=c;current=c;}catch(e){errors.push(e.message);}}
+ if(current)recompute();if(errors.length)showError('Archive non restaurée : '+errors.join(' ; '));return !!current;
+ }catch(e){showError('Mémoire locale indisponible : '+e.message);return false;}
+}
+function resetSession(){CHAT.length=0;LAST.next=LAST.strat=LAST.bt=null;$('chat').textContent='';$('bttable').textContent='';$('btnote').textContent='';}
+let dataBusy=false;
+function lockData(on){dataBusy=on;for(const id of ['fi','replace','forget','orFill','backupImport','backupExport','pApply','pReset','btRun'])$(id).disabled=on;}
+function downloadData(name,data){
+ const text=JSON.stringify(data,null,2);
+ if(window.LotteryNative){LotteryNative.postMessage(JSON.stringify({action:'save',name,type:'application/json',text}));return;}
+ const a=document.createElement('a'),url=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+async function exportBackup(){
+ await startup;if(dataBusy||btRunning)return;
+ try{downloadData('lottery-metrics-sauvegarde.json',{format:'lottery-metrics',version:1,createdAt:new Date().toISOString(),archives:Object.values(LOADED).map(recordOf)});}
+ catch(e){showError('Export impossible : '+e.message);}
+}
+async function importBackup(file){
+ await startup;if(dataBusy||btRunning)return;lockData(true);
+ try{
+  if(file.size>32*1024*1024)throw new Error('Sauvegarde trop volumineuse.');
+  const b=JSON.parse(await file.text());if(b.format!=='lottery-metrics'||b.version!==1||!Array.isArray(b.archives)||b.archives.length>4)throw new Error('Format de sauvegarde inconnu.');
+  const staged={},ids=new Set();for(const rec of b.archives){if(ids.has(rec.id))throw new Error('Jeu présent plusieurs fois.');ids.add(rec.id);const c=fromRecord(rec);if(LOADED[rec.id])c.parsed=mergeDraws(LOADED[rec.id].parsed,c.parsed);staged[rec.id]=c;}
+  await idbTx('readwrite',st=>{for(const c of Object.values(staged))st.put(recordOf(c));});
+  Object.assign(LOADED,staged);if(Object.values(staged).length)current=Object.values(staged).at(-1);resetSession();recompute();hideError();
+ }catch(e){showError('Sauvegarde non importée : '+e.message);}finally{lockData(false);}
 }
 
 // ---------- fraîcheur : tirages attendus depuis le dernier du fichier ----------
 function expectedLastDraw(game, now){
   now = now || new Date();
   // un tirage compte comme « dû » le lendemain (résultats publiés le soir, archives mises à jour la nuit)
-  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const d = drawDate(new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).format(now));
   d.setUTCDate(d.getUTCDate() - 1);
   for (let i = 0; i < 8; i++) { if (game.days.includes(d.getUTCDay())) return d; d.setUTCDate(d.getUTCDate() - 1); }
   return d;
 }
-function missingDates(game, lastDate, now){
-  const out = [];
-  const end = expectedLastDraw(game, now);
-  const d = new Date(lastDate.getTime()); d.setUTCDate(d.getUTCDate() + 1);
-  while (d.getTime() <= end.getTime() && out.length < 400) { if (game.days.includes(d.getUTCDay())) out.push(new Date(d.getTime())); d.setUTCDate(d.getUTCDate() + 1); }
-  return out;
+function missingDates(game, lastDate, now, rows){
+ const end=expectedLastDraw(game,now),seen=new Set((rows||[]).map(r=>r.date.getTime())),out=[];
+ const d=new Date(lastDate);d.setUTCDate(d.getUTCDate()+1);
+ while(d<=end){if(game.days.includes(d.getUTCDay())&&!seen.has(d.getTime()))out.push(new Date(d));d.setUTCDate(d.getUTCDate()+1);}
+ return out;
 }
 function freshness(A){
   const last = A.rows[A.N - 1].date;
-  const miss = missingDates(A.game, last);
+  const miss = missingDates(A.game, A.rows[0].date, undefined, A.rows);
   const nWeb = A.rows.filter(r => r.web).length;
   const lastOff = [...A.rows].reverse().find(r => !r.web);
   return { last, missing: miss, nWeb, lastOfficial: lastOff ? lastOff.date : last };
@@ -1745,88 +1784,62 @@ function freshness(A){
 
 // ---------- OpenRouter ----------
 const OR = { url: 'https://openrouter.ai/api/v1/chat/completions', key: '', model: 'openai/gpt-4o-mini', model2: 'google/gemini-2.5-flash', modelQ: 'anthropic/claude-sonnet-4.5' };
-function orLoad(){ try { const s = JSON.parse(localStorage.getItem('grilles-lab-or') || '{}'); Object.assign(OR, s); } catch (e) {} }
+function orLoad(){ try { const s = JSON.parse(localStorage.getItem('grilles-lab-or') || '{}'); for(const k of ['key','modelQ'])if(typeof s[k]==='string')OR[k]=s[k]; } catch (e) {} }
 function orSave(){ try { localStorage.setItem('grilles-lab-or', JSON.stringify({ key: OR.key, model: OR.model, model2: OR.model2, modelQ: OR.modelQ })); } catch (e) {} }
 async function orChat(model, messages, opts){
   opts = opts || {};
   if (!OR.key) throw new Error('Clé OpenRouter manquante.');
   const body = { model: opts.web ? (model.includes(':online') ? model : model + ':online') : model, messages, temperature: opts.temperature === undefined ? 0 : opts.temperature, max_tokens: opts.maxTokens || 900 };
-  const res = await fetch(OR.url, { method: 'POST', headers: { 'Authorization': 'Bearer ' + OR.key, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://onbreax.github.io/lottery-metrics.html', 'X-Title': 'Lottery Metrics' }, body: JSON.stringify(body) });
+  const res = await fetch(OR.url, { method: 'POST', headers: { 'Authorization': 'Bearer ' + OR.key, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://onbreax.github.io/lottery-metrics.html', 'X-Title': 'Lottery Metrics' }, body: JSON.stringify(body), signal: AbortSignal.timeout(60000) });
   if (!res.ok) { let t = ''; try { t = (await res.json()).error?.message || ''; } catch (e) {} throw new Error(`OpenRouter ${res.status}${t ? ' : ' + t : ''}`); }
   const j = await res.json();
   const txt = j.choices && j.choices[0] && j.choices[0].message ? (j.choices[0].message.content || '') : '';
   return { text: Array.isArray(txt) ? txt.map(x => x.text || '').join('') : txt, usage: j.usage || null, model: j.model || model };
 }
-function extractJson(s){
-  const m = String(s).match(/\{[\s\S]*\}/); if (!m) return null;
-  try { return JSON.parse(m[0]); } catch (e) { return null; }
+const FDJ_ARCHIVES = {
+ loto:{page:'loto',document:'1a2b3c4d-9876-4562-b3fc-2c963f66afp6'},
+ euromillions:{page:'euromillions-my-million',document:'1a2b3c4d-9876-4562-b3fc-2c963f66afe6'},
+ eurodreams:{page:'eurodreams',document:'1a2b3c4d-9876-4562-b3fc-2c963f66afa5'},
+ keno:{page:'keno',document:'1a2b3c4d-9876-4562-b3fc-2c963f66bft6'}
+};
+const archiveUrl=id=>'https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/'+FDJ_ARCHIVES[id].document;
+let zipPromise;
+function loadZip(){
+ if(window.fflate)return Promise.resolve(window.fflate);
+ if(!zipPromise)zipPromise=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js';s.onload=()=>resolve(window.fflate);s.onerror=()=>{zipPromise=null;reject(new Error('Lecteur ZIP indisponible. Réessaie avec une connexion Internet.'));};document.head.appendChild(s);});return zipPromise;
 }
-const FR_DAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-function drawPrompt(game, date){
-  const ds = `${String(date.getUTCDate()).padStart(2, '0')}/${String(date.getUTCMonth() + 1).padStart(2, '0')}/${date.getUTCFullYear()}`;
-  const dayName = FR_DAYS[date.getUTCDay()];
-  const secDesc = game.id === 'euromillions' ? '"etoiles": [2 entiers de 1 à 12]' : game.id === 'loto' ? '"chance": [1 entier de 1 à 10]' : game.id === 'eurodreams' ? '"dream": [1 entier de 1 à 5]' : '"multiplicateur": entier (2, 3, 5 ou 10) ou null';
-  const label = game.id === 'keno' ? 'Keno (soir)' : game.label;
-  return [
-    { role: 'system', content: 'Tu es un extracteur de données de loterie. Tu cherches sur le web le résultat officiel demandé (sites utiles : fdj.fr, tirage-gagnant.com, tirage-euromillions.net, secretsdujeu.com, loterieplus.com) et tu réponds UNIQUEMENT par un objet JSON, sans texte autour. Si le résultat de la date exacte est introuvable, réponds {"erreur":"introuvable"}. N\'invente jamais de numéros.' },
-    { role: 'user', content: `Résultat officiel du tirage ${label} du ${dayName} ${ds} (France). Réponds avec ce JSON exact : {"date":"${ds}","numeros":[${game.K} entiers distincts de 1 à ${game.poolN}, ordre indifférent],${secDesc},"source":"URL de la page consultée"}` },
-  ];
+async function unzipCsv(bytes){
+ const z=await loadZip();let total=0;
+ const files=z.unzipSync(new Uint8Array(bytes),{filter:f=>{if(!f.name.toLowerCase().endsWith('.csv'))return false;total+=f.originalSize;if(total>32*1024*1024)throw new Error('Archive décompressée trop volumineuse.');return true;}});
+ const names=Object.keys(files);if(names.length!==1)throw new Error('L’archive doit contenir un seul fichier CSV FDJ.');return decodeBuffer(files[names[0]]);
 }
-function validateDraw(game, obj, date){
-  if (!obj || obj.erreur) return { ok: false, why: obj && obj.erreur ? obj.erreur : 'JSON absent' };
-  const ds = `${String(date.getUTCDate()).padStart(2, '0')}/${String(date.getUTCMonth() + 1).padStart(2, '0')}/${date.getUTCFullYear()}`;
-  if (String(obj.date || '').trim() !== ds) return { ok: false, why: `date ${obj.date} ≠ ${ds}` };
-  const balls = (obj.numeros || []).map(Number);
-  if (balls.length !== game.K || balls.some(v => !Number.isInteger(v) || v < 1 || v > game.poolN) || new Set(balls).size !== game.K) return { ok: false, why: `numéros invalides (${balls.join(',')})` };
-  let sec = [], mult = null;
-  if (game.sec.type === 'pair') { sec = (obj.etoiles || []).map(Number); if (sec.length !== 2 || sec.some(v => !Number.isInteger(v) || v < 1 || v > game.sec.n) || sec[0] === sec[1]) return { ok: false, why: 'étoiles invalides' }; }
-  else if (game.sec.type === 'single') { sec = [Number((obj.chance !== undefined ? obj.chance : obj.dream) instanceof Array ? (obj.chance || obj.dream)[0] : (obj.chance !== undefined ? obj.chance : obj.dream))]; if (!Number.isInteger(sec[0]) || sec[0] < 1 || sec[0] > game.sec.n) return { ok: false, why: 'secondaire invalide' }; }
-  else { mult = obj.multiplicateur ? Number(obj.multiplicateur) : null; if (mult !== null && ![2, 3, 5, 10].includes(mult)) mult = null; }
-  return { ok: true, row: { date: date.toISOString().slice(0, 10), balls: [...balls].sort((a, b) => a - b), sec: [...sec].sort((a, b) => a - b), mult, sources: obj.source ? [String(obj.source)] : [] } };
+function nativeArchive(id){return new Promise((resolve,reject)=>{
+ const request=crypto.randomUUID();const done=e=>{if(e.detail.request!==request)return;clearTimeout(timer);window.removeEventListener('lottery-archive',done);e.detail.error?reject(new Error(e.detail.error)):resolve(e.detail);};
+ const timer=setTimeout(()=>{window.removeEventListener('lottery-archive',done);reject(new Error('Le serveur FDJ ne répond pas. Historique conservé.'));},90000);
+ window.addEventListener('lottery-archive',done);LotteryNative.postMessage(JSON.stringify({action:'archive',game:id,request}));
+});}
+async function fetchOfficial(id){
+ if(window.LotteryNative)return nativeArchive(id);
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),35000);
+ try{const url=archiveUrl(id),r=await fetch(url,{signal:controller.signal,credentials:'omit'});if(!r.ok)throw new Error('FDJ HTTP '+r.status);const bytes=await r.arrayBuffer();if(bytes.byteLength>10*1024*1024)throw new Error('Archive trop volumineuse.');return {text:await unzipCsv(bytes),source:url};}
+ finally{clearTimeout(timer);}
 }
-const sameDraw = (a, b) => a.balls.join('-') === b.balls.join('-') && a.sec.join('-') === b.sec.join('-');
-let orBusy = false;
-async function fillMissing(){
-  if (!current || orBusy) return;
-  OR.key = $('orKey').value.trim(); OR.model = $('orModel').value.trim() || OR.model; OR.model2 = $('orModel2').value.trim() || OR.model2; orSave();
-  const log = $('orLog'); log.style.display = 'block'; log.innerHTML = '';
-  const say = (t, cls) => { log.innerHTML += `<div class="${cls || ''}">${t}</div>`; log.scrollTop = log.scrollHeight; };
-  if (!OR.key) { say('Clé OpenRouter manquante : colle ta clé et enregistre.', 'alert'); return; }
-  const c = current, game = c.A.game;
-  const F = freshness(c.A);
-  if (!F.missing.length) { say(`${game.label} : archive à jour, rien à compléter.`, 'ok'); return; }
-  if (F.missing.length > 12) { say(`${F.missing.length} tirages manquants : recharge plutôt l'archive officielle sur fdj.fr (page « historique » du jeu), c'est plus sûr et plus rapide que ${F.missing.length} requêtes web. Je complète tout de même les 12 plus récents.`, 'warn'); }
-  const todo = F.missing.slice(-12);
-  orBusy = true; $('orFill').disabled = true; $('orFill').textContent = 'Recherche…';
-  const supplements = [...(c.supplements || [])];
-  let added = 0, tokens = 0;
-  for (const date of todo) {
-    const ds = date.toLocaleDateString('fr-FR', { timeZone: 'UTC' });
-    try {
-      const r1 = await orChat(OR.model, drawPrompt(game, date), { web: true });
-      tokens += r1.usage ? (r1.usage.total_tokens || 0) : 0;
-      const v1 = validateDraw(game, extractJson(r1.text), date);
-      if (!v1.ok) { say(`${ds} : ${OR.model} → rejeté (${v1.why})`, 'warn'); continue; }
-      let accepted = v1.row, how = 'sans contrôle';
-      if (OR.model2 && OR.model2 !== OR.model) {
-        const r2 = await orChat(OR.model2, drawPrompt(game, date), { web: true });
-        tokens += r2.usage ? (r2.usage.total_tokens || 0) : 0;
-        const v2 = validateDraw(game, extractJson(r2.text), date);
-        if (!v2.ok) { say(`${ds} : contrôle ${OR.model2} → ${v2.why} ; tirage non intégré (une seule source valide)`, 'warn'); continue; }
-        if (!sameDraw(v1.row, v2.row)) { say(`${ds} : DÉSACCORD entre modèles (${v1.row.balls.join('-')} vs ${v2.row.balls.join('-')}) ; non intégré`, 'alert'); continue; }
-        accepted.sources = [...new Set([...v1.row.sources, ...v2.row.sources])]; how = 'concordant';
-      }
-      supplements.push(accepted); added++;
-      say(`${ds} : ${accepted.balls.join('-')}${accepted.sec.length ? ' + ' + accepted.sec.join('-') : ''}${accepted.mult ? ' ×' + accepted.mult : ''} · ${how}${accepted.sources[0] ? ' · ' + accepted.sources[0].replace(/^https?:\/\//, '').slice(0, 48) : ''}`, 'ok');
-    } catch (e) { say(`${ds} : erreur ${e.message}`, 'alert'); if (/401|402|403|Clé/.test(e.message)) break; }
-  }
-  c.supplements = supplements;
-  c.parsed = applySupplements(c.parsed, supplements);
-  c.supplements = c.parsed.supplements;
-  await saveArchive(game.id);
-  orBusy = false; $('orFill').disabled = false; $('orFill').textContent = 'Compléter les tirages manquants';
-  say(`${added} tirage(s) intégré(s) · ${tokens ? tokens.toLocaleString('fr-FR') + ' tokens' : ''}`, added ? 'ok' : 'warn');
-  recompute();
+function syncLog(t,cls){const log=$('orLog');log.style.display='block';const d=document.createElement('div');d.className=cls||'';d.textContent=t;log.appendChild(d);log.scrollTop=log.scrollHeight;}
+async function fillMissing(all=false){
+ await startup;if(dataBusy||btRunning||!current)return;lockData(true);$('orLog').textContent='';
+ const ids=all===true?Object.keys(LOADED):[current.parsed.game.id];
+ try{for(const id of ids){
+  const c=LOADED[id];syncLog(GAMES[id].label+' : consultation de l’archive FDJ…');
+  try{
+   const result=await fetchOfficial(id),incoming=parseCsv(result.text),parsed=mergeDraws(c.parsed,incoming,true);
+   const next={...c,parsed,lastSync:new Date().toISOString(),restored:false};
+   await idbPut(recordOf(next));LOADED[id]=next;if(current===c)current=next;
+   syncLog(GAMES[id].label+' : '+parsed.added+' tirage(s) ajouté(s), '+parsed.corrected+' résultat(s) corrigé(s). Dernier tirage : '+fmtDate(parsed.rows.at(-1).date)+'.','ok');
+   const remaining=missingDates(parsed.game,parsed.rows[0].date,undefined,parsed.rows);if(remaining.length)syncLog(remaining.length+' date(s) attendue(s) encore absente(s). L’archive FDJ peut être publiée avec un décalage.','warn');
+  }catch(e){syncLog(GAMES[id].label+' : mise à jour non enregistrée ; historique conservé. '+(e.name==='AbortError'?'Délai de connexion dépassé.':e.message),'alert');}
+ }
+ resetSession();recompute();
+ }finally{lockData(false);}
 }
 
 // ---------- questions sur la session ----------
@@ -1852,30 +1865,31 @@ function sessionContext(){
   };
   return ctx;
 }
-const CHAT = [];
+const CHAT = [];let chatBusy=false;
 async function askSession(){
-  const q = $('qText').value.trim(); if (!q || !current) return;
+  const q = $('qText').value.trim(); if (!q || !current || chatBusy || dataBusy) return;
   OR.key = $('orKey').value.trim(); OR.modelQ = $('orModelQ').value.trim() || OR.modelQ; orSave();
   const chat = $('chat');
   const add = (cls, txt) => { const d = document.createElement('div'); d.className = 'msg ' + cls; d.textContent = txt; chat.appendChild(d); chat.scrollTop = chat.scrollHeight; return d; };
   if (!OR.key) { add('ai', 'Clé OpenRouter manquante : colle ta clé ci-dessus et enregistre.'); return; }
+  chatBusy=true;$('qSend').disabled=true;const session=current;
   add('me', q); $('qText').value = '';
   const wait = add('ai', '…');
   const ctx = sessionContext();
-  const sys = `Tu es l'assistant de Lottery Metrics, un outil local d'analyse statistique des loteries FDJ. Tu réponds en français, de façon directe et concise, sans tirets longs, à partir des DONNÉES DE SESSION ci-dessous et rien d'autre. Règles : tu n'inventes aucun chiffre ni aucun numéro ; tu ne proposes jamais de nouvelles grilles (l'outil s'en charge) ; si une information n'est pas dans les données, tu le dis ; tu rappelles quand c'est utile que toutes les grilles sont équiprobables et que les seuls leviers réels sont le partage des lots, le choix du jeu et du moment ; tu expliques les indicateurs avec leurs bornes et leur plage normale quand on te le demande (z entre −2 et +2 = hasard ; p ≥ 0,05 = conforme). Données de session (JSON) :\n` + JSON.stringify(ctx);
+  const sys = `Tu es l'assistant de Lottery Metrics, un outil local d'analyse statistique des loteries FDJ. Tu réponds en français, de façon directe et concise, sans tirets longs, à partir des DONNÉES DE SESSION ci-dessous et rien d'autre. Règles : tu n'inventes aucun chiffre ni aucun numéro ; tu ne proposes jamais de nouvelles grilles (l'outil s'en charge) ; si une information n'est pas dans les données, tu le dis ; tu rappelles quand c'est utile que toutes les grilles sont équiprobables et que les seuls leviers réels sont le partage des lots, le choix du jeu et du moment ; tu expliques les indicateurs avec leurs bornes et leur plage normale quand on te le demande (z entre −2 et +2 ou p ≥ 0,05 : absence de signal détecté, sans prouver le hasard). Données de session (JSON) :\n` + JSON.stringify(ctx);
   CHAT.push({ role: 'user', content: q });
   try {
     const r = await orChat(OR.modelQ, [{ role: 'system', content: sys }, ...CHAT.slice(-8)], { temperature: 0.2, maxTokens: 1200 });
     wait.textContent = r.text.trim() || '(réponse vide)';
-    CHAT.push({ role: 'assistant', content: r.text });
+    if(current===session)CHAT.push({ role: 'assistant', content: r.text });
     if (r.usage) $('orStatus').textContent = `${(r.usage.total_tokens || 0).toLocaleString('fr-FR')} tokens`;
-  } catch (e) { wait.textContent = 'Erreur : ' + e.message; CHAT.pop(); }
+  } catch (e) { wait.textContent = 'Erreur : ' + e.message; if(current===session)CHAT.pop(); } finally {chatBusy=false;$('qSend').disabled=false;}
 }
 
 // ---------- prochain tirage ----------
 function nextDrawDate(days){
   const now = new Date();
-  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const d = drawDate(new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).format(now));
   for (let i = 0; i <= 7; i++) {
     const c = new Date(d); c.setUTCDate(d.getUTCDate() + i);
     if (days.includes(c.getUTCDay())) return c;
@@ -1968,10 +1982,10 @@ function renderGrids(A, m){
   if (game.id === 'keno') {
     const P = game.poolN, mu = m * (P + 1) / 2, sd = Math.sqrt(m * (P - m) * (P + 1) / 12);
     $('gridsub').textContent = `${m} numéros joués / ${P} · ${game.K} tirés chaque soir · contraintes théoriques : somme ${Math.round(mu - 0.6745 * sd)}–${Math.round(mu + 0.6745 * sd)}, parité, ≤ 1 consécutive, ≤ 3 par dizaine`;
-    $('foot').innerHTML = `Keno : une grille de ${m} numéros a une probabilité de plein-match (${m}/${m}) de <b>1 / ${fmtInt(fullMatchOdds(game, m))}</b>, hors multiplicateur, quelle que soit la méthode de sélection.<br>Lottery Metrics · analyse locale, aucune donnée transmise · jouer comporte des risques.`;
+    $('foot').innerHTML = `Keno : une grille de ${m} numéros a une probabilité de plein-match (${m}/${m}) de <b>1 / ${fmtInt(fullMatchOdds(game, m))}</b>, hors multiplicateur, quelle que soit la méthode de sélection.<br>Lottery Metrics · analyse locale ; seul le résumé envoyé via les questions IA quitte l’appareil · jouer comporte des risques.`;
   } else {
     $('gridsub').textContent = `${game.K} numéros / ${game.poolN} + ${game.sec.label} · contraintes : somme ${Math.round(A.q25)}–${Math.round(A.q75)}, parité, ≤ 1 consécutive, ≤ 3 par dizaine`;
-    $('foot').innerHTML = `${game.label} : chaque grille a une probabilité de rang 1 de <b>${game.odds}</b>, quelle que soit la méthode de sélection.<br>Lottery Metrics · analyse locale, aucune donnée transmise · jouer comporte des risques.`;
+    $('foot').innerHTML = `${game.label} : chaque grille a une probabilité de rang 1 de <b>${game.odds}</b>, quelle que soit la méthode de sélection.<br>Lottery Metrics · analyse locale ; seul le résumé envoyé via les questions IA quitte l’appareil · jouer comporte des risques.`;
   }
   const nWeb = A.rows.filter(r => r.web).length;
   if (nWeb) $('gridsub').textContent += ` · ${nWeb} tirage${nWeb > 1 ? 's' : ''} issu${nWeb > 1 ? 's' : ''} d'un complément web`;
@@ -2003,11 +2017,10 @@ function render(fileName, A, G){
   const F = freshness(A), fr = $('fresh');
   const nMiss = F.missing.length;
   fr.className = 'fresh ' + (nMiss === 0 ? 'ok' : nMiss <= 4 ? 'warn' : 'alert');
-  fr.textContent = nMiss === 0 ? 'à jour' + (F.nWeb ? ` (${F.nWeb} complément${F.nWeb > 1 ? 's' : ''} web)` : '')
-    : nMiss <= 4 ? `il manque ${nMiss} tirage${nMiss > 1 ? 's' : ''} · effet négligeable`
-    : `il manque ${nMiss} tirages · recharge l'archive fdj.fr`;
-  fr.title = nMiss === 0 ? 'Le dernier tirage attendu est dans les données.' : `Dernier tirage dans les données : ${F.last.toLocaleDateString('fr-FR', { timeZone: 'UTC' })}. Tirages attendus depuis : ${F.missing.map(d => d.toLocaleDateString('fr-FR', { timeZone: 'UTC' })).join(', ')}. ${nMiss <= 4 ? 'Sur ' + A.N + ' tirages, quelques manquants ne changent ni les fréquences ni les grilles de façon mesurable.' : 'Au-delà de quelques tirages, recharge l\'archive officielle plutôt que de compléter un par un.'}`;
-  $('orFill').textContent = nMiss ? `Compléter les ${Math.min(nMiss, 12)} tirage${nMiss > 1 ? 's' : ''} manquant${nMiss > 1 ? 's' : ''}` : 'Compléter les tirages manquants';
+  fr.textContent = nMiss ? nMiss+' tirage(s) attendu(s) absent(s)' : 'à jour selon le calendrier';
+  if(F.nWeb)fr.textContent+=' · '+F.nWeb+' ancien(s) complément(s) IA à vérifier';
+  fr.title='Dernier tirage : '+fmtDate(F.last)+'. Les dates absentes sont recherchées dans tout l’historique. Les résultats du jour sont attendus à partir du lendemain.';
+  $('orFill').textContent='Actualiser depuis la FDJ';
   if (game.id === 'keno') {
     const now = new Date();
     $('nextdraw').textContent = '☾ Tirage chaque soir à 20 h — prochain : ' + (now.getHours() < 20 ? 'ce soir' : 'demain soir');
@@ -2026,9 +2039,10 @@ function render(fileName, A, G){
       b.type = 'button'; b.textContent = m;
       if (m === m0) b.classList.add('on');
       b.addEventListener('click', () => {
+        if(dataBusy||btRunning)return;resetSession();
         seg.querySelectorAll('button').forEach(x => x.classList.remove('on'));
         b.classList.add('on');
-        renderGrids(A, m);
+        renderGrids(A, m);saveArchive(game.id).catch(e=>showError('Réglage non enregistré : '+e.message));
       });
       seg.appendChild(b);
     }
@@ -2316,7 +2330,7 @@ function renderBacktest(B){
   const allNoise = B.keys.every(k => Math.abs(B.res[k].z) < 2);
   const concl = allNoise
     ? `Conclusion : sur ${n} tirages, aucune philosophie ne se distingue du hasard ni de la grille de contrôle. C'est le résultat attendu d'un générateur équiprobable — vos grilles ont exactement les mêmes chances que n'importe quelle autre.`
-    : `Conclusion : au moins une ligne sort de la bande ±2. Avec cinq grilles corrélées, cela arrive par hasard environ une fois sur dix ; relancez avec un autre point de départ ou un autre nombre d'évaluations avant d'y voir quelque chose.`;
+    : `Conclusion : au moins une ligne sort de la bande ±2. Avec cinq grilles corrélées, une valeur inhabituelle peut apparaître par hasard ; une période de validation indépendante est nécessaire.`;
 
   // guide de lecture calibré sur ce jeu
   const guide = `<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)">
@@ -2335,7 +2349,7 @@ function renderBacktest(B){
 }
 let btRunning = false;
 $('btRun').addEventListener('click', () => {
-  if (!current || btRunning) return;
+  if (!current || btRunning || dataBusy) return;
   btRunning = true;
   const opts = { start: parseInt($('btStart').value, 10) || undefined, points: parseInt($('btPoints').value, 10) || 120, m: current.m || undefined };
   const it = backtestIter(current.parsed, PARAMS, opts);
@@ -2344,7 +2358,7 @@ $('btRun').addEventListener('click', () => {
   $('bttable').innerHTML = ''; $('btnote').textContent = '';
   const chunk = () => {
     const t0 = Date.now();
-    for (;;) {
+    try { for (;;) {
       const x = it.next();
       if (x.done) {
         renderBacktest(x.value);
@@ -2354,17 +2368,18 @@ $('btRun').addEventListener('click', () => {
       }
       bar.style.width = Math.round(100 * x.value.done / x.value.total) + '%';
       $('btProg').textContent = `${x.value.done} / ${x.value.total}`;
-      if (Date.now() - t0 > 120) break;
+      if (Date.now() - t0 > 24) break;
     }
     setTimeout(chunk, 0);
+    }catch(e){btRunning=false;btn.disabled=false;btn.textContent='Relancer le backtest';showError('Backtest interrompu : '+e.message);}
   };
   setTimeout(chunk, 0);
 });
 
 // ---------- événements ----------
 const dz = $('dz'), fi = $('fi');
-$('pApply').addEventListener('click', () => { formToParams(); paramsToForm(); recompute(); });
-$('pReset').addEventListener('click', () => { PARAMS = JSON.parse(JSON.stringify(DEFAULT_PARAMS)); paramsToForm(); recompute(); });
+$('pApply').addEventListener('click', () => { if(dataBusy||btRunning)return;formToParams(); paramsToForm();resetSession(); recompute(); });
+$('pReset').addEventListener('click', () => { if(dataBusy||btRunning)return;PARAMS = JSON.parse(JSON.stringify(DEFAULT_PARAMS)); paramsToForm();resetSession(); recompute(); });
 paramsToForm();
 dz.addEventListener('click', () => fi.click());
 dz.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); } });
@@ -2372,12 +2387,18 @@ fi.addEventListener('change', async () => { const fl = [...fi.files]; fi.value =
 $('replace').addEventListener('click', () => fi.click());
 $('forget').addEventListener('click', () => { if (current && confirm(`Retirer l'archive ${current.A.game.label} de la mémoire de ce navigateur ?`)) forgetArchive(current.A.game.id); });
 orLoad();
-$('orKey').value = OR.key || ''; $('orModel').value = OR.model; $('orModel2').value = OR.model2; $('orModelQ').value = OR.modelQ;
-$('orSave').addEventListener('click', () => { OR.key = $('orKey').value.trim(); OR.model = $('orModel').value.trim() || OR.model; OR.model2 = $('orModel2').value.trim(); OR.modelQ = $('orModelQ').value.trim() || OR.modelQ; orSave(); $('orStatus').textContent = 'réglages enregistrés dans ce navigateur'; });
-$('orFill').addEventListener('click', fillMissing);
+$('orKey').value = OR.key || ''; $('orModelQ').value = OR.modelQ;
+$('orSave').addEventListener('click', () => { OR.key = $('orKey').value.trim(); OR.modelQ = $('orModelQ').value.trim() || OR.modelQ; orSave(); $('orStatus').textContent = 'réglages enregistrés dans ce navigateur'; });
+$('orFill').addEventListener('click', ()=>fillMissing(false));
 $('qSend').addEventListener('click', askSession);
 $('qText').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) askSession(); });
-restoreArchives();
+let auto=true;try{auto=localStorage.getItem('lottery-auto-sync')!=='false';}catch(e){}
+$('autoSync').checked=auto;$('autoSync').addEventListener('change',()=>{try{localStorage.setItem('lottery-auto-sync',String($('autoSync').checked));}catch(e){showError('Préférence non enregistrée : '+e.message);}});
+$('backupExport').addEventListener('click',exportBackup);
+$('backupImport').addEventListener('click',()=>$('backupFile').click());
+$('backupFile').addEventListener('change',()=>{const file=$('backupFile').files[0];$('backupFile').value='';if(file)importBackup(file);});
+const startup=restoreArchives();
+startup.then(ok=>{if(ok&&auto&&navigator.onLine)fillMissing(true);});
 ['dragover', 'dragenter'].forEach(ev => document.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.add('over'); }));
 ['dragleave', 'drop'].forEach(ev => document.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.remove('over'); }));
 document.addEventListener('drop', async (e) => {
@@ -2388,3 +2409,4 @@ document.addEventListener('drop', async (e) => {
 </script>
 </body>
 </html>
+
