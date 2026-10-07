@@ -64,6 +64,20 @@
   table.aide{width:100%;border-collapse:collapse;font-size:13px}table.aide th{text-align:left;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:1px solid #E3E7ED}table.aide td{padding:7px 8px;border-bottom:1px solid #EEF1F5;vertical-align:top}table.aide td:first-child{white-space:nowrap}
   .empty{padding:36px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:8px}
   @media (max-width:900px){.app{grid-template-columns:1fr}.side{flex-direction:row;flex-wrap:wrap;align-items:center}.nav{flex-direction:row;margin-top:0}.foot{display:none}.r2,.r3,.r4,.kpis{grid-template-columns:1fr 1fr}.main{padding:16px}}
+
+  /* Shared phone layout: Android package and website use the same source. */
+  @media(max-width:600px){
+    .app{display:block}.side{padding:12px;display:flex;flex-wrap:wrap;gap:8px}.side .brand{width:100%}.side #prof-list{flex:1;min-width:0}.side>nav{width:100%}.brand{margin-bottom:8px}
+    .side>.muted{display:none}.side .nav{display:flex;flex-direction:row;overflow-x:auto;gap:6px;padding:4px 0;max-width:100%}
+    .nav button{flex:none;min-height:44px;gap:8px}.side #prof-new{width:auto!important;margin:6px 0!important}
+    .main{padding:12px 10px 28px}.panel{padding:14px 12px}.r2,.r3,.r4{grid-template-columns:minmax(0,1fr)}
+    .kpis{grid-template-columns:1fr 1fr;gap:8px}.kpi{padding:10px}.kpi .v{font-size:22px}
+    .btn,.btn.sm{min-height:44px}.btns{gap:8px}.btns>.btn{flex:1 1 auto}
+    input[type=text],input[type=password],input[type=number],select,textarea{font-size:16px;min-height:44px}
+    input[type=file]{max-width:100%}.drawer{height:100dvh;padding:16px 12px;z-index:20;overflow-wrap:anywhere}
+    .panel{overflow-x:auto}#tbl{display:block;width:100%;min-width:0}#tbl tbody{width:100%}#tbl thead{display:block;overflow-x:auto;padding-bottom:8px}#tbl thead tr{display:flex}#tbl th{padding:10px;font-size:12px}#tbl tbody{display:block}#tbl tbody tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border:1px solid var(--line);border-radius:8px;margin:10px 0;padding:8px;gap:4px}#tbl td{display:block;border:0;padding:5px;overflow-wrap:anywhere}#tbl td::before{content:attr(data-label);display:block;color:var(--muted);font-size:11px;margin-bottom:3px}#tbl td:nth-child(3),#tbl td:nth-child(4),#tbl td:nth-child(8){grid-column:1/-1}#tbl td:nth-child(3){font-weight:700}table.aide td:first-child{white-space:normal}
+    .empty{padding:24px 12px}.prog .lbl{flex-wrap:wrap;gap:4px}
+  }
 </style>
 </head>
 <body>
@@ -752,7 +766,7 @@ function render(){offers.forEach(o=>{if(o.verif&&(o.verif.etat==="pourvue"||o.ve
  const now=Date.now();let rows=offers.filter(o=>(!q||norm(o.titre+" "+o.employeur+" "+o.lieu+" "+o.type_entite).includes(q))&&(!st||o.statut===st)&&(!src||o.source===src)&&(!hide||(o.statut!=="Écartée"&&!isExpired(o)))&&((priority(o)!=null?priority(o):0)>=smin||smin===0));
  rows.sort((a,b)=>{const g=(o)=>sortKey==="prio"?(priority(o)!=null?priority(o):-1):sortKey==="score"?(o.ia&&o.ia.score!=null?o.ia.score:-1):(o[sortKey]||"");const va=g(a),vb=g(b);return (va>vb?1:va<vb?-1:0)*sortDir});
  const tb=$("#tbl tbody");tb.innerHTML="";rows.forEach(o=>{const isNew=now-Date.parse(o.ajoute)<week;const sc=o.ia&&o.ia.loading?"…":o.ia&&o.ia.error?"Erreur":o.ia&&o.ia.score!=null?o.ia.score:"";
-  const pr=priority(o);const tr=document.createElement("tr");tr.className="click";tr.innerHTML=`<td><span class="score ${cls(pr)}">${pr!=null?pr:"—"}</span></td><td><span class="score ${cls(o.ia&&o.ia.score)}" style="opacity:.8">${sc||"—"}</span></td><td>${isNew?'<span class="tag new">nouveau</span>':""}${esc(o.titre)}${o.type_entite?`<div class="muted small">${esc(o.type_entite)}</div>`:""}</td><td>${esc(o.employeur)}</td><td>${esc(o.lieu)}</td><td class="muted">${esc(o.date)}<div>${ageBadge(o)}</div></td><td><span class="tag">${esc(o.source)}</span></td><td>${esc(o.statut)}<div style="margin-top:3px">${verifBadge(o)}</div></td>`;tr.onclick=()=>openDrawer(o);tb.appendChild(tr)});
+  const pr=priority(o);const tr=document.createElement("tr");tr.className="click";tr.innerHTML=`<td><span class="score ${cls(pr)}">${pr!=null?pr:"—"}</span></td><td><span class="score ${cls(o.ia&&o.ia.score)}" style="opacity:.8">${sc||"—"}</span></td><td>${isNew?'<span class="tag new">nouveau</span>':""}${esc(o.titre)}${o.type_entite?`<div class="muted small">${esc(o.type_entite)}</div>`:""}</td><td>${esc(o.employeur)}</td><td>${esc(o.lieu)}</td><td class="muted">${esc(o.date)}<div>${ageBadge(o)}</div></td><td><span class="tag">${esc(o.source)}</span></td><td>${esc(o.statut)}<div style="margin-top:3px">${verifBadge(o)}</div></td>`;tr.querySelectorAll('td').forEach((td,i)=>td.dataset.label=['Priorité','Score IA','Intitulé','Employeur','Lieu','Publiée','Source','Statut'][i]);tr.tabIndex=0;tr.setAttribute('aria-label',o.titre+' — '+o.employeur);tr.onkeydown=e=>{if(e.key==='Enter'){openDrawer(o)}};tr.onclick=()=>openDrawer(o);tb.appendChild(tr)});
  $("#empty").classList.toggle("hidden",offers.length>0);
  $("#k-total").textContent=offers.length;const nn=offers.filter(o=>now-Date.parse(o.ajoute)<week).length;$("#k-new").textContent=nn;$("#pill-new").textContent=nn;$("#k-hi").textContent=offers.filter(o=>priority(o)>=70&&!isExpired(o)).length;$("#k-act").textContent=offers.filter(o=>["Contactée","Candidature envoyée","Entretien"].includes(o.statut)).length}
 ["#f-text","#f-statut","#f-score","#f-source","#f-hide-ecart"].forEach(s=>$(s).addEventListener("input",render));
