@@ -56,9 +56,9 @@ public class MainActivity extends Activity {
    }
   });
   if(!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)){
-   new AlertDialog.Builder(this).setMessage("Mets à jour Android System WebView pour utiliser AI Council.").setPositiveButton("Fermer",(d,w)->finish()).setCancelable(false).show();return;
+   new AlertDialog.Builder(this).setMessage("Mets à jour Android System WebView pour utiliser Polylog AI.").setPositiveButton("Fermer",(d,w)->finish()).setCancelable(false).show();return;
   }
-  WebViewCompat.addWebMessageListener(web,"CouncilNative",Collections.singleton(ORIGIN),(v,m,o,main,reply)->{
+  WebViewCompat.addWebMessageListener(web,"PolylogNative",Collections.singleton(ORIGIN),(v,m,o,main,reply)->{
    if(!main||!("https".equals(o.getScheme())&&"appassets.androidplatform.net".equals(o.getHost())&&(o.getPort()==-1||o.getPort()==443)))return;
    try{JSONObject j=new JSONObject(m.getData());
     if("save".equals(j.optString("action")))save(j);
@@ -93,7 +93,7 @@ public class MainActivity extends Activity {
   printWeb.getSettings().setBlockNetworkLoads(true);
   printWeb.setWebViewClient(new WebViewClient(){@Override public void onPageFinished(WebView v,String url){
    PrintManager pm=(PrintManager)getSystemService(PRINT_SERVICE);
-   pm.print("AI Council",v.createPrintDocumentAdapter("AI Council"),null);
+   pm.print("Polylog AI",v.createPrintDocumentAdapter("Polylog AI"),null);
   }});
   printWeb.loadDataWithBaseURL(ORIGIN,html,"text/html","UTF-8",null);
  }
@@ -106,7 +106,7 @@ public class MainActivity extends Activity {
     ArrayList<String> words=data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
     if(words!=null&&!words.isEmpty())try{
      JSONObject payload=new JSONObject().put("target",target).put("text",words.get(0));
-     web.evaluateJavascript("window.dispatchEvent(new CustomEvent('council-dictation',{detail:"+payload.toString()+"}));",null);
+     web.evaluateJavascript("window.dispatchEvent(new CustomEvent('polylog-dictation',{detail:"+payload.toString()+"}));",null);
     }catch(Exception e){error("Impossible d’insérer le texte dicté.");}
    }
   }
@@ -128,21 +128,22 @@ public class MainActivity extends Activity {
   Intent i=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
   i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
   i.putExtra(RecognizerIntent.EXTRA_LANGUAGE,locale);i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
-  i.putExtra(RecognizerIntent.EXTRA_PROMPT,"AI Council — dicter un message");voiceTarget=target;
+  i.putExtra(RecognizerIntent.EXTRA_PROMPT,"Polylog AI — dicter un message");voiceTarget=target;
   try{startActivityForResult(i,12);}catch(ActivityNotFoundException e){voiceTarget=null;error("La reconnaissance vocale Android n’est pas disponible. Tu peux utiliser le micro de ton clavier ou écrire ton message.");}
  }
  @Override protected void onPause(){
-  if(web!=null)web.evaluateJavascript("window.CouncilApp?.flush().catch(()=>{});",null);
+  if(web!=null)web.evaluateJavascript("window.PolylogApp?.flush().catch(()=>{});",null);
   super.onPause();
  }
  @Override public void onBackPressed(){
   if(closing)return;
   web.evaluateJavascript("(function(){var d=document.querySelector('dialog[open]');if(d){d.close();return true;}var m=document.querySelector('.menu:not([hidden])');if(m){m.hidden=true;return true;}return false;})()",result->{
-   if(!"true".equals(result))new AlertDialog.Builder(this).setMessage("Quitter AI Council ? Le débat sera arrêté et l’historique enregistré.").setNegativeButton("Rester",null).setPositiveButton("Quitter",(d,w)->{
-    closing=true;web.evaluateJavascript("if(window.CouncilApp){window.CouncilApp.exit();}else{CouncilNative.postMessage(JSON.stringify({action:'exit-ready'}));}",null);
+   if(!"true".equals(result))new AlertDialog.Builder(this).setMessage("Quitter Polylog AI ? Le débat sera arrêté et l’historique enregistré.").setNegativeButton("Rester",null).setPositiveButton("Quitter",(d,w)->{
+    closing=true;web.evaluateJavascript("if(window.PolylogApp){window.PolylogApp.exit();}else{PolylogNative.postMessage(JSON.stringify({action:'exit-ready'}));}",null);
    }).show();
   });
  }
  private void error(String msg){new AlertDialog.Builder(this).setMessage(msg).setPositiveButton("OK",null).show();}
  @Override protected void onDestroy(){if(picker!=null)picker.onReceiveValue(null);if(web!=null)web.destroy();if(printWeb!=null)printWeb.destroy();super.onDestroy();}
 }
+

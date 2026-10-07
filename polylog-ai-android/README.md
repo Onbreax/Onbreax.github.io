@@ -1,6 +1,6 @@
-# AI Council Android
+# Polylog AI Android
 
-Application Android 8+ issue de `../ai-council.html`, avec ses corrections de coordination, sauvegarde et budget. Identifiant : `fr.onbreax.aicouncil`. Indépendante de Matchwork et de GitHub Pages pour charger son interface.
+Application Android 8+ issue de `../polylog-ai.html`, avec ses corrections de coordination, sauvegarde et budget. Identifiant : `fr.onbreax.aicouncil`. Indépendante de Matchwork et de GitHub Pages pour charger son interface.
 
 ## Construction
 
@@ -27,4 +27,13 @@ Conserver l'APK et la clé privée hors du dépôt public. Une désinstallation 
 
 ## Vérifications
 
-Après préparation des assets : `node tests/ai-council-android.cjs` depuis la racine, avec Playwright et Chromium (ou CHROME_EXECUTABLE). Vérifie le chargement local des lecteurs, les messages natifs d’export et de dictée, la sauvegarde avant fermeture et la largeur mobile. Ces tests simulent le pont Android ; ils ne remplacent pas un essai sur téléphone. Les régressions communes sont couvertes par `tests/ai-council.cjs`.
+Après préparation des assets : `node tests/polylog-ai-android.cjs` depuis la racine, avec Playwright et Chromium (ou CHROME_EXECUTABLE). Vérifie le chargement local des lecteurs, les messages natifs d’export et de dictée, la sauvegarde avant fermeture et la largeur mobile. Ces tests simulent le pont Android ; ils ne remplacent pas un essai sur téléphone. Les régressions communes sont couvertes par `tests/polylog-ai.cjs`.
+
+
+## Renommage en Polylog AI — version 1.0.1
+
+Le nom affiché, l’aide, les exports et la page d’accueil deviennent Polylog AI. Le logo est inchangé.
+
+L’identifiant Android `fr.onbreax.aicouncil` et la signature de la version 1.0.0 sont conservés pour installer cette version comme une mise à jour. Les identifiants IndexedDB et localStorage restent inchangés afin de retrouver les données locales. Ne pas désinstaller l’ancienne application pour la mettre à jour.
+
+Les sauvegardes nouvelles utilisent `polylog-ai-backup`. Les anciennes sauvegardes `ai-council-backup` restent importables. L’ancienne adresse `ai-council.html` redirige vers `polylog-ai.html` sur la même origine.
