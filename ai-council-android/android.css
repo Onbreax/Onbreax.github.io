@@ -1,0 +1,15 @@
+/* Android-only touch sizing, keeping the shared web application's structure. */
+@media(max-width:600px){
+ body{padding-inline:10px}.wrap{padding-block:12px 24px}.grid{gap:12px}
+ button,button.small,.linkbtn{min-height:44px}.iconbtn{width:44px;height:44px}
+ input[type=text],input[type=password],input[type=number],select,textarea{font-size:16px;min-height:44px}
+ .topacts{flex-wrap:wrap;gap:6px}.topacts .pill{min-height:44px}.topacts .iconbtn{width:44px;height:44px}
+ .cfg section{padding:14px}.feed{padding:14px}.roomhead,.hist,.interject{padding:12px}
+ .roomacts{justify-content:flex-start}.msg{grid-template-columns:28px minmax(0,1fr);gap:8px}.av{width:28px;height:28px;font-size:12px}
+ .msg .model,.body,.verdict{overflow-wrap:anywhere}.msg.verif{margin-left:8px}
+ .msg.verif>div:last-child,.msg.user>div:last-child,.msg.error>div:last-child{min-width:0}
+ .dlg{max-height:calc(100dvh - 24px)}.dlg.help{height:min(720px,calc(100dvh - 24px))}
+ .hitem{grid-template-columns:minmax(0,1fr)}.hitem .acts{justify-content:flex-end}
+ .launch{bottom:0}.interject textarea{flex-basis:100%}
+ .presetbtns{grid-template-columns:repeat(3,minmax(0,1fr))}.presetbtns button{padding:8px 6px}.presetbtns button b{font-size:12px}
+}
