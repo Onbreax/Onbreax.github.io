@@ -13,8 +13,8 @@ android {
         applicationId = "fr.onbreax.quinte"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
     }
 
     // Clé de debug fixe : chaque APK compilé par GitHub peut s'installer par-dessus le précédent.

@@ -45,6 +45,7 @@ data class QuinteDuJour(
 
 object QuinteLogic {
     private const val BASE = "https://online.turfinfo.api.pmu.fr/rest/client/61/programme"
+    // Cotes et rapports des points de vente (tabac, PMU City), pas ceux du jeu en ligne.
     private val dateApi = DateTimeFormatter.ofPattern("ddMMyyyy")
     private val heureFr = DateTimeFormatter.ofPattern("HH'h'mm")
     private val dateFr = DateTimeFormatter.ofPattern("EEEE d MMMM yyyy", Locale.FRENCH)
@@ -54,10 +55,10 @@ object QuinteLogic {
     fun urlProgramme(date: LocalDate) = "$BASE/${date.format(dateApi)}"
 
     fun urlParticipants(date: LocalDate, reunion: Int, course: Int) =
-        "$BASE/${date.format(dateApi)}/R$reunion/C$course/participants?specialisation=INTERNET"
+        "$BASE/${date.format(dateApi)}/R$reunion/C$course/participants?specialisation=OFFLINE"
 
     fun urlRapports(date: LocalDate, reunion: Int, course: Int) =
-        "$BASE/${date.format(dateApi)}/R$reunion/C$course/rapports-definitifs?specialisation=INTERNET"
+        "$BASE/${date.format(dateApi)}/R$reunion/C$course/rapports-definitifs?specialisation=OFFLINE"
 
     fun dateEnFrancais(date: LocalDate): String =
         date.format(dateFr).replaceFirstChar { it.titlecase(Locale.FRENCH) }

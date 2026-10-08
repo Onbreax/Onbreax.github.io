@@ -50,33 +50,33 @@ class QuinteLogicTest {
         assertEquals("13h58", q.heure)
         assertEquals(listOf(listOf(1), listOf(5), listOf(8), listOf(4), listOf(15, 16), listOf(10)), q.arrivee)
         // 1, 5, 8 et 15 sont dans les 5 premiers : Bonus 4sur5.
-        assertEquals(Gain("e-Bonus 4sur5", 300, 200), q.gain)
+        assertEquals(Gain("Bonus 4sur5", 320, 200), q.gain)
         assertFalse(q.ticketFige)
         assertEquals("SAINT-CLOUD", q.hippodrome)
         assertEquals(listOf(8, 15, 1, 3, 5), q.ticket.map { it.numero })
         assertEquals(listOf(1, 2, 3, 4, 5, 7, 8, 15, 16), q.chevaux.map { it.numero })
     }
 
-    // Extrait des rapports définitifs du 08/10/2026 (montants en centimes pour 2 €).
+    // Extrait des rapports définitifs « points de vente » du 08/10/2026 (centimes pour 2 €).
     private val rapports = """[
-        {"typePari":"E_SIMPLE_GAGNANT","miseBase":100,"rapports":[{"libelle":"Simple","combinaison":"1","dividendePourUneMiseDeBase":990}]},
-        {"typePari":"E_QUINTE_PLUS","miseBase":200,"rapports":[
-          {"libelle":"e-Quinté+ Ordre","combinaison":"1-5-8-4-15","dividendePourUneMiseDeBase":614580},
-          {"libelle":"e-Quinté+ Ordre","combinaison":"1-5-8-4-16","dividendePourUneMiseDeBase":322780},
-          {"libelle":"e-Quinté+ Désordre","combinaison":"1-5-8-4-15","dividendePourUneMiseDeBase":7220},
-          {"libelle":"e-Quinté+ Désordre","combinaison":"1-5-8-4-16","dividendePourUneMiseDeBase":3920},
-          {"libelle":"e-Bonus 4sur5","combinaison":"1-5-8-4","dividendePourUneMiseDeBase":300},
-          {"libelle":"e-Bonus 4sur5","combinaison":"1-5-8-15","dividendePourUneMiseDeBase":300},
-          {"libelle":"e-Bonus 3","combinaison":"1-5-8","dividendePourUneMiseDeBase":260}
+        {"typePari":"SIMPLE_GAGNANT","miseBase":100,"rapports":[{"libelle":"Simple","combinaison":"1","dividendePourUneMiseDeBase":540}]},
+        {"typePari":"QUINTE_PLUS","miseBase":200,"rapports":[
+          {"libelle":"Quinté+ Ordre","combinaison":"1-5-8-4-15","dividendePourUneMiseDeBase":492540},
+          {"libelle":"Quinté+ Ordre","combinaison":"1-5-8-4-16","dividendePourUneMiseDeBase":188120},
+          {"libelle":"Quinté+ Désordre","combinaison":"1-5-8-4-15","dividendePourUneMiseDeBase":7600},
+          {"libelle":"Quinté+ Désordre","combinaison":"1-5-8-4-16","dividendePourUneMiseDeBase":2940},
+          {"libelle":"Bonus 4sur5","combinaison":"1-5-8-4","dividendePourUneMiseDeBase":320},
+          {"libelle":"Bonus 4sur5","combinaison":"1-5-8-15","dividendePourUneMiseDeBase":320},
+          {"libelle":"Bonus 3","combinaison":"1-5-8","dividendePourUneMiseDeBase":280}
         ]}
     ]"""
 
     @Test
     fun gainsSelonLeTicket() {
         val r = QuinteLogic.lireRapports(rapports)
-        assertEquals(Gain("e-Quinté+ Ordre", 614580, 200), QuinteLogic.gainTicket(listOf(1, 5, 8, 4, 15), r))
-        assertEquals(Gain("e-Quinté+ Désordre", 7220, 200), QuinteLogic.gainTicket(listOf(15, 4, 8, 5, 1), r))
-        assertEquals(Gain("e-Bonus 3", 260, 200), QuinteLogic.gainTicket(listOf(1, 5, 8, 2, 3), r))
+        assertEquals(Gain("Quinté+ Ordre", 492540, 200), QuinteLogic.gainTicket(listOf(1, 5, 8, 4, 15), r))
+        assertEquals(Gain("Quinté+ Désordre", 7600, 200), QuinteLogic.gainTicket(listOf(15, 4, 8, 5, 1), r))
+        assertEquals(Gain("Bonus 3", 280, 200), QuinteLogic.gainTicket(listOf(1, 5, 8, 2, 3), r))
         assertEquals(Gain(null, 0, 200), QuinteLogic.gainTicket(listOf(2, 3, 6, 7, 9), r))
         assertNull(QuinteLogic.gainTicket(listOf(1, 5, 8, 4, 15), emptyList()))
     }

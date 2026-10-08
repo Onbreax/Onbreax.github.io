@@ -197,11 +197,11 @@ private fun Pastille(numero: Int, plein: Boolean) {
 private fun Resultat(q: QuinteDuJour, numerosTicket: Set<Int>) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
-            Text(
-                if (q.arriveeDefinitive) "Arrivée officielle" else "Arrivée provisoire",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-            )
+            Text("Arrivée officielle", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            if (!q.arriveeDefinitive) {
+                Text("La course est courue. L'arrivée officielle et les gains s'afficheront dès que le PMU les publie.")
+                return@Column
+            }
             Spacer(Modifier.size(12.dp))
             // Les 5 premières places ; un ex æquo donne plusieurs numéros sur une place.
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -222,7 +222,7 @@ private fun Resultat(q: QuinteDuJour, numerosTicket: Set<Int>) {
             Spacer(Modifier.size(12.dp))
             val gain = q.gain
             when {
-                gain == null -> Text("Les gains seront affichés quand le PMU publiera les rapports.")
+                gain == null -> Text("Les gains s'afficheront dès que le PMU publie les rapports.")
                 gain.libelle == null -> Text(
                     "Ticket perdant (mise de ${euros(gain.mise)}).",
                     fontWeight = FontWeight.Bold,
@@ -234,7 +234,7 @@ private fun Resultat(q: QuinteDuJour, numerosTicket: Set<Int>) {
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
                     )
-                    Text("${gain.libelle}, pour ${euros(gain.mise)} joués.", style = MaterialTheme.typography.bodyMedium)
+                    Text("${gain.libelle}, pour ${euros(gain.mise)} joués au tabac.", style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }
