@@ -1,6 +1,7 @@
 package fr.onbreax.quinte
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,9 @@ sealed interface Etat {
     data class Erreur(val message: String) : Etat
 }
 
-class QuinteViewModel : ViewModel() {
+class QuinteViewModel(application: Application) : AndroidViewModel(application) {
+    private val store = TicketStore(application)
+
     private val _etat = MutableStateFlow<Etat>(Etat.Chargement)
     val etat: StateFlow<Etat> = _etat
 
@@ -26,7 +29,7 @@ class QuinteViewModel : ViewModel() {
         _etat.value = Etat.Chargement
         viewModelScope.launch {
             _etat.value = try {
-                Etat.Pret(withContext(Dispatchers.IO) { QuinteRepository.chargerQuinteDuJour() })
+                Etat.Pret(withContext(Dispatchers.IO) { QuinteRepository.chargerQuinteDuJour(store) })
             } catch (e: PasDeQuinteException) {
                 Etat.Erreur(e.message!!)
             } catch (e: Exception) {
