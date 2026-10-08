@@ -1,0 +1,28 @@
+name: Quinté+ - construire l'APK
+
+on:
+  push:
+    branches: [main]
+    paths: ["quinte-plus-android/**", ".github/workflows/quinte-plus-apk.yml"]
+  pull_request:
+    paths: ["quinte-plus-android/**", ".github/workflows/quinte-plus-apk.yml"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: quinte-plus-android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - run: chmod +x gradlew && ./gradlew testDebugUnitTest assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quinte-plus-apk
+          path: quinte-plus-android/app/build/outputs/apk/debug/app-debug.apk
