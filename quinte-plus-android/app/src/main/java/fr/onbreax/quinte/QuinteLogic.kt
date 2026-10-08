@@ -25,6 +25,8 @@ data class Gain(val libelle: String?, val montant: Long, val mise: Long)
 
 /** Tout ce que l'écran affiche. */
 data class QuinteDuJour(
+    /** AAAA-MM-JJ. */
+    val jour: String,
     val date: String,
     val reunion: Int,
     val course: Int,
@@ -153,6 +155,7 @@ object QuinteLogic {
             ?.takeIf { it.size == 5 }
             ?: ticketFavoris(chevaux)
         return QuinteDuJour(
+            jour = date.toString(),
             date = dateEnFrancais(date),
             reunion = course.numReunion,
             course = course.numOrdre,

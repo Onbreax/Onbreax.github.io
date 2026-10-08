@@ -36,7 +36,35 @@ class MonTicketStore(context: Context) {
     }
 }
 
+/** L'historique des Quinté+, gardé sur le téléphone. */
+class HistoriqueStore(context: Context) {
+    private val prefs = context.getSharedPreferences("historique", Context.MODE_PRIVATE)
+
+    fun lire(): List<JourHistorique> = Historique.lire(prefs.getString("jours", null))
+
+    fun ecrire(jours: List<JourHistorique>) {
+        prefs.edit().putString("jours", Historique.ecrire(jours)).apply()
+    }
+}
+
 object QuinteRepository {
+
+    /**
+     * Va chercher l'arrivée et les gains des jours passés restés sans résultat
+     * (app pas rouverte après la course). Les 10 derniers jours seulement.
+     */
+    fun completerHistorique(jours: List<JourHistorique>, aujourdhui: LocalDate = LocalDate.now(PARIS)): List<JourHistorique> =
+        jours.map { j ->
+            val date = LocalDate.parse(j.jour)
+            if (j.termine || !date.isBefore(aujourdhui) || date.isBefore(aujourdhui.minusDays(10))) return@map j
+            runCatching {
+                val (_, course) = QuinteLogic.trouverQuinte(get(QuinteLogic.urlProgramme(date))) ?: return@map j
+                val rapports = if (course.arriveeDefinitive) {
+                    QuinteLogic.lireRapports(get(QuinteLogic.urlRapports(date, course.numReunion, course.numOrdre)))
+                } else null
+                Historique.completer(j, course, rapports)
+            }.getOrDefault(j)
+        }
 
     /** Appel bloquant : à lancer hors du thread principal. */
     fun chargerQuinteDuJour(store: TicketStore, date: LocalDate = LocalDate.now(PARIS)): QuinteDuJour {

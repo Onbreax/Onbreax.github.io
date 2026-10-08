@@ -2,6 +2,7 @@ package fr.onbreax.quinte
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -65,8 +66,15 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Ecran(vm: QuinteViewModel = viewModel()) {
     val etat by vm.etat.collectAsStateWithLifecycle()
+    val afficherHistorique by vm.afficherHistorique.collectAsStateWithLifecycle()
+    val historique by vm.historique.collectAsStateWithLifecycle()
+    BackHandler(enabled = afficherHistorique) { vm.afficherHistorique(false) }
     Scaffold { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
+            if (afficherHistorique) {
+                EcranHistorique(historique) { vm.afficherHistorique(false) }
+                return@Box
+            }
             when (val e = etat) {
                 Etat.Chargement -> CircularProgressIndicator(Modifier.align(Alignment.Center))
                 is Etat.Erreur -> Column(
@@ -76,10 +84,13 @@ fun Ecran(vm: QuinteViewModel = viewModel()) {
                     Text(e.message, textAlign = TextAlign.Center)
                     Spacer(Modifier.size(16.dp))
                     Button(onClick = vm::rafraichir) { Text("Réessayer") }
+                    TextButton(onClick = { vm.afficherHistorique(true) }) { Text("Historique") }
                 }
                 is Etat.Pret -> {
                     val monTicket by vm.monTicket.collectAsStateWithLifecycle()
-                    Contenu(e.quinte, vm::rafraichir, monTicket) { vm.enregistrerMonTicket(e.quinte.cle, it) }
+                    Contenu(e.quinte, vm::rafraichir, { vm.afficherHistorique(true) }, monTicket) {
+                        vm.enregistrerMonTicket(e.quinte.cle, it)
+                    }
                 }
             }
         }
@@ -90,6 +101,7 @@ fun Ecran(vm: QuinteViewModel = viewModel()) {
 private fun Contenu(
     q: QuinteDuJour,
     onRafraichir: () -> Unit,
+    onHistorique: () -> Unit,
     monTicket: List<Int>?,
     onMonTicket: (List<Int>?) -> Unit,
 ) {
@@ -99,7 +111,7 @@ private fun Contenu(
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { EnTete(q, onRafraichir) }
+        item { EnTete(q, onRafraichir, onHistorique) }
         item { Ticket(q) }
         if (q.courseCourue || q.arrivee.isNotEmpty()) item { Resultat(q, numerosTicket) }
         item { MonTicket(q, monTicket, onMonTicket) }
@@ -127,10 +139,11 @@ private fun Contenu(
 }
 
 @Composable
-private fun EnTete(q: QuinteDuJour, onRafraichir: () -> Unit) {
+private fun EnTete(q: QuinteDuJour, onRafraichir: () -> Unit, onHistorique: () -> Unit) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Quinté+ du jour", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+            TextButton(onClick = onHistorique) { Text("Historique") }
             TextButton(onClick = onRafraichir) { Text("Actualiser") }
         }
         Text(q.date, style = MaterialTheme.typography.titleMedium)
@@ -318,4 +331,63 @@ private fun MonTicket(q: QuinteDuJour, monTicket: List<Int>?, onMonTicket: (List
             }
         }
     }
+}
+
+@Composable
+private fun EcranHistorique(jours: List<JourHistorique>, onRetour: () -> Unit) {
+    val bilan = Historique.bilan(jours)
+    LazyColumn(
+        Modifier.fillMaxSize(),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TextButton(onClick = onRetour) { Text("‹ Retour") }
+                Text("Historique", style = MaterialTheme.typography.headlineSmall)
+            }
+        }
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(Modifier.padding(16.dp)) {
+                    Text("Depuis le début", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text("${bilan.courses} Quinté+ joués · misé ${euros(bilan.mise)} · gagné ${euros(bilan.gagne)}")
+                    val solde = bilan.gagne - bilan.mise
+                    Text(
+                        "Bilan : ${if (solde >= 0) "+" else "−"}${euros(kotlin.math.abs(solde))}",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (solde >= 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                    )
+                    Text("Compte le ticket joué chaque jour : « Mon ticket » s'il y en a un, sinon les favoris.", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+        if (jours.isEmpty()) {
+            item { Text("Rien pour l'instant. Chaque Quinté+ consulté dans l'app s'ajoutera ici.") }
+        }
+        items(jours, key = { it.jour }) { j ->
+            Column(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                Text(j.date, fontWeight = FontWeight.Bold)
+                Text(j.nomCourse, style = MaterialTheme.typography.bodySmall)
+                Text("Favoris : ${j.favoris.joinToString(" - ")}${resultat(j.gainFavoris, j.termine)}")
+                j.monTicket?.let { Text("Mon ticket : ${it.joinToString(" - ")}${resultat(j.gainMonTicket, j.termine)}") }
+                Text(
+                    if (j.definitive) "Arrivée : ${j.arrivee.take(5).joinToString(" - ") { it.joinToString("/") }}"
+                    else "Arrivée officielle pas encore connue",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            HorizontalDivider()
+        }
+    }
+}
+
+private fun resultat(gain: Long?, termine: Boolean): String = when {
+    !termine || gain == null -> ""
+    gain > 0 -> " → gagné ${euros(gain)}"
+    else -> " → perdant"
 }
