@@ -17,6 +17,16 @@ android {
         versionName = "1.0"
     }
 
+    // Clé de debug fixe : chaque APK compilé par GitHub peut s'installer par-dessus le précédent.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
