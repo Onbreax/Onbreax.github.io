@@ -37,3 +37,9 @@ Le nom affiché, l’aide, les exports et la page d’accueil deviennent Polylog
 L’identifiant Android `fr.onbreax.aicouncil` et la signature de la version 1.0.0 sont conservés pour installer cette version comme une mise à jour. Les identifiants IndexedDB et localStorage restent inchangés afin de retrouver les données locales. Ne pas désinstaller l’ancienne application pour la mettre à jour.
 
 Les sauvegardes nouvelles utilisent `polylog-ai-backup`. Les anciennes sauvegardes `ai-council-backup` restent importables. L’ancienne adresse `ai-council.html` redirige vers `polylog-ai.html` sur la même origine.
+
+## Rapport d’audit — version 1.0.3
+
+Exporter → Rapport d’audit enregistre un JSON via le sélecteur Android, avec les options et les métriques déclarées par les API pour chaque tentative. Les prompts, réponses et clés sont exclus. Les mesures restent dans l’historique. Voir `../tests/POLYLOG-AUDIT.md` pour les limites et les tests.
+
+Cette livraison met à jour les assets HTML et la version du paquet signé 1.0.2 ; le code natif est inchangé. L’identifiant et la clé de signature sont conservés. Le projet Gradle permet également une reconstruction complète.
