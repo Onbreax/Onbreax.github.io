@@ -41,6 +41,14 @@ data class QuinteDuJour(
     val arriveeDefinitive: Boolean,
     /** Null tant que les rapports ne sont pas publiés. */
     val gain: Gain?,
+    /** Vrai une fois l'heure de départ passée. */
+    val courseCourue: Boolean,
+    /** Rapports définitifs (pour calculer les gains de « Mon ticket »), null avant l'arrivée officielle. */
+    val rapports: List<RapportPari>?,
+    /** Clé du jour, pour enregistrer « Mon ticket ». */
+    val cle: String,
+    /** « Vendredi 9 octobre à 13h50 », une fois le Quinté+ du jour parti. */
+    val prochain: String? = null,
 )
 
 object QuinteLogic {
@@ -120,6 +128,15 @@ object QuinteLogic {
         else Gain(meilleur.libelle, meilleur.dividendePourUneMiseDeBase ?: 0, mise)
     }
 
+    /**
+     * Lit un ticket tapé à la main (« 3 7 12 1 9 », « 3-7-12-1-9 »…) : 5 numéros différents,
+     * dans l'ordre joué. Null si ce n'est pas un ticket valable.
+     */
+    fun lireTicketSaisi(texte: String): List<Int>? {
+        val numeros = Regex("\\d+").findAll(texte).map { it.value.toInt() }.toList()
+        return numeros.takeIf { it.size == 5 && it.toSet().size == 5 && it.all { n -> n in 1..30 } }
+    }
+
     fun heureDepart(course: Course): String =
         Instant.ofEpochMilli(course.heureDepart).atZone(PARIS).format(heureFr)
 
@@ -130,6 +147,7 @@ object QuinteLogic {
         chevaux: List<Cheval>,
         ticketNumeros: List<Int>?,
         rapports: List<RapportPari>?,
+        maintenant: Long = System.currentTimeMillis(),
     ): QuinteDuJour {
         val ticket = ticketNumeros?.mapNotNull { n -> chevaux.firstOrNull { it.numero == n } }
             ?.takeIf { it.size == 5 }
@@ -148,6 +166,9 @@ object QuinteLogic {
             arrivee = course.ordreArrivee,
             arriveeDefinitive = course.arriveeDefinitive,
             gain = if (ticket.size == 5 && rapports != null) gainTicket(ticket.map { it.numero }, rapports) else null,
+            courseCourue = maintenant >= course.heureDepart,
+            rapports = rapports,
+            cle = cleDate(date),
         )
     }
 }

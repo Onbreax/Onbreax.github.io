@@ -22,6 +22,20 @@ class TicketStore(context: Context) {
     }
 }
 
+/** « Mon ticket » : le ticket que l'on a vraiment joué, s'il diffère des favoris. Un seul jour gardé. */
+class MonTicketStore(context: Context) {
+    private val prefs = context.getSharedPreferences("mon_ticket", Context.MODE_PRIVATE)
+
+    fun lire(cle: String): List<Int>? =
+        prefs.getString(cle, null)?.split(",")?.mapNotNull { it.toIntOrNull() }?.takeIf { it.size == 5 }
+
+    fun ecrire(cle: String, numeros: List<Int>?) {
+        val edition = prefs.edit().clear()
+        if (numeros != null) edition.putString(cle, numeros.joinToString(","))
+        edition.apply()
+    }
+}
+
 object QuinteRepository {
 
     /** Appel bloquant : à lancer hors du thread principal. */
@@ -48,7 +62,18 @@ object QuinteRepository {
             }.getOrNull()
         } else null
 
-        return QuinteLogic.assembler(date, reunion, course, chevaux, ticket, rapports)
+        val quinte = QuinteLogic.assembler(date, reunion, course, chevaux, ticket, rapports)
+        return if (quinte.courseCourue) quinte.copy(prochain = prochainQuinte(date)) else quinte
+    }
+
+    /** Le prochain Quinté+ (demain, sinon après-demain), ou null si le programme n'est pas encore là. */
+    private fun prochainQuinte(date: LocalDate): String? {
+        for (jours in 1L..2L) {
+            val jour = date.plusDays(jours)
+            val trouve = runCatching { QuinteLogic.trouverQuinte(get(QuinteLogic.urlProgramme(jour))) }.getOrNull()
+            if (trouve != null) return "${QuinteLogic.dateEnFrancais(jour)} à ${QuinteLogic.heureDepart(trouve.second)}"
+        }
+        return null
     }
 
     private fun get(url: String): String {

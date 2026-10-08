@@ -17,6 +17,15 @@ sealed interface Etat {
 
 class QuinteViewModel(application: Application) : AndroidViewModel(application) {
     private val store = TicketStore(application)
+    private val monTicketStore = MonTicketStore(application)
+
+    private val _monTicket = MutableStateFlow<List<Int>?>(null)
+    val monTicket: StateFlow<List<Int>?> = _monTicket
+
+    fun enregistrerMonTicket(cle: String, numeros: List<Int>?) {
+        monTicketStore.ecrire(cle, numeros)
+        _monTicket.value = numeros
+    }
 
     private val _etat = MutableStateFlow<Etat>(Etat.Chargement)
     val etat: StateFlow<Etat> = _etat
@@ -29,7 +38,9 @@ class QuinteViewModel(application: Application) : AndroidViewModel(application) 
         _etat.value = Etat.Chargement
         viewModelScope.launch {
             _etat.value = try {
-                Etat.Pret(withContext(Dispatchers.IO) { QuinteRepository.chargerQuinteDuJour(store) })
+                val quinte = withContext(Dispatchers.IO) { QuinteRepository.chargerQuinteDuJour(store) }
+                _monTicket.value = monTicketStore.lire(quinte.cle)
+                Etat.Pret(quinte)
             } catch (e: PasDeQuinteException) {
                 Etat.Erreur(e.message!!)
             } catch (e: Exception) {
