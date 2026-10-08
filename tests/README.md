@@ -13,3 +13,8 @@ node tests/polylog-ai.cjs
 
 Cas couverts : annulation puis conclusion, blocage du double lancement, sauvegarde des débats successifs, export/import sans clés API, fusion sans écrasement, rejet des liens et données invalides, retour aux réglages précédents si l’import échoue, récupération des écritures en attente si le stockage est plein, budget par rôle et réservations simultanées, débat complet et conclusion automatique, sauvegarde du brouillon courant.
 
+
+## Interface sobre
+
+`node tests/polylog-interface.cjs` vérifie le menu fermé au démarrage, le panneau latéral, le compte, le résumé dynamique, la conservation des réglages, la fermeture avec Échap et les contrôles pendant un débat, en 1280 et 390 pixels. Les connexions externes sont bloquées. `POLYLOG_SCREENSHOT_DIR` permet de conserver les captures dans un dossier existant.
+
