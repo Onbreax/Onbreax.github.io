@@ -1,0 +1,12 @@
+name: tmp cors check
+on: push
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          D=$(TZ=Europe/Paris date +%d%m%Y)
+          for u in "https://online.turfinfo.api.pmu.fr/rest/client/61/programme/$D" "https://online.turfinfo.api.pmu.fr/rest/client/61/programme/$D/R1/C1/participants?specialisation=INTERNET"; do
+            echo "== GET $u"; curl -sS -D - -o /dev/null -H "Origin: https://onbreax.github.io" "$u" | grep -i -E "^HTTP|access-control"
+            echo "== OPTIONS"; curl -sS -D - -o /dev/null -X OPTIONS -H "Origin: https://onbreax.github.io" -H "Access-Control-Request-Method: GET" "$u" | grep -i -E "^HTTP|access-control"
+          done
