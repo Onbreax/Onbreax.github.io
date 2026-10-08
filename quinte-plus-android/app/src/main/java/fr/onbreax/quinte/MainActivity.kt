@@ -86,7 +86,8 @@ private fun Contenu(q: QuinteDuJour, onRafraichir: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item { EnTete(q, onRafraichir) }
-        item { Ticket(q.ticket) }
+        item { Ticket(q) }
+        if (q.arrivee.isNotEmpty()) item { Resultat(q, numerosTicket) }
         item {
             Text(
                 "Partants (${q.chevaux.count { it.partant }})",
@@ -108,7 +109,8 @@ private fun EnTete(q: QuinteDuJour, onRafraichir: () -> Unit) {
             Text("Quinté+ du jour", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
             TextButton(onClick = onRafraichir) { Text("Actualiser") }
         }
-        Text(q.heure, fontSize = 44.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+        Text(q.date, style = MaterialTheme.typography.titleMedium)
+        Text("Départ à ${q.heure}", fontSize = 36.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
         Text(q.nomCourse, style = MaterialTheme.typography.titleMedium)
         val details = listOfNotNull(
             q.hippodrome.ifBlank { null },
@@ -120,7 +122,8 @@ private fun EnTete(q: QuinteDuJour, onRafraichir: () -> Unit) {
 }
 
 @Composable
-private fun Ticket(ticket: List<Cheval>) {
+private fun Ticket(q: QuinteDuJour) {
+    val ticket = q.ticket
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         modifier = Modifier.fillMaxWidth(),
@@ -142,6 +145,13 @@ private fun Ticket(ticket: List<Cheval>) {
                 fontWeight = FontWeight.Bold,
             )
             Text("Les 5 plus petites cotes, de la plus jouée à la moins jouée.", style = MaterialTheme.typography.bodySmall)
+            if (q.arrivee.isNotEmpty()) {
+                Text(
+                    if (q.ticketFige) "Ticket enregistré avant le départ."
+                    else "Calculé avec les cotes finales : l'app n'était pas ouverte avant le départ.",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
         }
     }
 }
@@ -182,3 +192,54 @@ private fun Pastille(numero: Int, plein: Boolean) {
         Text(numero.toString(), color = texte, fontWeight = FontWeight.Bold)
     }
 }
+
+@Composable
+private fun Resultat(q: QuinteDuJour, numerosTicket: Set<Int>) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                if (q.arriveeDefinitive) "Arrivée officielle" else "Arrivée provisoire",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(Modifier.size(12.dp))
+            // Les 5 premières places ; un ex æquo donne plusieurs numéros sur une place.
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                q.arrivee.take(5).forEach { place ->
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        place.forEach { Pastille(it, plein = it in numerosTicket) }
+                    }
+                }
+            }
+            Spacer(Modifier.size(8.dp))
+            Text(
+                q.arrivee.take(5).joinToString(" - ") { it.joinToString("/") },
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+            )
+            val bons = q.arrivee.take(5).flatten().count { it in numerosTicket }
+            Text("$bons de tes chevaux dans les 5 premiers (en vert).", style = MaterialTheme.typography.bodySmall)
+            Spacer(Modifier.size(12.dp))
+            val gain = q.gain
+            when {
+                gain == null -> Text("Les gains seront affichés quand le PMU publiera les rapports.")
+                gain.libelle == null -> Text(
+                    "Ticket perdant (mise de ${euros(gain.mise)}).",
+                    fontWeight = FontWeight.Bold,
+                )
+                else -> {
+                    Text(
+                        "Gagné : ${euros(gain.montant)}",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text("${gain.libelle}, pour ${euros(gain.mise)} joués.", style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
+    }
+}
+
+private fun euros(centimes: Long): String =
+    String.format(java.util.Locale.FRENCH, "%.2f €", centimes / 100.0)

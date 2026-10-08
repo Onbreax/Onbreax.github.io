@@ -1,21 +1,54 @@
 package fr.onbreax.quinte
 
+import android.content.Context
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.LocalDate
 
 class PasDeQuinteException : Exception("Pas de Quinté+ au programme aujourd'hui.")
 
+/**
+ * Garde le ticket du jour tel qu'il était avant le départ :
+ * après la course les cotes changent, mais le ticket joué, lui, ne change plus.
+ */
+class TicketStore(context: Context) {
+    private val prefs = context.getSharedPreferences("tickets", Context.MODE_PRIVATE)
+
+    fun lire(cle: String): List<Int>? =
+        prefs.getString(cle, null)?.split(",")?.mapNotNull { it.toIntOrNull() }?.takeIf { it.size == 5 }
+
+    fun ecrire(cle: String, numeros: List<Int>) {
+        prefs.edit().clear().putString(cle, numeros.joinToString(",")).apply()
+    }
+}
+
 object QuinteRepository {
 
     /** Appel bloquant : à lancer hors du thread principal. */
-    fun chargerQuinteDuJour(date: LocalDate = LocalDate.now(PARIS)): QuinteDuJour {
+    fun chargerQuinteDuJour(store: TicketStore, date: LocalDate = LocalDate.now(PARIS)): QuinteDuJour {
         val (reunion, course) = QuinteLogic.trouverQuinte(get(QuinteLogic.urlProgramme(date)))
             ?: throw PasDeQuinteException()
         val chevaux = QuinteLogic.lireChevaux(
             get(QuinteLogic.urlParticipants(date, course.numReunion, course.numOrdre))
         )
-        return QuinteLogic.assembler(reunion, course, chevaux)
+
+        // Avant le départ, on enregistre le ticket des favoris ; ensuite, on réutilise l'enregistré.
+        val cle = QuinteLogic.cleDate(date)
+        val favoris = QuinteLogic.ticketFavoris(chevaux).map { it.numero }
+        val ticket = if (System.currentTimeMillis() < course.heureDepart && favoris.size == 5) {
+            store.ecrire(cle, favoris)
+            favoris
+        } else {
+            store.lire(cle)
+        }
+
+        val rapports = if (course.arriveeDefinitive) {
+            runCatching {
+                QuinteLogic.lireRapports(get(QuinteLogic.urlRapports(date, course.numReunion, course.numOrdre)))
+            }.getOrNull()
+        } else null
+
+        return QuinteLogic.assembler(date, reunion, course, chevaux, ticket, rapports)
     }
 
     private fun get(url: String): String {

@@ -32,6 +32,9 @@ data class Course(
     val distance: Int? = null,
     val discipline: String? = null,
     val paris: List<Pari> = emptyList(),
+    // Arrivée : une liste par place ; plusieurs numéros sur une place = ex æquo.
+    val ordreArrivee: List<List<Int>> = emptyList(),
+    val arriveeDefinitive: Boolean = false,
 )
 
 @Serializable
@@ -58,4 +61,20 @@ data class Participant(
 data class Rapport(
     val rapport: Double? = null,
     val favoris: Boolean = false,
+)
+
+/** Rapports définitifs d'une course : un élément par type de pari. */
+@Serializable
+data class RapportPari(
+    val typePari: String? = null,
+    val miseBase: Long? = null,
+    val rapports: List<RapportLigne> = emptyList(),
+)
+
+@Serializable
+data class RapportLigne(
+    val libelle: String = "",
+    val combinaison: String = "",
+    // En centimes, pour la mise de base (2 € au Quinté+).
+    val dividendePourUneMiseDeBase: Long? = null,
 )
