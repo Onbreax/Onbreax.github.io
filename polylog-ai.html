@@ -1623,7 +1623,7 @@ function isClaude(p){ return p.provider === "anthropic" || (p.provider === "open
 // Durée du cache Claude : 1 h quand les tours sont lents (réflexion, recherche web), sinon 5 min (écriture moins chère)
 const TRANSIENT = new Set([0, 408, 429, 500, 502, 503, 504, 520, 522, 524, 529]);
 const sleep = (ms, sig) => new Promise((res, rej) => { const t = setTimeout(res, ms); sig?.addEventListener("abort", () => { clearTimeout(t); rej(new DOMException("Arrêté", "AbortError")); }, {once:true}); });
-function cacheTTL(p){ return (p.effort === "high" || webBase(p) > 0) ? "1h" : "5m"; }
+function cacheTTL(p){ return p.effort === "high" ? "1h" : "5m"; }
 // This is a spending threshold, not a provider-enforced billing limit.
 const BUDGET = {pending:new Map()};
 function budgetError(message){const e=new Error(message);e.name="BudgetError";return e;}
@@ -1645,7 +1645,10 @@ function checkBudget(ticket, lost=0){
 }
 
 // Passive audit: provider-reported metrics only; never export prompts, credentials or responses.
-const AUDIT_REV = 'polylog-audit-1';
+const AUDIT_REV = 'polylog-cache-2';
+const CACHE_REJECTED = new Set();
+const AUDIT_PREFIXES = new Map();
+function explicitGPT(model){const m=model.match(/^openai\/gpt-(\d+)(?:\.(\d+))?/);return !!m && (+m[1]>5 || +m[1]===5 && +m[2]>=6);}
 const AUDIT_SIGNATURES = new Map();
 const auditNumber = v => typeof v === 'number' && Number.isFinite(v) && v >= 0 ? v : null;
 function auditSettings(){
@@ -1679,13 +1682,13 @@ function cleanAudit(a){
  if(!a||a.version!==1||!Array.isArray(a.calls)||a.calls.length>10000)return null;
  const strings=(src,keys)=>Object.fromEntries(keys.filter(k=>typeof src[k]==='string').map(k=>[k,src[k].slice(0,300)]));
  const nums=(src,keys)=>Object.fromEntries(keys.map(k=>[k,auditNumber(src[k])]));
- return {version:1,revision:AUDIT_REV,startedAt:auditNumber(a.startedAt),partial:!!a.partial,calls:a.calls.filter(c=>c&&Array.isArray(c.attempts)).map(c=>({
+ return {version:1,revision:typeof a.revision==='string'?a.revision.slice(0,100):'polylog-audit-1',startedAt:auditNumber(a.startedAt),partial:!!a.partial,calls:a.calls.filter(c=>c&&Array.isArray(c.attempts)).map(c=>({
  ...strings(c,['role','provider','model']),...nums(c,['id','startedAt','turn']),actorIndex:Number.isInteger(c.actorIndex)?c.actorIndex:-1,
  settings:Object.fromEntries(SETTING_KEYS.filter(k=>typeof c.settings?.[k]==='boolean'||typeof c.settings?.[k]==='string').map(k=>[k,typeof c.settings[k]==='string'?c.settings[k].slice(0,300):c.settings[k]])),
  attempts:c.attempts.slice(0,30).filter(r=>r&&typeof r==='object').map(r=>({
- ...strings(r,['id','status','requestedModel','servedModel','provider','generationId','finishReason','effort','retryCause']),
- ...nums(r,['startedAt','durationMs','httpStatus','maxTokens','webResults','requestBytes','inputTokens','outputTokens','cachedTokens','cacheWriteTokens','reasoningTokens','costUSD','duplicateOfCall']),
- explicitCache:!!r.explicitCache
+ ...strings(r,['id','status','requestedModel','servedModel','provider','generationId','finishReason','effort','retryCause','cacheTTL','cacheStrategy','revision']),
+ ...nums(r,['startedAt','durationMs','httpStatus','maxTokens','webResults','requestBytes','inputTokens','outputTokens','cachedTokens','cacheWriteTokens','reasoningTokens','costUSD','duplicateOfCall','commonPrefixChars','inputTextChars','previousInputTextChars']),
+ explicitCache:!!r.explicitCache,sessionPinned:!!r.sessionPinned
  }))}))};
 }
 function buildAuditReport(){
@@ -1702,6 +1705,7 @@ function buildAuditReport(){
  'Les reprises après erreur ou réponse vide sont incluses. Une interruption réseau peut laisser un coût inconnu.',
  'Les basculements internes du fournisseur et les requêtes aux sources web gratuites ne sont pas des appels séparément observables ici.',
  'duplicateOfCall signale une demande identique dans cette session, pas nécessairement un appel inutile.',
+ 'commonPrefixChars compare localement le début du texte construit par Polylog, avant les ajouts web du fournisseur ; ce ne sont pas des tokens. La comparaison recommence après réouverture.',
  'Les postures libres, questions, réponses, pièces jointes et clés sont exclues. Les options numériques et les modèles sont conservés.',
  a?.partial?'Instrumentation partielle : ce débat a commencé avant la collecte.':a?'Collecte depuis le démarrage du débat.':'Ancien débat : aucun détail par appel enregistré.'
  ]};
@@ -1734,11 +1738,14 @@ async function callLLMRequest(p, system, user, maxTok, signal, imgs = [], opts =
   }
   const plain = blocks.map(b => b.text).join("");
   const claude = isClaude(p);
+  const gptCache=p.provider==="openrouter"&&explicitGPT(p.model);
+  const cacheKey=p.provider+"/"+p.model;
+  const sessionId=S.id && opts.role!=="prompt" ? ("polylog-"+S.id+"-"+(opts.role||"participant")+"-"+participants.indexOf(p)).slice(0,200) : null;
   let cc = cacheTTL(p) === "1h" && !CACHE.noTTL ? {type:"ephemeral", ttl:"1h"} : {type:"ephemeral"};
   // Images toujours en premier : elles ne changent pas, donc elles font partie du début mis en cache
   const oaContent = (withCache) => (withCache || imgs.length)
     ? [...imgs.map(im => ({type:"image_url", image_url:{url:im.url}})),
-       ...(withCache ? blocks.map(b => b.cache ? {type:"text", text:b.text, cache_control:cc} : {type:"text", text:b.text}) : [{type:"text", text:plain}])]
+       ...(withCache ? blocks.map(b => b.cache ? {type:"text", text:b.text, ...(gptCache ? {prompt_cache_breakpoint:{mode:"explicit"}} : {cache_control:cc})} : {type:"text", text:b.text}) : [{type:"text", text:plain}])]
     : plain;
   let servedBy = "", r, j, text = "", tin = 0, tout = 0, cached = 0, realCost = null, rtok = 0, finish = "", noReason = false, lost = 0;
 
@@ -1751,9 +1758,18 @@ async function callLLMRequest(p, system, user, maxTok, signal, imgs = [], opts =
       const body=JSON.parse(init.body);
       Object.assign(auditRow,{requestedModel:body.model||p.model,maxTokens:auditNumber(body.max_tokens),
         effort:body.reasoning?.effort||'',webResults:auditNumber(body.plugins?.find(x=>x.id==='web')?.max_results),
-        requestBytes:new TextEncoder().encode(init.body).length});
+        requestBytes:new TextEncoder().encode(init.body).length,revision:AUDIT_REV,
+        sessionPinned:!!body.session_id,
+        cacheStrategy:auditRow.explicitCache?(gptCache?'openai_explicit':'anthropic_explicit'):'implicit_or_none',
+        cacheTTL:auditRow.explicitCache?(gptCache?'provider_default':cc.ttl||'5m'):''});
+      const prefixKey=cacheKey+'/'+(opts.role||'participant')+'/'+participants.indexOf(p);
+      const input=JSON.stringify([system,plain]),previous=AUDIT_PREFIXES.get(prefixKey);let common=null;
+      if(previous!==undefined){common=0;while(common<Math.min(previous.length,input.length)&&previous[common]===input[common])common++;}
+      Object.assign(auditRow,{inputTextChars:input.length,previousInputTextChars:previous===undefined?null:previous.length,commonPrefixChars:common});
+      AUDIT_PREFIXES.set(prefixKey,input);
       if(globalThis.crypto?.subtle){
-        const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p.provider+'\n'+init.body));
+        const {session_id: routingSession, ...signatureBody}=body;
+        const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p.provider+'\n'+JSON.stringify(signatureBody)));
         const sig=Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');
         const previous=AUDIT_SIGNATURES.get(sig);if(previous) auditRow.duplicateOfCall=previous;
         else AUDIT_SIGNATURES.set(sig,audit.id);
@@ -1772,6 +1788,7 @@ async function callLLMRequest(p, system, user, maxTok, signal, imgs = [], opts =
           {model, max_tokens: {high:20000, medium:14000, low:9000}[eff] || maxTok*3,
            messages:[{role:"system",content:system},{role:"user",content:oaContent(withCache)}],
            usage:{include:true}},                                   // coût réel facturé, cache compris
+          sessionId ? {session_id:sessionId} : {},
           eff ? {reasoning:{effort:eff, exclude:true}} : {},
           freeFallbacks(model).length ? {models:[model, ...freeFallbacks(model)]} : {},   // modèle gratuit saturé : OpenRouter bascule tout seul sur un secours
           opts.web > 0 ? {plugins:[{id:"web", max_results:opts.web}]} : {}))});
@@ -1843,7 +1860,7 @@ async function callLLMRequest(p, system, user, maxTok, signal, imgs = [], opts =
         const content=j?.choices?.[0]?.message?.content;
         const empty=r?.ok && (p.provider==='openrouter'||p.provider==='openai') && (!content || Array.isArray(content)&&!content.some(x=>x.text));
         Object.assign(auditRow,{durationMs:Date.now()-auditRow.startedAt,httpStatus:n(r?.status),
-          status:signal?.aborted?'cancelled':timedOut?'timeout':j?.error?'api_error':r?.ok?(empty?'empty':'success'):r?.status?'http_error':'network_error',
+          status:signal?.aborted?'cancelled':timedOut?'timeout':j?.error?'api_error':r?.ok?(empty?'empty':/length|max_tokens/i.test(j?.choices?.[0]?.finish_reason||j?.stop_reason||'')?'truncated':'success'):r?.status?'http_error':'network_error',
           servedModel:typeof j?.model==='string'?j.model:'',provider:typeof j?.provider==='string'?j.provider:'',
           generationId:typeof j?.id==='string'?j.id:'',finishReason:String(j?.choices?.[0]?.finish_reason||j?.stop_reason||''),
           inputTokens:input,outputTokens:n(google?g.candidatesTokenCount:anthropic?u.output_tokens:u.completion_tokens),
@@ -1855,19 +1872,20 @@ async function callLLMRequest(p, system, user, maxTok, signal, imgs = [], opts =
     }
   };
   try {
-    const useCache = claude && !CACHE.off;
+    const cacheAllowed=()=>claude ? !CACHE.off : gptCache&&!CACHE_REJECTED.has(cacheKey);
+    const useCache = cacheAllowed() && blocks.some(b=>b.cache);
     await run(useCache);
     // Filet de sécurité : si le fournisseur refuse les consignes de cache, on réessaie sans la durée d'1 h,
     // puis sans cache du tout, et on s'en souvient pour ne plus perdre de temps aux tours suivants
-    if (useCache && !r.ok && r.status === 400 && cc.ttl){ CACHE.noTTL = true; cc = {type:"ephemeral"}; await run(true,"cache_ttl_rejected"); }
-    if (useCache && !r.ok && r.status === 400){ CACHE.off = true; await run(false,"cache_rejected"); }
+    if (useCache && claude && !r.ok && r.status === 400 && cc.ttl){ CACHE.noTTL = true; cc = {type:"ephemeral"}; await run(true,"cache_ttl_rejected"); }
+    if (useCache && !r.ok && r.status === 400){ if(claude)CACHE.off = true;else CACHE_REJECTED.add(cacheKey); await run(false,"cache_rejected"); }
     // Panne passagère (délai dépassé, surcharge, réseau) : deux nouveaux essais espacés, avant d'abandonner
     for (let n = 1; n <= 2 && !r.ok && TRANSIENT.has(+r.status); n++){
       setStatus(`${p.name || "Le modèle"} n'a pas répondu à temps (${r.status || "réseau"}) : nouvel essai ${n}/2…`);
       if (OR.models[p.model]?.free && +r.status === 408) swap++;               // gratuit bloqué : le prochain essai part sur un secours
       const free = OR.models[p.model]?.free && +r.status === 429;              // fournisseur gratuit saturé : on laisse plus de temps
       await sleep(free ? (n === 1 ? 10000 : 25000) : (n === 1 ? 3000 : 8000), signal);
-      await run(claude && !CACHE.off,"transient_error");
+      await run(useCache && cacheAllowed(),"transient_error");
     }
     if (!r.ok && r.status === 0) throw new TypeError("réseau");
     // Réponse vide (réflexion qui a tout consommé, coupure du fournisseur) : on réessaie, la seconde fois sans réflexion
@@ -1876,7 +1894,7 @@ async function callLLMRequest(p, system, user, maxTok, signal, imgs = [], opts =
       setStatus(`${p.name || "Le modèle"} a renvoyé une réponse vide${finish ? " (" + finish + ")" : ""} : nouvel essai ${n}/2…`);
       if (n === 2 || /length|max_tokens/i.test(finish) || rtok > 0) noReason = true;
       await sleep(1500, signal);
-      await run(claude && !CACHE.off,"empty_response");
+      await run(useCache && cacheAllowed(),"empty_response");
     }
   } catch(e){
     if (e.name === "AbortError" || e.name === "BudgetError") throw e;
@@ -1912,7 +1930,7 @@ async function callLLMRequest(p, system, user, maxTok, signal, imgs = [], opts =
   // Sources : annotations officielles + liens Markdown cités dans le texte, sans doublons
   for (const mm of text.matchAll(/\[([^\]]{1,200})\]\((https?:\/\/[^\s)]+)\)/g)) sources.push({url: mm[2], title: mm[1]});
   const seen = new Set(); sources = sources.filter(s => s.url && !seen.has(s.url) && seen.add(s.url));
-  return {text: text.trim(), sources, servedBy};
+  return {text: text.trim(), sources, servedBy, finish};
 }
 function webBase(p){ return p.provider === "openrouter" ? (parseInt($("#web").value) || 0) : 0; }
 function webFirstOnly(){ return /f$/.test($("#web").value); }
@@ -1974,10 +1992,10 @@ async function makeAgenda(){
   try {
     const res = await callLLM(org, "Tu prépares l'ordre du jour d'un débat. Réponds en français, sans introduction." + langDir("agenda"),
       `${brief()}\n\nDécoupe cette question en 4 à 6 points précis et distincts que le débat doit trancher pour y répondre complètement (hypothèses clés, options à comparer, chiffres à établir, risques, conditions). Chaque point : une question courte, 18 mots maximum. Réponds uniquement par une liste numérotée, un point par ligne.`,
-      500, S.ctl.signal, [], {role:"agenda"});
+      2000, S.ctl.signal, [], {role:"agenda"});
     th.remove();
     const items = res.text.split("\n").map(l => l.match(/^\s*(?:\d+[.)]|[-*•])\s+(.+)/)).filter(Boolean).map(mm => mm[1].replace(/\*\*/g, "").trim()).filter(Boolean).slice(0, 6);
-    if (items.length < 2) return;
+    if (/length|max_tokens/i.test(res.finish||"") || items.length < 4){push({kind:"phase",text:"Ordre du jour incomplet : le débat continue sans ordre du jour structuré."});return;}
     S.agenda = items.map(t => ({t, st:{}}));
     S.briefText += "\n\nORDRE DU JOUR : les points précis que ce débat doit trancher\n" + items.map((t, k) => `${k+1}. ${t}`).join("\n")
       + "\nTraitez-les tous. Un point est « tranché » quand un accord argumenté est atteint, ou « en désaccord » quand le désaccord est clairement identifié et assumé.";
@@ -2473,7 +2491,7 @@ async function start(){
   }
   await conclude();
 }
-function clearFeed(){ S.audit=null; AUDIT_SIGNATURES.clear(); S.cutShort=false; S.feed=[]; S.calls=0; S.tin=0; S.tout=0; S.cached=0; S.saved=0; S.cost=0; S.costKnown=true; S.bd={}; S.concluded=false; S.pending=[]; S.briefText=null; S.imgs=null; S.id=null; S.setup=null; S.agenda=null; S.autoStance={}; S.challenges=0; S.fails=0; S.skipIdx=-1; S.failBy={}; S.out=null; feedEl.innerHTML=""; stats(); }
+function clearFeed(){ S.audit=null; AUDIT_SIGNATURES.clear(); AUDIT_PREFIXES.clear(); S.cutShort=false; S.feed=[]; S.calls=0; S.tin=0; S.tout=0; S.cached=0; S.saved=0; S.cost=0; S.costKnown=true; S.bd={}; S.concluded=false; S.pending=[]; S.briefText=null; S.imgs=null; S.id=null; S.setup=null; S.agenda=null; S.autoStance={}; S.challenges=0; S.fails=0; S.skipIdx=-1; S.failBy={}; S.out=null; feedEl.innerHTML=""; stats(); }
 
 $("#startBtn").addEventListener("click", ()=>runJob(start));
 $("#stopBtn").addEventListener("click", ()=>stopJob());

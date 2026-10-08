@@ -43,3 +43,7 @@ Les sauvegardes nouvelles utilisent `polylog-ai-backup`. Les anciennes sauvegard
 Exporter → Rapport d’audit enregistre un JSON via le sélecteur Android, avec les options et les métriques déclarées par les API pour chaque tentative. Les prompts, réponses et clés sont exclus. Les mesures restent dans l’historique. Voir `../tests/POLYLOG-AUDIT.md` pour les limites et les tests.
 
 Cette livraison met à jour les assets HTML et la version du paquet signé 1.0.2 ; le code natif est inchangé. L’identifiant et la clé de signature sont conservés. Le projet Gradle permet également une reconstruction complète.
+
+## Cache — version 1.0.4
+
+Sessions OpenRouter stables, repères de cache GPT compatibles, durée Claude ajustée, audit enrichi et contrôle des ordres du jour tronqués. Mise à jour des assets et du numéro de version, code natif inchangé, même signature. Les économies réelles nécessitent un nouvel audit ; tests API simulés uniquement.

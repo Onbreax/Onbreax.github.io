@@ -11,3 +11,14 @@ Le ratio de cache utilise uniquement les tentatives où entrée et lecture du ca
 Questions, réponses, instructions libres, noms de fichiers, pièces jointes et clés ne figurent pas dans l’export. Le JSON n’est jamais envoyé automatiquement. L’historique et la sauvegarde portable conservent les mesures. Les anciens débats sans audit restent lisibles mais ne peuvent pas être mesurés rétroactivement.
 
 Tests : `node tests/polylog-audit.cjs`, `node tests/polylog-ai.cjs` et, après `python3 polylog-ai-android/prepare.py`, `node tests/polylog-ai-android.cjs`. Playwright et Chromium nécessaires ; `CHROME_EXECUTABLE` permet de préciser le navigateur. Aucun appel payant n’est utilisé par ces tests.
+
+## Cache — version 1.0.4
+
+- Session OpenRouter stable par débat, rôle et intervenant ; le modèle reste celui choisi. Aucun texte supprimé, résumé ou compressé. Les recherches web restent identiques.
+- Claude : cache de cinq minutes par défaut, une heure uniquement pour la réflexion explicitement poussée. La recherche web seule ne déclenche plus la durée longue.
+- GPT 5.6 et versions suivantes : repères explicites sur les blocs déjà identifiés comme réutilisables, sans désactiver le cache automatique. En cas de refus HTTP 400, reprise sans repères et mémorisation du refus pour ce modèle pendant la session.
+- Gemini : cache implicite conservé, session stabilisée. L'absence de lectures en cache dans l'audit précédent ne permet pas de conclure à une cause unique ; aucune économie n'est garantie.
+- L'audit ajoute la stratégie de cache, sa durée demandée, la présence d'une session stable et la taille du préfixe textuel commun au précédent appel du même modèle/rôle/intervenant. Cette dernière mesure est en caractères JSON et exclut les ajouts web en amont ; elle ne remplace pas les tokens facturés. Aucun texte n'est exporté.
+- L'ordre du jour conserve son modèle et sa réflexion par défaut. Sa limite de sortie passe de 1 500 à 6 000 tokens lorsque l'effort est laissé par défaut. Une réponse tronquée ou moins de quatre points est signalée, jamais présentée comme un ordre du jour complet. Cela peut augmenter le coût de cette étape ; ce correctif concerne sa complétude.
+
+Vérification dédiée : `node tests/polylog-cache.cjs`. Référence technique consultée le 9 octobre 2026 : https://openrouter.ai/docs/guides/best-practices/prompt-caching
