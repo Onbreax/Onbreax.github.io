@@ -32,6 +32,12 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -71,14 +77,22 @@ fun Ecran(vm: QuinteViewModel = viewModel()) {
                     Spacer(Modifier.size(16.dp))
                     Button(onClick = vm::rafraichir) { Text("Réessayer") }
                 }
-                is Etat.Pret -> Contenu(e.quinte, vm::rafraichir)
+                is Etat.Pret -> {
+                    val monTicket by vm.monTicket.collectAsStateWithLifecycle()
+                    Contenu(e.quinte, vm::rafraichir, monTicket) { vm.enregistrerMonTicket(e.quinte.cle, it) }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun Contenu(q: QuinteDuJour, onRafraichir: () -> Unit) {
+private fun Contenu(
+    q: QuinteDuJour,
+    onRafraichir: () -> Unit,
+    monTicket: List<Int>?,
+    onMonTicket: (List<Int>?) -> Unit,
+) {
     val numerosTicket = q.ticket.map { it.numero }.toSet()
     LazyColumn(
         Modifier.fillMaxSize(),
@@ -87,7 +101,17 @@ private fun Contenu(q: QuinteDuJour, onRafraichir: () -> Unit) {
     ) {
         item { EnTete(q, onRafraichir) }
         item { Ticket(q) }
-        if (q.arrivee.isNotEmpty()) item { Resultat(q, numerosTicket) }
+        if (q.courseCourue || q.arrivee.isNotEmpty()) item { Resultat(q, numerosTicket) }
+        item { MonTicket(q, monTicket, onMonTicket) }
+        q.prochain?.let { prochain ->
+            item {
+                Text(
+                    "Prochain Quinté+ : $prochain",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
         item {
             Text(
                 "Partants (${q.chevaux.count { it.partant }})",
@@ -199,7 +223,7 @@ private fun Resultat(q: QuinteDuJour, numerosTicket: Set<Int>) {
         Column(Modifier.padding(16.dp)) {
             Text("Arrivée officielle", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             if (!q.arriveeDefinitive) {
-                Text("La course est courue. L'arrivée officielle et les gains s'afficheront dès que le PMU les publie.")
+                Text("Pas encore disponible. L'arrivée officielle et les gains s'afficheront dès que le PMU les publie.")
                 return@Column
             }
             Spacer(Modifier.size(12.dp))
@@ -243,3 +267,55 @@ private fun Resultat(q: QuinteDuJour, numerosTicket: Set<Int>) {
 
 private fun euros(centimes: Long): String =
     String.format(java.util.Locale.FRENCH, "%.2f €", centimes / 100.0)
+
+/** Petit encart discret pour noter le ticket vraiment joué, s'il n'est pas celui des favoris. */
+@Composable
+private fun MonTicket(q: QuinteDuJour, monTicket: List<Int>?, onMonTicket: (List<Int>?) -> Unit) {
+    var edition by remember(q.cle) { mutableStateOf(false) }
+    var texte by remember(q.cle) { mutableStateOf("") }
+    Column(Modifier.fillMaxWidth()) {
+        when {
+            edition -> {
+                val lu = QuinteLogic.lireTicketSaisi(texte)
+                OutlinedTextField(
+                    value = texte,
+                    onValueChange = { texte = it },
+                    label = { Text("Mon ticket : 5 numéros dans l'ordre joué") },
+                    placeholder = { Text("ex. 3 7 12 1 9") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Row {
+                    TextButton(enabled = lu != null, onClick = { onMonTicket(lu); edition = false }) { Text("Enregistrer") }
+                    TextButton(onClick = { edition = false }) { Text("Annuler") }
+                }
+            }
+            monTicket == null -> TextButton(onClick = { texte = ""; edition = true }) {
+                Text("+ J'ai joué un autre ticket")
+            }
+            else -> {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "Mon ticket : ${monTicket.joinToString(" - ")}",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.weight(1f),
+                    )
+                    TextButton(onClick = { texte = monTicket.joinToString(" "); edition = true }) { Text("Modifier") }
+                    TextButton(onClick = { onMonTicket(null) }) { Text("Effacer") }
+                }
+                val gain = q.rapports?.let { QuinteLogic.gainTicket(monTicket, it) }
+                Text(
+                    when {
+                        gain == null -> "Gains affichés à l'arrivée officielle."
+                        gain.libelle == null -> "Perdant (mise de ${euros(gain.mise)})."
+                        else -> "Gagné : ${euros(gain.montant)} (${gain.libelle}, pour ${euros(gain.mise)})"
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = if (gain?.libelle != null) FontWeight.Bold else FontWeight.Normal,
+                    color = if (gain?.libelle != null) MaterialTheme.colorScheme.primary else Color.Unspecified,
+                )
+            }
+        }
+    }
+}

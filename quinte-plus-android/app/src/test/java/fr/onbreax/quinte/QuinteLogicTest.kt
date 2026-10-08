@@ -94,6 +94,27 @@ class QuinteLogicTest {
     }
 
     @Test
+    fun ticketSaisiALaMain() {
+        assertEquals(listOf(3, 7, 12, 1, 9), QuinteLogic.lireTicketSaisi("3 7 12 1 9"))
+        assertEquals(listOf(3, 7, 12, 1, 9), QuinteLogic.lireTicketSaisi(" 3-7-12, 1/9 "))
+        assertNull(QuinteLogic.lireTicketSaisi("3 7 12 1"))
+        assertNull(QuinteLogic.lireTicketSaisi("3 7 12 1 3"))
+        assertNull(QuinteLogic.lireTicketSaisi("3 7 12 1 0"))
+        // Mon ticket « 1 5 8 4 16 » avec les rapports tabac du jour : Ordre.
+        val r = QuinteLogic.lireRapports(rapports)
+        assertEquals(Gain("Quinté+ Ordre", 188120, 200), QuinteLogic.gainTicket(QuinteLogic.lireTicketSaisi("1 5 8 4 16")!!, r))
+    }
+
+    @Test
+    fun courseCourueSelonLHeure() {
+        val (reunion, course) = QuinteLogic.trouverQuinte(programme)!!
+        val chevaux = QuinteLogic.lireChevaux(participants)
+        val date = LocalDate.of(2026, 10, 8)
+        assertFalse(QuinteLogic.assembler(date, reunion, course, chevaux, null, null, maintenant = course.heureDepart - 1).courseCourue)
+        assertTrue(QuinteLogic.assembler(date, reunion, course, chevaux, null, null, maintenant = course.heureDepart).courseCourue)
+    }
+
+    @Test
     fun pasDeQuinte() {
         assertNull(QuinteLogic.trouverQuinte("""{"programme":{"reunions":[]}}"""))
     }
