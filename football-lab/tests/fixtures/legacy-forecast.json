@@ -1,0 +1,6135 @@
+{
+  "sourceVersion": "Football Lab 1.1.1",
+  "syntheticClock": "2026-10-09T12:00:00Z",
+  "archive": {
+    "version": 1,
+    "forecasts": [
+      {
+        "match": {
+          "league": "fr",
+          "season": "2026-27",
+          "date": "2026-10-10",
+          "home": "Lille OSC",
+          "away": "Le Havre AC",
+          "round": "Matchday 6",
+          "score": null,
+          "id": "fr|2026-10-10|Lille OSC|Le Havre AC",
+          "homeId": "fr:lille-osc",
+          "awayId": "fr:le-havre-ac",
+          "stableId": "fr|2026-27|lille osc|le havre ac",
+          "provider": "openfootball",
+          "kickoff": null,
+          "status": "UNKNOWN"
+        },
+        "pred": {
+          "probs": [
+            0.504101982212135,
+            0.24492896044482865,
+            0.2509690573430365
+          ],
+          "over": 0.5146567853561004,
+          "btts": 0.5351370795183533,
+          "scores": [
+            {
+              "h": 1,
+              "a": 1,
+              "p": 0.11630660063572364
+            },
+            {
+              "h": 1,
+              "a": 0,
+              "p": 0.10697244038628595
+            },
+            {
+              "h": 2,
+              "a": 1,
+              "p": 0.09576099702671989
+            },
+            {
+              "h": 2,
+              "a": 0,
+              "p": 0.08807571960473683
+            },
+            {
+              "h": 0,
+              "a": 1,
+              "p": 0.07063014051359161
+            }
+          ],
+          "lh": 1.6466992673381746,
+          "la": 1.0872576171557018,
+          "homeN": 97,
+          "awayN": 93,
+          "n": 864,
+          "last": "2026-09-20",
+          "cutoff": "2026-10-09",
+          "baseline": [
+            0.4690187908485345,
+            0.1979068129943837,
+            0.33307439615708184
+          ],
+          "version": "poisson-lisse-1"
+        },
+        "savedAt": "2026-10-09T12:00:00.000Z",
+        "snapshot": "ff943d0e13317dd3959c2606d32acda78091a904021b15ccf2dea1655bd23873"
+      }
+    ],
+    "snapshots": {
+      "ff943d0e13317dd3959c2606d32acda78091a904021b15ccf2dea1655bd23873": {
+        "league": "fr",
+        "cutoff": "2026-10-09",
+        "training": [
+          [
+            "2023-10-20",
+            "Le Havre AC",
+            "Racing Club de Lens",
+            0,
+            0
+          ],
+          [
+            "2023-10-21",
+            "Paris Saint-Germain FC",
+            "RC Strasbourg Alsace",
+            3,
+            0
+          ],
+          [
+            "2023-10-21",
+            "OGC Nice",
+            "Olympique de Marseille",
+            1,
+            0
+          ],
+          [
+            "2023-10-22",
+            "FC Lorient",
+            "Stade Rennais FC 1901",
+            2,
+            1
+          ],
+          [
+            "2023-10-22",
+            "FC Nantes",
+            "Montpellier HSC",
+            2,
+            0
+          ],
+          [
+            "2023-10-22",
+            "Toulouse FC",
+            "Stade de Reims",
+            1,
+            1
+          ],
+          [
+            "2023-10-22",
+            "Lille OSC",
+            "Stade Brestois 29",
+            1,
+            0
+          ],
+          [
+            "2023-10-22",
+            "AS Monaco FC",
+            "FC Metz",
+            2,
+            1
+          ],
+          [
+            "2023-10-22",
+            "Olympique Lyonnais",
+            "Clermont Foot 63",
+            1,
+            2
+          ],
+          [
+            "2023-10-27",
+            "Clermont Foot 63",
+            "OGC Nice",
+            0,
+            1
+          ],
+          [
+            "2023-10-28",
+            "Stade de Reims",
+            "FC Lorient",
+            1,
+            0
+          ],
+          [
+            "2023-10-28",
+            "Racing Club de Lens",
+            "FC Nantes",
+            4,
+            0
+          ],
+          [
+            "2023-10-29",
+            "Stade Brestois 29",
+            "Paris Saint-Germain FC",
+            2,
+            3
+          ],
+          [
+            "2023-10-29",
+            "FC Metz",
+            "Le Havre AC",
+            0,
+            0
+          ],
+          [
+            "2023-10-29",
+            "Montpellier HSC",
+            "Toulouse FC",
+            3,
+            0
+          ],
+          [
+            "2023-10-29",
+            "Lille OSC",
+            "AS Monaco FC",
+            2,
+            0
+          ],
+          [
+            "2023-10-29",
+            "Stade Rennais FC 1901",
+            "RC Strasbourg Alsace",
+            1,
+            1
+          ],
+          [
+            "2023-11-03",
+            "Paris Saint-Germain FC",
+            "Montpellier HSC",
+            3,
+            0
+          ],
+          [
+            "2023-11-04",
+            "FC Lorient",
+            "Racing Club de Lens",
+            0,
+            0
+          ],
+          [
+            "2023-11-04",
+            "Olympique de Marseille",
+            "Lille OSC",
+            0,
+            0
+          ],
+          [
+            "2023-11-05",
+            "Olympique Lyonnais",
+            "FC Metz",
+            1,
+            1
+          ],
+          [
+            "2023-11-05",
+            "FC Nantes",
+            "Stade de Reims",
+            0,
+            1
+          ],
+          [
+            "2023-11-05",
+            "Toulouse FC",
+            "Le Havre AC",
+            1,
+            2
+          ],
+          [
+            "2023-11-05",
+            "RC Strasbourg Alsace",
+            "Clermont Foot 63",
+            0,
+            0
+          ],
+          [
+            "2023-11-05",
+            "AS Monaco FC",
+            "Stade Brestois 29",
+            2,
+            0
+          ],
+          [
+            "2023-11-05",
+            "OGC Nice",
+            "Stade Rennais FC 1901",
+            2,
+            0
+          ],
+          [
+            "2023-11-10",
+            "Montpellier HSC",
+            "OGC Nice",
+            0,
+            0
+          ],
+          [
+            "2023-11-11",
+            "Stade de Reims",
+            "Paris Saint-Germain FC",
+            0,
+            3
+          ],
+          [
+            "2023-11-11",
+            "Le Havre AC",
+            "AS Monaco FC",
+            0,
+            0
+          ],
+          [
+            "2023-11-12",
+            "Clermont Foot 63",
+            "FC Lorient",
+            1,
+            0
+          ],
+          [
+            "2023-11-12",
+            "FC Metz",
+            "FC Nantes",
+            3,
+            1
+          ],
+          [
+            "2023-11-12",
+            "Lille OSC",
+            "Toulouse FC",
+            1,
+            1
+          ],
+          [
+            "2023-11-12",
+            "Stade Rennais FC 1901",
+            "Olympique Lyonnais",
+            0,
+            1
+          ],
+          [
+            "2023-11-12",
+            "Racing Club de Lens",
+            "Olympique de Marseille",
+            1,
+            0
+          ],
+          [
+            "2023-11-24",
+            "Paris Saint-Germain FC",
+            "AS Monaco FC",
+            5,
+            2
+          ],
+          [
+            "2023-11-25",
+            "Clermont Foot 63",
+            "Racing Club de Lens",
+            0,
+            3
+          ],
+          [
+            "2023-11-25",
+            "RC Strasbourg Alsace",
+            "Olympique de Marseille",
+            1,
+            1
+          ],
+          [
+            "2023-11-26",
+            "OGC Nice",
+            "Toulouse FC",
+            1,
+            0
+          ],
+          [
+            "2023-11-26",
+            "FC Lorient",
+            "FC Metz",
+            2,
+            3
+          ],
+          [
+            "2023-11-26",
+            "FC Nantes",
+            "Le Havre AC",
+            0,
+            0
+          ],
+          [
+            "2023-11-26",
+            "Montpellier HSC",
+            "Stade Brestois 29",
+            1,
+            3
+          ],
+          [
+            "2023-11-26",
+            "Stade Rennais FC 1901",
+            "Stade de Reims",
+            3,
+            1
+          ],
+          [
+            "2023-11-26",
+            "Olympique Lyonnais",
+            "Lille OSC",
+            0,
+            2
+          ],
+          [
+            "2023-11-29",
+            "Montpellier HSC",
+            "Clermont Foot 63",
+            1,
+            1
+          ],
+          [
+            "2023-12-01",
+            "Stade de Reims",
+            "RC Strasbourg Alsace",
+            2,
+            1
+          ],
+          [
+            "2023-12-02",
+            "Racing Club de Lens",
+            "Olympique Lyonnais",
+            3,
+            2
+          ],
+          [
+            "2023-12-02",
+            "FC Nantes",
+            "OGC Nice",
+            1,
+            0
+          ],
+          [
+            "2023-12-03",
+            "Le Havre AC",
+            "Paris Saint-Germain FC",
+            0,
+            2
+          ],
+          [
+            "2023-12-03",
+            "AS Monaco FC",
+            "Montpellier HSC",
+            2,
+            0
+          ],
+          [
+            "2023-12-03",
+            "Toulouse FC",
+            "FC Lorient",
+            1,
+            1
+          ],
+          [
+            "2023-12-03",
+            "Stade Brestois 29",
+            "Clermont Foot 63",
+            3,
+            0
+          ],
+          [
+            "2023-12-03",
+            "Lille OSC",
+            "FC Metz",
+            2,
+            0
+          ],
+          [
+            "2023-12-03",
+            "Olympique de Marseille",
+            "Stade Rennais FC 1901",
+            2,
+            0
+          ],
+          [
+            "2023-12-06",
+            "Olympique de Marseille",
+            "Olympique Lyonnais",
+            3,
+            0
+          ],
+          [
+            "2023-12-07",
+            "Stade Brestois 29",
+            "RC Strasbourg Alsace",
+            1,
+            1
+          ],
+          [
+            "2023-12-08",
+            "Montpellier HSC",
+            "Racing Club de Lens",
+            0,
+            0
+          ],
+          [
+            "2023-12-09",
+            "Stade Rennais FC 1901",
+            "AS Monaco FC",
+            1,
+            2
+          ],
+          [
+            "2023-12-09",
+            "Paris Saint-Germain FC",
+            "FC Nantes",
+            2,
+            1
+          ],
+          [
+            "2023-12-10",
+            "OGC Nice",
+            "Stade de Reims",
+            2,
+            1
+          ],
+          [
+            "2023-12-10",
+            "Clermont Foot 63",
+            "Lille OSC",
+            0,
+            0
+          ],
+          [
+            "2023-12-10",
+            "FC Metz",
+            "Stade Brestois 29",
+            0,
+            1
+          ],
+          [
+            "2023-12-10",
+            "RC Strasbourg Alsace",
+            "Le Havre AC",
+            2,
+            1
+          ],
+          [
+            "2023-12-10",
+            "Olympique Lyonnais",
+            "Toulouse FC",
+            3,
+            0
+          ],
+          [
+            "2023-12-10",
+            "FC Lorient",
+            "Olympique de Marseille",
+            2,
+            4
+          ],
+          [
+            "2023-12-15",
+            "AS Monaco FC",
+            "Olympique Lyonnais",
+            0,
+            1
+          ],
+          [
+            "2023-12-16",
+            "Le Havre AC",
+            "OGC Nice",
+            3,
+            1
+          ],
+          [
+            "2023-12-16",
+            "Racing Club de Lens",
+            "Stade de Reims",
+            2,
+            0
+          ],
+          [
+            "2023-12-17",
+            "FC Nantes",
+            "Stade Brestois 29",
+            0,
+            2
+          ],
+          [
+            "2023-12-17",
+            "FC Lorient",
+            "RC Strasbourg Alsace",
+            1,
+            2
+          ],
+          [
+            "2023-12-17",
+            "FC Metz",
+            "Montpellier HSC",
+            0,
+            1
+          ],
+          [
+            "2023-12-17",
+            "Toulouse FC",
+            "Stade Rennais FC 1901",
+            0,
+            0
+          ],
+          [
+            "2023-12-17",
+            "Olympique de Marseille",
+            "Clermont Foot 63",
+            2,
+            1
+          ],
+          [
+            "2023-12-17",
+            "Lille OSC",
+            "Paris Saint-Germain FC",
+            1,
+            1
+          ],
+          [
+            "2023-12-20",
+            "Clermont Foot 63",
+            "Stade Rennais FC 1901",
+            1,
+            3
+          ],
+          [
+            "2023-12-20",
+            "Toulouse FC",
+            "AS Monaco FC",
+            1,
+            2
+          ],
+          [
+            "2023-12-20",
+            "Montpellier HSC",
+            "Olympique de Marseille",
+            1,
+            1
+          ],
+          [
+            "2023-12-20",
+            "OGC Nice",
+            "Racing Club de Lens",
+            2,
+            0
+          ],
+          [
+            "2023-12-20",
+            "Olympique Lyonnais",
+            "FC Nantes",
+            1,
+            0
+          ],
+          [
+            "2023-12-20",
+            "Paris Saint-Germain FC",
+            "FC Metz",
+            3,
+            1
+          ],
+          [
+            "2023-12-20",
+            "RC Strasbourg Alsace",
+            "Lille OSC",
+            2,
+            1
+          ],
+          [
+            "2023-12-20",
+            "Stade Brestois 29",
+            "FC Lorient",
+            4,
+            0
+          ],
+          [
+            "2023-12-20",
+            "Stade de Reims",
+            "Le Havre AC",
+            1,
+            0
+          ],
+          [
+            "2024-01-12",
+            "Olympique de Marseille",
+            "RC Strasbourg Alsace",
+            1,
+            1
+          ],
+          [
+            "2024-01-13",
+            "AS Monaco FC",
+            "Stade de Reims",
+            1,
+            3
+          ],
+          [
+            "2024-01-13",
+            "Stade Rennais FC 1901",
+            "OGC Nice",
+            2,
+            0
+          ],
+          [
+            "2024-01-14",
+            "Lille OSC",
+            "FC Lorient",
+            3,
+            0
+          ],
+          [
+            "2024-01-14",
+            "FC Metz",
+            "Toulouse FC",
+            0,
+            1
+          ],
+          [
+            "2024-01-14",
+            "FC Nantes",
+            "Clermont Foot 63",
+            1,
+            2
+          ],
+          [
+            "2024-01-14",
+            "Stade Brestois 29",
+            "Montpellier HSC",
+            2,
+            0
+          ],
+          [
+            "2024-01-14",
+            "Le Havre AC",
+            "Olympique Lyonnais",
+            3,
+            1
+          ],
+          [
+            "2024-01-14",
+            "Racing Club de Lens",
+            "Paris Saint-Germain FC",
+            0,
+            2
+          ],
+          [
+            "2024-01-26",
+            "Olympique Lyonnais",
+            "Stade Rennais FC 1901",
+            2,
+            3
+          ],
+          [
+            "2024-01-27",
+            "OGC Nice",
+            "FC Metz",
+            1,
+            0
+          ],
+          [
+            "2024-01-27",
+            "Olympique de Marseille",
+            "AS Monaco FC",
+            2,
+            2
+          ],
+          [
+            "2024-01-28",
+            "Montpellier HSC",
+            "Lille OSC",
+            0,
+            0
+          ],
+          [
+            "2024-01-28",
+            "Clermont Foot 63",
+            "RC Strasbourg Alsace",
+            1,
+            1
+          ],
+          [
+            "2024-01-28",
+            "FC Lorient",
+            "Le Havre AC",
+            3,
+            3
+          ],
+          [
+            "2024-01-28",
+            "Stade de Reims",
+            "FC Nantes",
+            0,
+            0
+          ],
+          [
+            "2024-01-28",
+            "Toulouse FC",
+            "Racing Club de Lens",
+            0,
+            2
+          ],
+          [
+            "2024-01-28",
+            "Paris Saint-Germain FC",
+            "Stade Brestois 29",
+            2,
+            2
+          ],
+          [
+            "2024-02-02",
+            "RC Strasbourg Alsace",
+            "Paris Saint-Germain FC",
+            1,
+            2
+          ],
+          [
+            "2024-02-03",
+            "Stade Rennais FC 1901",
+            "Montpellier HSC",
+            2,
+            1
+          ],
+          [
+            "2024-02-03",
+            "FC Nantes",
+            "Racing Club de Lens",
+            0,
+            1
+          ],
+          [
+            "2024-02-04",
+            "AS Monaco FC",
+            "Le Havre AC",
+            1,
+            1
+          ],
+          [
+            "2024-02-04",
+            "Lille OSC",
+            "Clermont Foot 63",
+            4,
+            0
+          ],
+          [
+            "2024-02-04",
+            "Stade de Reims",
+            "Toulouse FC",
+            2,
+            3
+          ],
+          [
+            "2024-02-04",
+            "FC Metz",
+            "FC Lorient",
+            1,
+            2
+          ],
+          [
+            "2024-02-04",
+            "Stade Brestois 29",
+            "OGC Nice",
+            0,
+            0
+          ],
+          [
+            "2024-02-04",
+            "Olympique Lyonnais",
+            "Olympique de Marseille",
+            1,
+            0
+          ],
+          [
+            "2024-02-09",
+            "Olympique de Marseille",
+            "FC Metz",
+            1,
+            1
+          ],
+          [
+            "2024-02-10",
+            "Racing Club de Lens",
+            "RC Strasbourg Alsace",
+            3,
+            1
+          ],
+          [
+            "2024-02-10",
+            "Paris Saint-Germain FC",
+            "Lille OSC",
+            3,
+            1
+          ],
+          [
+            "2024-02-11",
+            "Le Havre AC",
+            "Stade Rennais FC 1901",
+            0,
+            1
+          ],
+          [
+            "2024-02-11",
+            "Clermont Foot 63",
+            "Stade Brestois 29",
+            1,
+            1
+          ],
+          [
+            "2024-02-11",
+            "FC Lorient",
+            "Stade de Reims",
+            2,
+            0
+          ],
+          [
+            "2024-02-11",
+            "Toulouse FC",
+            "FC Nantes",
+            1,
+            2
+          ],
+          [
+            "2024-02-11",
+            "Montpellier HSC",
+            "Olympique Lyonnais",
+            1,
+            2
+          ],
+          [
+            "2024-02-11",
+            "OGC Nice",
+            "AS Monaco FC",
+            2,
+            3
+          ],
+          [
+            "2024-02-16",
+            "Olympique Lyonnais",
+            "OGC Nice",
+            1,
+            0
+          ],
+          [
+            "2024-02-17",
+            "Lille OSC",
+            "Le Havre AC",
+            3,
+            0
+          ],
+          [
+            "2024-02-17",
+            "FC Nantes",
+            "Paris Saint-Germain FC",
+            0,
+            2
+          ],
+          [
+            "2024-02-18",
+            "RC Strasbourg Alsace",
+            "FC Lorient",
+            1,
+            3
+          ],
+          [
+            "2024-02-18",
+            "AS Monaco FC",
+            "Toulouse FC",
+            1,
+            2
+          ],
+          [
+            "2024-02-18",
+            "Montpellier HSC",
+            "FC Metz",
+            3,
+            0
+          ],
+          [
+            "2024-02-18",
+            "Stade Rennais FC 1901",
+            "Clermont Foot 63",
+            3,
+            1
+          ],
+          [
+            "2024-02-18",
+            "Stade de Reims",
+            "Racing Club de Lens",
+            1,
+            1
+          ],
+          [
+            "2024-02-18",
+            "Stade Brestois 29",
+            "Olympique de Marseille",
+            1,
+            0
+          ],
+          [
+            "2024-02-23",
+            "FC Metz",
+            "Olympique Lyonnais",
+            1,
+            2
+          ],
+          [
+            "2024-02-24",
+            "FC Lorient",
+            "FC Nantes",
+            0,
+            1
+          ],
+          [
+            "2024-02-24",
+            "RC Strasbourg Alsace",
+            "Stade Brestois 29",
+            0,
+            3
+          ],
+          [
+            "2024-02-25",
+            "Racing Club de Lens",
+            "AS Monaco FC",
+            2,
+            3
+          ],
+          [
+            "2024-02-25",
+            "Le Havre AC",
+            "Stade de Reims",
+            1,
+            2
+          ],
+          [
+            "2024-02-25",
+            "Toulouse FC",
+            "Lille OSC",
+            3,
+            1
+          ],
+          [
+            "2024-02-25",
+            "OGC Nice",
+            "Clermont Foot 63",
+            0,
+            0
+          ],
+          [
+            "2024-02-25",
+            "Paris Saint-Germain FC",
+            "Stade Rennais FC 1901",
+            1,
+            1
+          ],
+          [
+            "2024-02-25",
+            "Olympique de Marseille",
+            "Montpellier HSC",
+            4,
+            1
+          ],
+          [
+            "2024-03-01",
+            "AS Monaco FC",
+            "Paris Saint-Germain FC",
+            0,
+            0
+          ],
+          [
+            "2024-03-02",
+            "Stade de Reims",
+            "Lille OSC",
+            0,
+            1
+          ],
+          [
+            "2024-03-02",
+            "Clermont Foot 63",
+            "Olympique de Marseille",
+            1,
+            5
+          ],
+          [
+            "2024-03-03",
+            "Toulouse FC",
+            "OGC Nice",
+            2,
+            1
+          ],
+          [
+            "2024-03-03",
+            "FC Nantes",
+            "FC Metz",
+            0,
+            2
+          ],
+          [
+            "2024-03-03",
+            "Montpellier HSC",
+            "RC Strasbourg Alsace",
+            2,
+            2
+          ],
+          [
+            "2024-03-03",
+            "Stade Brestois 29",
+            "Le Havre AC",
+            1,
+            0
+          ],
+          [
+            "2024-03-03",
+            "Stade Rennais FC 1901",
+            "FC Lorient",
+            1,
+            2
+          ],
+          [
+            "2024-03-03",
+            "Olympique Lyonnais",
+            "Racing Club de Lens",
+            0,
+            3
+          ],
+          [
+            "2024-03-08",
+            "OGC Nice",
+            "Montpellier HSC",
+            1,
+            2
+          ],
+          [
+            "2024-03-09",
+            "FC Lorient",
+            "Olympique Lyonnais",
+            0,
+            2
+          ],
+          [
+            "2024-03-09",
+            "Racing Club de Lens",
+            "Stade Brestois 29",
+            1,
+            0
+          ],
+          [
+            "2024-03-10",
+            "Paris Saint-Germain FC",
+            "Stade de Reims",
+            2,
+            2
+          ],
+          [
+            "2024-03-10",
+            "Le Havre AC",
+            "Toulouse FC",
+            1,
+            0
+          ],
+          [
+            "2024-03-10",
+            "FC Metz",
+            "Clermont Foot 63",
+            1,
+            0
+          ],
+          [
+            "2024-03-10",
+            "RC Strasbourg Alsace",
+            "AS Monaco FC",
+            0,
+            1
+          ],
+          [
+            "2024-03-10",
+            "Lille OSC",
+            "Stade Rennais FC 1901",
+            2,
+            2
+          ],
+          [
+            "2024-03-10",
+            "Olympique de Marseille",
+            "FC Nantes",
+            2,
+            0
+          ],
+          [
+            "2024-03-15",
+            "Toulouse FC",
+            "Olympique Lyonnais",
+            2,
+            3
+          ],
+          [
+            "2024-03-16",
+            "FC Nantes",
+            "RC Strasbourg Alsace",
+            1,
+            3
+          ],
+          [
+            "2024-03-16",
+            "Racing Club de Lens",
+            "OGC Nice",
+            1,
+            3
+          ],
+          [
+            "2024-03-17",
+            "Stade Brestois 29",
+            "Lille OSC",
+            1,
+            1
+          ],
+          [
+            "2024-03-17",
+            "AS Monaco FC",
+            "FC Lorient",
+            2,
+            2
+          ],
+          [
+            "2024-03-17",
+            "Clermont Foot 63",
+            "Le Havre AC",
+            2,
+            1
+          ],
+          [
+            "2024-03-17",
+            "Stade de Reims",
+            "FC Metz",
+            2,
+            1
+          ],
+          [
+            "2024-03-17",
+            "Stade Rennais FC 1901",
+            "Olympique de Marseille",
+            2,
+            0
+          ],
+          [
+            "2024-03-17",
+            "Montpellier HSC",
+            "Paris Saint-Germain FC",
+            2,
+            6
+          ],
+          [
+            "2024-03-29",
+            "Lille OSC",
+            "Racing Club de Lens",
+            2,
+            1
+          ],
+          [
+            "2024-03-30",
+            "FC Metz",
+            "AS Monaco FC",
+            2,
+            5
+          ],
+          [
+            "2024-03-30",
+            "Olympique Lyonnais",
+            "Stade de Reims",
+            1,
+            1
+          ],
+          [
+            "2024-03-31",
+            "FC Lorient",
+            "Stade Brestois 29",
+            0,
+            1
+          ],
+          [
+            "2024-03-31",
+            "Le Havre AC",
+            "Montpellier HSC",
+            0,
+            2
+          ],
+          [
+            "2024-03-31",
+            "Clermont Foot 63",
+            "Toulouse FC",
+            0,
+            3
+          ],
+          [
+            "2024-03-31",
+            "OGC Nice",
+            "FC Nantes",
+            1,
+            2
+          ],
+          [
+            "2024-03-31",
+            "RC Strasbourg Alsace",
+            "Stade Rennais FC 1901",
+            2,
+            0
+          ],
+          [
+            "2024-03-31",
+            "Olympique de Marseille",
+            "Paris Saint-Germain FC",
+            0,
+            2
+          ],
+          [
+            "2024-04-05",
+            "Lille OSC",
+            "Olympique de Marseille",
+            3,
+            1
+          ],
+          [
+            "2024-04-06",
+            "Racing Club de Lens",
+            "Le Havre AC",
+            1,
+            1
+          ],
+          [
+            "2024-04-06",
+            "Paris Saint-Germain FC",
+            "Clermont Foot 63",
+            1,
+            1
+          ],
+          [
+            "2024-04-07",
+            "Stade Brestois 29",
+            "FC Metz",
+            4,
+            3
+          ],
+          [
+            "2024-04-07",
+            "Toulouse FC",
+            "RC Strasbourg Alsace",
+            0,
+            0
+          ],
+          [
+            "2024-04-07",
+            "Montpellier HSC",
+            "FC Lorient",
+            2,
+            0
+          ],
+          [
+            "2024-04-07",
+            "Stade de Reims",
+            "OGC Nice",
+            0,
+            0
+          ],
+          [
+            "2024-04-07",
+            "AS Monaco FC",
+            "Stade Rennais FC 1901",
+            1,
+            0
+          ],
+          [
+            "2024-04-07",
+            "FC Nantes",
+            "Olympique Lyonnais",
+            1,
+            3
+          ],
+          [
+            "2024-04-12",
+            "FC Metz",
+            "Racing Club de Lens",
+            2,
+            1
+          ],
+          [
+            "2024-04-13",
+            "RC Strasbourg Alsace",
+            "Stade de Reims",
+            3,
+            1
+          ],
+          [
+            "2024-04-13",
+            "Stade Rennais FC 1901",
+            "Toulouse FC",
+            1,
+            2
+          ],
+          [
+            "2024-04-14",
+            "Le Havre AC",
+            "FC Nantes",
+            0,
+            1
+          ],
+          [
+            "2024-04-14",
+            "Clermont Foot 63",
+            "Montpellier HSC",
+            1,
+            1
+          ],
+          [
+            "2024-04-14",
+            "Olympique Lyonnais",
+            "Stade Brestois 29",
+            4,
+            3
+          ],
+          [
+            "2024-04-19",
+            "OGC Nice",
+            "FC Lorient",
+            3,
+            0
+          ],
+          [
+            "2024-04-20",
+            "FC Nantes",
+            "Stade Rennais FC 1901",
+            0,
+            3
+          ],
+          [
+            "2024-04-20",
+            "Racing Club de Lens",
+            "Clermont Foot 63",
+            1,
+            0
+          ],
+          [
+            "2024-04-21",
+            "Le Havre AC",
+            "FC Metz",
+            0,
+            1
+          ],
+          [
+            "2024-04-21",
+            "Lille OSC",
+            "RC Strasbourg Alsace",
+            1,
+            0
+          ],
+          [
+            "2024-04-21",
+            "Stade de Reims",
+            "Montpellier HSC",
+            1,
+            2
+          ],
+          [
+            "2024-04-21",
+            "Stade Brestois 29",
+            "AS Monaco FC",
+            0,
+            2
+          ],
+          [
+            "2024-04-21",
+            "Toulouse FC",
+            "Olympique de Marseille",
+            2,
+            2
+          ],
+          [
+            "2024-04-21",
+            "Paris Saint-Germain FC",
+            "Olympique Lyonnais",
+            4,
+            1
+          ],
+          [
+            "2024-04-24",
+            "FC Lorient",
+            "Paris Saint-Germain FC",
+            1,
+            4
+          ],
+          [
+            "2024-04-24",
+            "AS Monaco FC",
+            "Lille OSC",
+            1,
+            0
+          ],
+          [
+            "2024-04-24",
+            "Olympique de Marseille",
+            "OGC Nice",
+            2,
+            2
+          ],
+          [
+            "2024-04-26",
+            "Montpellier HSC",
+            "FC Nantes",
+            1,
+            1
+          ],
+          [
+            "2024-04-27",
+            "Paris Saint-Germain FC",
+            "Le Havre AC",
+            3,
+            3
+          ],
+          [
+            "2024-04-28",
+            "FC Metz",
+            "Lille OSC",
+            1,
+            2
+          ],
+          [
+            "2024-04-28",
+            "Clermont Foot 63",
+            "Stade de Reims",
+            4,
+            1
+          ],
+          [
+            "2024-04-28",
+            "FC Lorient",
+            "Toulouse FC",
+            1,
+            2
+          ],
+          [
+            "2024-04-28",
+            "RC Strasbourg Alsace",
+            "OGC Nice",
+            1,
+            3
+          ],
+          [
+            "2024-04-28",
+            "Stade Rennais FC 1901",
+            "Stade Brestois 29",
+            4,
+            5
+          ],
+          [
+            "2024-04-28",
+            "Olympique Lyonnais",
+            "AS Monaco FC",
+            3,
+            2
+          ],
+          [
+            "2024-04-28",
+            "Olympique de Marseille",
+            "Racing Club de Lens",
+            2,
+            1
+          ],
+          [
+            "2024-05-03",
+            "Toulouse FC",
+            "Montpellier HSC",
+            1,
+            2
+          ],
+          [
+            "2024-05-03",
+            "Racing Club de Lens",
+            "FC Lorient",
+            2,
+            0
+          ],
+          [
+            "2024-05-04",
+            "Le Havre AC",
+            "RC Strasbourg Alsace",
+            3,
+            1
+          ],
+          [
+            "2024-05-04",
+            "AS Monaco FC",
+            "Clermont Foot 63",
+            4,
+            1
+          ],
+          [
+            "2024-05-04",
+            "FC Metz",
+            "Stade Rennais FC 1901",
+            2,
+            3
+          ],
+          [
+            "2024-05-04",
+            "Stade Brestois 29",
+            "FC Nantes",
+            0,
+            0
+          ],
+          [
+            "2024-05-06",
+            "Lille OSC",
+            "Olympique Lyonnais",
+            3,
+            4
+          ],
+          [
+            "2024-05-10",
+            "OGC Nice",
+            "Le Havre AC",
+            1,
+            0
+          ],
+          [
+            "2024-05-10",
+            "Stade Brestois 29",
+            "Stade de Reims",
+            1,
+            1
+          ],
+          [
+            "2024-05-12",
+            "Clermont Foot 63",
+            "Olympique Lyonnais",
+            0,
+            1
+          ],
+          [
+            "2024-05-12",
+            "FC Nantes",
+            "Lille OSC",
+            1,
+            2
+          ],
+          [
+            "2024-05-12",
+            "Montpellier HSC",
+            "AS Monaco FC",
+            0,
+            2
+          ],
+          [
+            "2024-05-12",
+            "Olympique de Marseille",
+            "FC Lorient",
+            3,
+            1
+          ],
+          [
+            "2024-05-12",
+            "Paris Saint-Germain FC",
+            "Toulouse FC",
+            1,
+            3
+          ],
+          [
+            "2024-05-12",
+            "RC Strasbourg Alsace",
+            "FC Metz",
+            2,
+            1
+          ],
+          [
+            "2024-05-12",
+            "Stade Rennais FC 1901",
+            "Racing Club de Lens",
+            1,
+            1
+          ],
+          [
+            "2024-05-15",
+            "OGC Nice",
+            "Paris Saint-Germain FC",
+            1,
+            2
+          ],
+          [
+            "2024-05-15",
+            "Stade de Reims",
+            "Olympique de Marseille",
+            1,
+            0
+          ],
+          [
+            "2024-05-19",
+            "Le Havre AC",
+            "Olympique de Marseille",
+            1,
+            2
+          ],
+          [
+            "2024-05-19",
+            "AS Monaco FC",
+            "FC Nantes",
+            4,
+            0
+          ],
+          [
+            "2024-05-19",
+            "FC Lorient",
+            "Clermont Foot 63",
+            5,
+            0
+          ],
+          [
+            "2024-05-19",
+            "FC Metz",
+            "Paris Saint-Germain FC",
+            0,
+            2
+          ],
+          [
+            "2024-05-19",
+            "Toulouse FC",
+            "Stade Brestois 29",
+            0,
+            3
+          ],
+          [
+            "2024-05-19",
+            "Olympique Lyonnais",
+            "RC Strasbourg Alsace",
+            2,
+            1
+          ],
+          [
+            "2024-05-19",
+            "Lille OSC",
+            "OGC Nice",
+            2,
+            2
+          ],
+          [
+            "2024-05-19",
+            "Racing Club de Lens",
+            "Montpellier HSC",
+            2,
+            2
+          ],
+          [
+            "2024-05-19",
+            "Stade de Reims",
+            "Stade Rennais FC 1901",
+            2,
+            1
+          ],
+          [
+            "2024-08-16",
+            "Le Havre AC",
+            "Paris Saint-Germain FC",
+            1,
+            4
+          ],
+          [
+            "2024-08-17",
+            "Stade Brestois 29",
+            "Olympique de Marseille",
+            1,
+            5
+          ],
+          [
+            "2024-08-17",
+            "Stade de Reims",
+            "Lille OSC",
+            0,
+            2
+          ],
+          [
+            "2024-08-17",
+            "AS Monaco FC",
+            "AS Saint-Étienne",
+            1,
+            0
+          ],
+          [
+            "2024-08-18",
+            "AJ Auxerre",
+            "OGC Nice",
+            2,
+            1
+          ],
+          [
+            "2024-08-18",
+            "Montpellier HSC",
+            "RC Strasbourg Alsace",
+            1,
+            1
+          ],
+          [
+            "2024-08-18",
+            "Toulouse FC",
+            "FC Nantes",
+            0,
+            0
+          ],
+          [
+            "2024-08-18",
+            "Angers SCO",
+            "Racing Club de Lens",
+            0,
+            1
+          ],
+          [
+            "2024-08-18",
+            "Stade Rennais FC 1901",
+            "Olympique Lyonnais",
+            3,
+            0
+          ],
+          [
+            "2024-08-23",
+            "Paris Saint-Germain FC",
+            "Montpellier HSC",
+            6,
+            0
+          ],
+          [
+            "2024-08-24",
+            "Olympique Lyonnais",
+            "AS Monaco FC",
+            0,
+            2
+          ],
+          [
+            "2024-08-24",
+            "Lille OSC",
+            "Angers SCO",
+            2,
+            0
+          ],
+          [
+            "2024-08-24",
+            "AS Saint-Étienne",
+            "Le Havre AC",
+            0,
+            2
+          ],
+          [
+            "2024-08-25",
+            "Racing Club de Lens",
+            "Stade Brestois 29",
+            2,
+            0
+          ],
+          [
+            "2024-08-25",
+            "RC Strasbourg Alsace",
+            "Stade Rennais FC 1901",
+            3,
+            1
+          ],
+          [
+            "2024-08-25",
+            "FC Nantes",
+            "AJ Auxerre",
+            2,
+            0
+          ],
+          [
+            "2024-08-25",
+            "OGC Nice",
+            "Toulouse FC",
+            1,
+            1
+          ],
+          [
+            "2024-08-25",
+            "Olympique de Marseille",
+            "Stade de Reims",
+            2,
+            2
+          ],
+          [
+            "2024-08-30",
+            "Olympique Lyonnais",
+            "RC Strasbourg Alsace",
+            4,
+            3
+          ],
+          [
+            "2024-08-31",
+            "Stade Brestois 29",
+            "AS Saint-Étienne",
+            4,
+            0
+          ],
+          [
+            "2024-08-31",
+            "Montpellier HSC",
+            "FC Nantes",
+            1,
+            3
+          ],
+          [
+            "2024-08-31",
+            "Toulouse FC",
+            "Olympique de Marseille",
+            1,
+            3
+          ],
+          [
+            "2024-09-01",
+            "AS Monaco FC",
+            "Racing Club de Lens",
+            1,
+            1
+          ],
+          [
+            "2024-09-01",
+            "Angers SCO",
+            "OGC Nice",
+            1,
+            4
+          ],
+          [
+            "2024-09-01",
+            "Le Havre AC",
+            "AJ Auxerre",
+            3,
+            1
+          ],
+          [
+            "2024-09-01",
+            "Stade de Reims",
+            "Stade Rennais FC 1901",
+            2,
+            1
+          ],
+          [
+            "2024-09-01",
+            "Lille OSC",
+            "Paris Saint-Germain FC",
+            1,
+            3
+          ],
+          [
+            "2024-09-13",
+            "AS Saint-Étienne",
+            "Lille OSC",
+            1,
+            0
+          ],
+          [
+            "2024-09-14",
+            "Olympique de Marseille",
+            "OGC Nice",
+            2,
+            0
+          ],
+          [
+            "2024-09-14",
+            "AJ Auxerre",
+            "AS Monaco FC",
+            0,
+            3
+          ],
+          [
+            "2024-09-14",
+            "Paris Saint-Germain FC",
+            "Stade Brestois 29",
+            3,
+            1
+          ],
+          [
+            "2024-09-15",
+            "Stade Rennais FC 1901",
+            "Montpellier HSC",
+            3,
+            0
+          ],
+          [
+            "2024-09-15",
+            "FC Nantes",
+            "Stade de Reims",
+            1,
+            2
+          ],
+          [
+            "2024-09-15",
+            "Toulouse FC",
+            "Le Havre AC",
+            2,
+            0
+          ],
+          [
+            "2024-09-15",
+            "RC Strasbourg Alsace",
+            "Angers SCO",
+            1,
+            1
+          ],
+          [
+            "2024-09-15",
+            "Racing Club de Lens",
+            "Olympique Lyonnais",
+            0,
+            0
+          ],
+          [
+            "2024-09-20",
+            "OGC Nice",
+            "AS Saint-Étienne",
+            8,
+            0
+          ],
+          [
+            "2024-09-21",
+            "Lille OSC",
+            "RC Strasbourg Alsace",
+            3,
+            3
+          ],
+          [
+            "2024-09-21",
+            "Stade Rennais FC 1901",
+            "Racing Club de Lens",
+            1,
+            1
+          ],
+          [
+            "2024-09-21",
+            "Stade de Reims",
+            "Paris Saint-Germain FC",
+            1,
+            1
+          ],
+          [
+            "2024-09-22",
+            "AS Monaco FC",
+            "Le Havre AC",
+            3,
+            1
+          ],
+          [
+            "2024-09-22",
+            "Stade Brestois 29",
+            "Toulouse FC",
+            2,
+            0
+          ],
+          [
+            "2024-09-22",
+            "Angers SCO",
+            "FC Nantes",
+            1,
+            1
+          ],
+          [
+            "2024-09-22",
+            "Montpellier HSC",
+            "AJ Auxerre",
+            3,
+            2
+          ],
+          [
+            "2024-09-22",
+            "Olympique Lyonnais",
+            "Olympique de Marseille",
+            2,
+            3
+          ],
+          [
+            "2024-09-27",
+            "AJ Auxerre",
+            "Stade Brestois 29",
+            3,
+            0
+          ],
+          [
+            "2024-09-27",
+            "Paris Saint-Germain FC",
+            "Stade Rennais FC 1901",
+            3,
+            1
+          ],
+          [
+            "2024-09-28",
+            "Racing Club de Lens",
+            "OGC Nice",
+            0,
+            0
+          ],
+          [
+            "2024-09-28",
+            "Le Havre AC",
+            "Lille OSC",
+            0,
+            3
+          ],
+          [
+            "2024-09-28",
+            "AS Monaco FC",
+            "Montpellier HSC",
+            2,
+            1
+          ],
+          [
+            "2024-09-29",
+            "Toulouse FC",
+            "Olympique Lyonnais",
+            1,
+            2
+          ],
+          [
+            "2024-09-29",
+            "FC Nantes",
+            "AS Saint-Étienne",
+            2,
+            2
+          ],
+          [
+            "2024-09-29",
+            "Angers SCO",
+            "Stade de Reims",
+            1,
+            3
+          ],
+          [
+            "2024-09-29",
+            "RC Strasbourg Alsace",
+            "Olympique de Marseille",
+            1,
+            0
+          ],
+          [
+            "2024-10-04",
+            "Olympique de Marseille",
+            "Angers SCO",
+            1,
+            1
+          ],
+          [
+            "2024-10-05",
+            "AS Saint-Étienne",
+            "AJ Auxerre",
+            3,
+            1
+          ],
+          [
+            "2024-10-05",
+            "Lille OSC",
+            "Toulouse FC",
+            2,
+            1
+          ],
+          [
+            "2024-10-05",
+            "Stade Rennais FC 1901",
+            "AS Monaco FC",
+            1,
+            2
+          ],
+          [
+            "2024-10-06",
+            "Olympique Lyonnais",
+            "FC Nantes",
+            2,
+            0
+          ],
+          [
+            "2024-10-06",
+            "Stade Brestois 29",
+            "Le Havre AC",
+            2,
+            0
+          ],
+          [
+            "2024-10-06",
+            "RC Strasbourg Alsace",
+            "Racing Club de Lens",
+            2,
+            2
+          ],
+          [
+            "2024-10-06",
+            "Stade de Reims",
+            "Montpellier HSC",
+            4,
+            2
+          ],
+          [
+            "2024-10-06",
+            "OGC Nice",
+            "Paris Saint-Germain FC",
+            1,
+            1
+          ],
+          [
+            "2024-10-18",
+            "AS Monaco FC",
+            "Lille OSC",
+            0,
+            0
+          ],
+          [
+            "2024-10-19",
+            "Stade Brestois 29",
+            "Stade Rennais FC 1901",
+            1,
+            1
+          ],
+          [
+            "2024-10-19",
+            "AS Saint-Étienne",
+            "Racing Club de Lens",
+            0,
+            2
+          ],
+          [
+            "2024-10-19",
+            "Paris Saint-Germain FC",
+            "RC Strasbourg Alsace",
+            4,
+            2
+          ],
+          [
+            "2024-10-20",
+            "Le Havre AC",
+            "Olympique Lyonnais",
+            0,
+            4
+          ],
+          [
+            "2024-10-20",
+            "AJ Auxerre",
+            "Stade de Reims",
+            2,
+            1
+          ],
+          [
+            "2024-10-20",
+            "Toulouse FC",
+            "Angers SCO",
+            1,
+            1
+          ],
+          [
+            "2024-10-20",
+            "FC Nantes",
+            "OGC Nice",
+            1,
+            1
+          ],
+          [
+            "2024-10-20",
+            "Montpellier HSC",
+            "Olympique de Marseille",
+            0,
+            5
+          ],
+          [
+            "2024-10-25",
+            "Stade Rennais FC 1901",
+            "Le Havre AC",
+            1,
+            0
+          ],
+          [
+            "2024-10-26",
+            "Angers SCO",
+            "AS Saint-Étienne",
+            4,
+            2
+          ],
+          [
+            "2024-10-26",
+            "Stade de Reims",
+            "Stade Brestois 29",
+            1,
+            2
+          ],
+          [
+            "2024-10-26",
+            "Racing Club de Lens",
+            "Lille OSC",
+            0,
+            2
+          ],
+          [
+            "2024-10-27",
+            "Olympique Lyonnais",
+            "AJ Auxerre",
+            2,
+            2
+          ],
+          [
+            "2024-10-27",
+            "OGC Nice",
+            "AS Monaco FC",
+            2,
+            1
+          ],
+          [
+            "2024-10-27",
+            "Montpellier HSC",
+            "Toulouse FC",
+            0,
+            3
+          ],
+          [
+            "2024-10-27",
+            "RC Strasbourg Alsace",
+            "FC Nantes",
+            3,
+            1
+          ],
+          [
+            "2024-10-27",
+            "Olympique de Marseille",
+            "Paris Saint-Germain FC",
+            0,
+            3
+          ],
+          [
+            "2024-11-01",
+            "AS Monaco FC",
+            "Angers SCO",
+            0,
+            1
+          ],
+          [
+            "2024-11-01",
+            "Lille OSC",
+            "Olympique Lyonnais",
+            1,
+            1
+          ],
+          [
+            "2024-11-02",
+            "Paris Saint-Germain FC",
+            "Racing Club de Lens",
+            1,
+            0
+          ],
+          [
+            "2024-11-02",
+            "Stade Brestois 29",
+            "OGC Nice",
+            0,
+            1
+          ],
+          [
+            "2024-11-02",
+            "AS Saint-Étienne",
+            "RC Strasbourg Alsace",
+            2,
+            0
+          ],
+          [
+            "2024-11-03",
+            "Toulouse FC",
+            "Stade de Reims",
+            1,
+            0
+          ],
+          [
+            "2024-11-03",
+            "AJ Auxerre",
+            "Stade Rennais FC 1901",
+            4,
+            0
+          ],
+          [
+            "2024-11-03",
+            "Le Havre AC",
+            "Montpellier HSC",
+            1,
+            0
+          ],
+          [
+            "2024-11-03",
+            "FC Nantes",
+            "Olympique de Marseille",
+            1,
+            2
+          ],
+          [
+            "2024-11-08",
+            "Olympique de Marseille",
+            "AJ Auxerre",
+            1,
+            3
+          ],
+          [
+            "2024-11-09",
+            "RC Strasbourg Alsace",
+            "AS Monaco FC",
+            1,
+            3
+          ],
+          [
+            "2024-11-09",
+            "Racing Club de Lens",
+            "FC Nantes",
+            3,
+            2
+          ],
+          [
+            "2024-11-09",
+            "Angers SCO",
+            "Paris Saint-Germain FC",
+            2,
+            4
+          ],
+          [
+            "2024-11-10",
+            "OGC Nice",
+            "Lille OSC",
+            2,
+            2
+          ],
+          [
+            "2024-11-10",
+            "Montpellier HSC",
+            "Stade Brestois 29",
+            3,
+            1
+          ],
+          [
+            "2024-11-10",
+            "Le Havre AC",
+            "Stade de Reims",
+            0,
+            3
+          ],
+          [
+            "2024-11-10",
+            "Stade Rennais FC 1901",
+            "Toulouse FC",
+            0,
+            2
+          ],
+          [
+            "2024-11-10",
+            "Olympique Lyonnais",
+            "AS Saint-Étienne",
+            1,
+            0
+          ],
+          [
+            "2024-11-22",
+            "AS Monaco FC",
+            "Stade Brestois 29",
+            3,
+            2
+          ],
+          [
+            "2024-11-22",
+            "Paris Saint-Germain FC",
+            "Toulouse FC",
+            3,
+            0
+          ],
+          [
+            "2024-11-23",
+            "Racing Club de Lens",
+            "Olympique de Marseille",
+            1,
+            3
+          ],
+          [
+            "2024-11-23",
+            "AS Saint-Étienne",
+            "Montpellier HSC",
+            1,
+            0
+          ],
+          [
+            "2024-11-23",
+            "Stade de Reims",
+            "Olympique Lyonnais",
+            1,
+            1
+          ],
+          [
+            "2024-11-24",
+            "Lille OSC",
+            "Stade Rennais FC 1901",
+            1,
+            0
+          ],
+          [
+            "2024-11-24",
+            "FC Nantes",
+            "Le Havre AC",
+            0,
+            2
+          ],
+          [
+            "2024-11-24",
+            "AJ Auxerre",
+            "Angers SCO",
+            1,
+            0
+          ],
+          [
+            "2024-11-24",
+            "OGC Nice",
+            "RC Strasbourg Alsace",
+            2,
+            1
+          ],
+          [
+            "2024-11-29",
+            "Stade de Reims",
+            "Racing Club de Lens",
+            0,
+            2
+          ],
+          [
+            "2024-11-30",
+            "Stade Rennais FC 1901",
+            "AS Saint-Étienne",
+            5,
+            0
+          ],
+          [
+            "2024-11-30",
+            "Stade Brestois 29",
+            "RC Strasbourg Alsace",
+            3,
+            1
+          ],
+          [
+            "2024-11-30",
+            "Paris Saint-Germain FC",
+            "FC Nantes",
+            1,
+            1
+          ],
+          [
+            "2024-12-01",
+            "Montpellier HSC",
+            "Lille OSC",
+            2,
+            2
+          ],
+          [
+            "2024-12-01",
+            "Le Havre AC",
+            "Angers SCO",
+            0,
+            1
+          ],
+          [
+            "2024-12-01",
+            "Toulouse FC",
+            "AJ Auxerre",
+            2,
+            0
+          ],
+          [
+            "2024-12-01",
+            "Olympique Lyonnais",
+            "OGC Nice",
+            4,
+            1
+          ],
+          [
+            "2024-12-01",
+            "Olympique de Marseille",
+            "AS Monaco FC",
+            2,
+            1
+          ],
+          [
+            "2024-12-06",
+            "Lille OSC",
+            "Stade Brestois 29",
+            3,
+            1
+          ],
+          [
+            "2024-12-06",
+            "AJ Auxerre",
+            "Paris Saint-Germain FC",
+            0,
+            0
+          ],
+          [
+            "2024-12-07",
+            "AS Monaco FC",
+            "Toulouse FC",
+            2,
+            0
+          ],
+          [
+            "2024-12-07",
+            "OGC Nice",
+            "Le Havre AC",
+            2,
+            1
+          ],
+          [
+            "2024-12-07",
+            "Angers SCO",
+            "Olympique Lyonnais",
+            0,
+            3
+          ],
+          [
+            "2024-12-08",
+            "Racing Club de Lens",
+            "Montpellier HSC",
+            2,
+            0
+          ],
+          [
+            "2024-12-08",
+            "RC Strasbourg Alsace",
+            "Stade de Reims",
+            0,
+            0
+          ],
+          [
+            "2024-12-08",
+            "FC Nantes",
+            "Stade Rennais FC 1901",
+            1,
+            0
+          ],
+          [
+            "2024-12-08",
+            "AS Saint-Étienne",
+            "Olympique de Marseille",
+            0,
+            2
+          ],
+          [
+            "2024-12-13",
+            "Toulouse FC",
+            "AS Saint-Étienne",
+            2,
+            1
+          ],
+          [
+            "2024-12-14",
+            "Olympique de Marseille",
+            "Lille OSC",
+            1,
+            1
+          ],
+          [
+            "2024-12-14",
+            "AJ Auxerre",
+            "Racing Club de Lens",
+            2,
+            2
+          ],
+          [
+            "2024-12-14",
+            "Stade de Reims",
+            "AS Monaco FC",
+            0,
+            0
+          ],
+          [
+            "2024-12-15",
+            "Montpellier HSC",
+            "OGC Nice",
+            2,
+            2
+          ],
+          [
+            "2024-12-15",
+            "Stade Rennais FC 1901",
+            "Angers SCO",
+            2,
+            0
+          ],
+          [
+            "2024-12-15",
+            "Le Havre AC",
+            "RC Strasbourg Alsace",
+            0,
+            3
+          ],
+          [
+            "2024-12-15",
+            "Stade Brestois 29",
+            "FC Nantes",
+            4,
+            1
+          ],
+          [
+            "2024-12-15",
+            "Paris Saint-Germain FC",
+            "Olympique Lyonnais",
+            3,
+            1
+          ],
+          [
+            "2024-12-18",
+            "AS Monaco FC",
+            "Paris Saint-Germain FC",
+            2,
+            4
+          ],
+          [
+            "2025-01-03",
+            "OGC Nice",
+            "Stade Rennais FC 1901",
+            3,
+            2
+          ],
+          [
+            "2025-01-04",
+            "AS Saint-Étienne",
+            "Stade de Reims",
+            3,
+            1
+          ],
+          [
+            "2025-01-04",
+            "Lille OSC",
+            "FC Nantes",
+            1,
+            1
+          ],
+          [
+            "2025-01-04",
+            "Olympique Lyonnais",
+            "Montpellier HSC",
+            1,
+            0
+          ],
+          [
+            "2025-01-05",
+            "Racing Club de Lens",
+            "Toulouse FC",
+            0,
+            1
+          ],
+          [
+            "2025-01-05",
+            "Angers SCO",
+            "Stade Brestois 29",
+            2,
+            0
+          ],
+          [
+            "2025-01-05",
+            "RC Strasbourg Alsace",
+            "AJ Auxerre",
+            3,
+            1
+          ],
+          [
+            "2025-01-05",
+            "Olympique de Marseille",
+            "Le Havre AC",
+            5,
+            1
+          ],
+          [
+            "2025-01-10",
+            "FC Nantes",
+            "AS Monaco FC",
+            2,
+            2
+          ],
+          [
+            "2025-01-10",
+            "AJ Auxerre",
+            "Lille OSC",
+            0,
+            0
+          ],
+          [
+            "2025-01-11",
+            "Stade Brestois 29",
+            "Olympique Lyonnais",
+            2,
+            1
+          ],
+          [
+            "2025-01-11",
+            "Stade de Reims",
+            "OGC Nice",
+            2,
+            4
+          ],
+          [
+            "2025-01-11",
+            "Stade Rennais FC 1901",
+            "Olympique de Marseille",
+            1,
+            2
+          ],
+          [
+            "2025-01-12",
+            "Le Havre AC",
+            "Racing Club de Lens",
+            1,
+            2
+          ],
+          [
+            "2025-01-12",
+            "Toulouse FC",
+            "RC Strasbourg Alsace",
+            1,
+            2
+          ],
+          [
+            "2025-01-12",
+            "Montpellier HSC",
+            "Angers SCO",
+            1,
+            3
+          ],
+          [
+            "2025-01-12",
+            "Paris Saint-Germain FC",
+            "AS Saint-Étienne",
+            2,
+            1
+          ],
+          [
+            "2025-01-17",
+            "Montpellier HSC",
+            "AS Monaco FC",
+            2,
+            1
+          ],
+          [
+            "2025-01-17",
+            "Lille OSC",
+            "OGC Nice",
+            2,
+            1
+          ],
+          [
+            "2025-01-18",
+            "Racing Club de Lens",
+            "Paris Saint-Germain FC",
+            1,
+            2
+          ],
+          [
+            "2025-01-18",
+            "Stade Rennais FC 1901",
+            "Stade Brestois 29",
+            1,
+            2
+          ],
+          [
+            "2025-01-18",
+            "Olympique Lyonnais",
+            "Toulouse FC",
+            0,
+            0
+          ],
+          [
+            "2025-01-19",
+            "AS Saint-Étienne",
+            "FC Nantes",
+            1,
+            1
+          ],
+          [
+            "2025-01-19",
+            "Stade de Reims",
+            "Le Havre AC",
+            1,
+            1
+          ],
+          [
+            "2025-01-19",
+            "Angers SCO",
+            "AJ Auxerre",
+            2,
+            0
+          ],
+          [
+            "2025-01-19",
+            "Olympique de Marseille",
+            "RC Strasbourg Alsace",
+            1,
+            1
+          ],
+          [
+            "2025-01-24",
+            "AJ Auxerre",
+            "AS Saint-Étienne",
+            1,
+            1
+          ],
+          [
+            "2025-01-25",
+            "AS Monaco FC",
+            "Stade Rennais FC 1901",
+            3,
+            2
+          ],
+          [
+            "2025-01-25",
+            "RC Strasbourg Alsace",
+            "Lille OSC",
+            2,
+            1
+          ],
+          [
+            "2025-01-25",
+            "Paris Saint-Germain FC",
+            "Stade de Reims",
+            1,
+            1
+          ],
+          [
+            "2025-01-26",
+            "Le Havre AC",
+            "Stade Brestois 29",
+            0,
+            1
+          ],
+          [
+            "2025-01-26",
+            "FC Nantes",
+            "Olympique Lyonnais",
+            1,
+            1
+          ],
+          [
+            "2025-01-26",
+            "Toulouse FC",
+            "Montpellier HSC",
+            1,
+            2
+          ],
+          [
+            "2025-01-26",
+            "Racing Club de Lens",
+            "Angers SCO",
+            1,
+            0
+          ],
+          [
+            "2025-01-26",
+            "OGC Nice",
+            "Olympique de Marseille",
+            2,
+            0
+          ],
+          [
+            "2025-01-31",
+            "Montpellier HSC",
+            "Racing Club de Lens",
+            0,
+            2
+          ],
+          [
+            "2025-02-01",
+            "Stade Brestois 29",
+            "Paris Saint-Germain FC",
+            2,
+            5
+          ],
+          [
+            "2025-02-01",
+            "AS Monaco FC",
+            "AJ Auxerre",
+            4,
+            2
+          ],
+          [
+            "2025-02-01",
+            "Lille OSC",
+            "AS Saint-Étienne",
+            4,
+            1
+          ],
+          [
+            "2025-02-02",
+            "Toulouse FC",
+            "OGC Nice",
+            1,
+            1
+          ],
+          [
+            "2025-02-02",
+            "Stade de Reims",
+            "FC Nantes",
+            1,
+            2
+          ],
+          [
+            "2025-02-02",
+            "Angers SCO",
+            "Le Havre AC",
+            1,
+            1
+          ],
+          [
+            "2025-02-02",
+            "Stade Rennais FC 1901",
+            "RC Strasbourg Alsace",
+            1,
+            0
+          ],
+          [
+            "2025-02-02",
+            "Olympique de Marseille",
+            "Olympique Lyonnais",
+            3,
+            2
+          ],
+          [
+            "2025-02-07",
+            "FC Nantes",
+            "Stade Brestois 29",
+            0,
+            2
+          ],
+          [
+            "2025-02-07",
+            "Paris Saint-Germain FC",
+            "AS Monaco FC",
+            4,
+            1
+          ],
+          [
+            "2025-02-08",
+            "OGC Nice",
+            "Racing Club de Lens",
+            2,
+            0
+          ],
+          [
+            "2025-02-08",
+            "Lille OSC",
+            "Le Havre AC",
+            1,
+            2
+          ],
+          [
+            "2025-02-08",
+            "AS Saint-Étienne",
+            "Stade Rennais FC 1901",
+            0,
+            2
+          ],
+          [
+            "2025-02-09",
+            "Olympique Lyonnais",
+            "Stade de Reims",
+            4,
+            0
+          ],
+          [
+            "2025-02-09",
+            "AJ Auxerre",
+            "Toulouse FC",
+            2,
+            2
+          ],
+          [
+            "2025-02-09",
+            "RC Strasbourg Alsace",
+            "Montpellier HSC",
+            2,
+            0
+          ],
+          [
+            "2025-02-09",
+            "Angers SCO",
+            "Olympique de Marseille",
+            0,
+            2
+          ],
+          [
+            "2025-02-14",
+            "Stade Brestois 29",
+            "AJ Auxerre",
+            2,
+            2
+          ],
+          [
+            "2025-02-15",
+            "Olympique de Marseille",
+            "AS Saint-Étienne",
+            5,
+            1
+          ],
+          [
+            "2025-02-15",
+            "AS Monaco FC",
+            "FC Nantes",
+            7,
+            1
+          ],
+          [
+            "2025-02-15",
+            "Toulouse FC",
+            "Paris Saint-Germain FC",
+            0,
+            1
+          ],
+          [
+            "2025-02-16",
+            "Montpellier HSC",
+            "Olympique Lyonnais",
+            1,
+            4
+          ],
+          [
+            "2025-02-16",
+            "Racing Club de Lens",
+            "RC Strasbourg Alsace",
+            0,
+            2
+          ],
+          [
+            "2025-02-16",
+            "Stade de Reims",
+            "Angers SCO",
+            0,
+            1
+          ],
+          [
+            "2025-02-16",
+            "Le Havre AC",
+            "OGC Nice",
+            1,
+            3
+          ],
+          [
+            "2025-02-16",
+            "Stade Rennais FC 1901",
+            "Lille OSC",
+            0,
+            2
+          ],
+          [
+            "2025-02-21",
+            "Stade Rennais FC 1901",
+            "Stade de Reims",
+            1,
+            0
+          ],
+          [
+            "2025-02-22",
+            "Lille OSC",
+            "AS Monaco FC",
+            2,
+            1
+          ],
+          [
+            "2025-02-22",
+            "AS Saint-Étienne",
+            "Angers SCO",
+            3,
+            3
+          ],
+          [
+            "2025-02-22",
+            "AJ Auxerre",
+            "Olympique de Marseille",
+            3,
+            0
+          ],
+          [
+            "2025-02-23",
+            "FC Nantes",
+            "Racing Club de Lens",
+            3,
+            1
+          ],
+          [
+            "2025-02-23",
+            "Le Havre AC",
+            "Toulouse FC",
+            1,
+            4
+          ],
+          [
+            "2025-02-23",
+            "RC Strasbourg Alsace",
+            "Stade Brestois 29",
+            0,
+            0
+          ],
+          [
+            "2025-02-23",
+            "OGC Nice",
+            "Montpellier HSC",
+            2,
+            0
+          ],
+          [
+            "2025-02-23",
+            "Olympique Lyonnais",
+            "Paris Saint-Germain FC",
+            2,
+            3
+          ],
+          [
+            "2025-02-28",
+            "AS Monaco FC",
+            "Stade de Reims",
+            3,
+            0
+          ],
+          [
+            "2025-03-01",
+            "AS Saint-Étienne",
+            "OGC Nice",
+            1,
+            3
+          ],
+          [
+            "2025-03-01",
+            "Racing Club de Lens",
+            "Le Havre AC",
+            3,
+            4
+          ],
+          [
+            "2025-03-01",
+            "Paris Saint-Germain FC",
+            "Lille OSC",
+            4,
+            1
+          ],
+          [
+            "2025-03-02",
+            "Olympique Lyonnais",
+            "Stade Brestois 29",
+            2,
+            1
+          ],
+          [
+            "2025-03-02",
+            "Montpellier HSC",
+            "Stade Rennais FC 1901",
+            0,
+            4
+          ],
+          [
+            "2025-03-02",
+            "AJ Auxerre",
+            "RC Strasbourg Alsace",
+            0,
+            1
+          ],
+          [
+            "2025-03-02",
+            "Angers SCO",
+            "Toulouse FC",
+            0,
+            4
+          ],
+          [
+            "2025-03-02",
+            "Olympique de Marseille",
+            "FC Nantes",
+            2,
+            0
+          ],
+          [
+            "2025-03-07",
+            "Toulouse FC",
+            "AS Monaco FC",
+            1,
+            1
+          ],
+          [
+            "2025-03-08",
+            "Stade Rennais FC 1901",
+            "Paris Saint-Germain FC",
+            1,
+            4
+          ],
+          [
+            "2025-03-08",
+            "Lille OSC",
+            "Montpellier HSC",
+            1,
+            0
+          ],
+          [
+            "2025-03-08",
+            "Olympique de Marseille",
+            "Racing Club de Lens",
+            0,
+            1
+          ],
+          [
+            "2025-03-09",
+            "Stade Brestois 29",
+            "Angers SCO",
+            2,
+            0
+          ],
+          [
+            "2025-03-09",
+            "Le Havre AC",
+            "AS Saint-Étienne",
+            1,
+            1
+          ],
+          [
+            "2025-03-09",
+            "Stade de Reims",
+            "AJ Auxerre",
+            0,
+            2
+          ],
+          [
+            "2025-03-09",
+            "FC Nantes",
+            "RC Strasbourg Alsace",
+            0,
+            1
+          ],
+          [
+            "2025-03-09",
+            "OGC Nice",
+            "Olympique Lyonnais",
+            0,
+            2
+          ],
+          [
+            "2025-03-14",
+            "OGC Nice",
+            "AJ Auxerre",
+            1,
+            1
+          ],
+          [
+            "2025-03-15",
+            "FC Nantes",
+            "Lille OSC",
+            1,
+            0
+          ],
+          [
+            "2025-03-15",
+            "Angers SCO",
+            "AS Monaco FC",
+            0,
+            2
+          ],
+          [
+            "2025-03-15",
+            "Racing Club de Lens",
+            "Stade Rennais FC 1901",
+            1,
+            0
+          ],
+          [
+            "2025-03-16",
+            "Olympique Lyonnais",
+            "Le Havre AC",
+            4,
+            2
+          ],
+          [
+            "2025-03-16",
+            "Montpellier HSC",
+            "AS Saint-Étienne",
+            0,
+            2
+          ],
+          [
+            "2025-03-16",
+            "Stade Brestois 29",
+            "Stade de Reims",
+            0,
+            0
+          ],
+          [
+            "2025-03-16",
+            "RC Strasbourg Alsace",
+            "Toulouse FC",
+            2,
+            1
+          ],
+          [
+            "2025-03-16",
+            "Paris Saint-Germain FC",
+            "Olympique de Marseille",
+            3,
+            1
+          ],
+          [
+            "2025-03-28",
+            "RC Strasbourg Alsace",
+            "Olympique Lyonnais",
+            4,
+            2
+          ],
+          [
+            "2025-03-29",
+            "Stade de Reims",
+            "Olympique de Marseille",
+            3,
+            1
+          ],
+          [
+            "2025-03-29",
+            "AS Saint-Étienne",
+            "Paris Saint-Germain FC",
+            1,
+            6
+          ],
+          [
+            "2025-03-29",
+            "AS Monaco FC",
+            "OGC Nice",
+            2,
+            1
+          ],
+          [
+            "2025-03-30",
+            "Toulouse FC",
+            "Stade Brestois 29",
+            2,
+            4
+          ],
+          [
+            "2025-03-30",
+            "Angers SCO",
+            "Stade Rennais FC 1901",
+            0,
+            3
+          ],
+          [
+            "2025-03-30",
+            "AJ Auxerre",
+            "Montpellier HSC",
+            1,
+            0
+          ],
+          [
+            "2025-03-30",
+            "Le Havre AC",
+            "FC Nantes",
+            3,
+            2
+          ],
+          [
+            "2025-03-30",
+            "Lille OSC",
+            "Racing Club de Lens",
+            1,
+            0
+          ],
+          [
+            "2025-04-04",
+            "OGC Nice",
+            "FC Nantes",
+            1,
+            2
+          ],
+          [
+            "2025-04-05",
+            "Paris Saint-Germain FC",
+            "Angers SCO",
+            1,
+            0
+          ],
+          [
+            "2025-04-05",
+            "Stade Brestois 29",
+            "AS Monaco FC",
+            2,
+            1
+          ],
+          [
+            "2025-04-05",
+            "Olympique Lyonnais",
+            "Lille OSC",
+            2,
+            1
+          ],
+          [
+            "2025-04-06",
+            "Racing Club de Lens",
+            "AS Saint-Étienne",
+            1,
+            0
+          ],
+          [
+            "2025-04-06",
+            "Montpellier HSC",
+            "Le Havre AC",
+            0,
+            2
+          ],
+          [
+            "2025-04-06",
+            "Stade de Reims",
+            "RC Strasbourg Alsace",
+            0,
+            1
+          ],
+          [
+            "2025-04-06",
+            "Stade Rennais FC 1901",
+            "AJ Auxerre",
+            0,
+            1
+          ],
+          [
+            "2025-04-06",
+            "Olympique de Marseille",
+            "Toulouse FC",
+            3,
+            2
+          ],
+          [
+            "2025-04-11",
+            "Racing Club de Lens",
+            "Stade de Reims",
+            0,
+            2
+          ],
+          [
+            "2025-04-12",
+            "AS Monaco FC",
+            "Olympique de Marseille",
+            3,
+            0
+          ],
+          [
+            "2025-04-12",
+            "Toulouse FC",
+            "Lille OSC",
+            1,
+            2
+          ],
+          [
+            "2025-04-12",
+            "RC Strasbourg Alsace",
+            "OGC Nice",
+            2,
+            2
+          ],
+          [
+            "2025-04-13",
+            "AS Saint-Étienne",
+            "Stade Brestois 29",
+            3,
+            3
+          ],
+          [
+            "2025-04-13",
+            "Le Havre AC",
+            "Stade Rennais FC 1901",
+            1,
+            5
+          ],
+          [
+            "2025-04-13",
+            "Angers SCO",
+            "Montpellier HSC",
+            2,
+            0
+          ],
+          [
+            "2025-04-13",
+            "AJ Auxerre",
+            "Olympique Lyonnais",
+            1,
+            3
+          ],
+          [
+            "2025-04-18",
+            "Stade Rennais FC 1901",
+            "FC Nantes",
+            2,
+            1
+          ],
+          [
+            "2025-04-19",
+            "Paris Saint-Germain FC",
+            "Le Havre AC",
+            2,
+            1
+          ],
+          [
+            "2025-04-19",
+            "AS Monaco FC",
+            "RC Strasbourg Alsace",
+            0,
+            0
+          ],
+          [
+            "2025-04-19",
+            "Olympique de Marseille",
+            "Montpellier HSC",
+            5,
+            1
+          ],
+          [
+            "2025-04-20",
+            "Lille OSC",
+            "AJ Auxerre",
+            3,
+            1
+          ],
+          [
+            "2025-04-20",
+            "OGC Nice",
+            "Angers SCO",
+            2,
+            1
+          ],
+          [
+            "2025-04-20",
+            "Stade Brestois 29",
+            "Racing Club de Lens",
+            1,
+            3
+          ],
+          [
+            "2025-04-20",
+            "Stade de Reims",
+            "Toulouse FC",
+            1,
+            0
+          ],
+          [
+            "2025-04-20",
+            "AS Saint-Étienne",
+            "Olympique Lyonnais",
+            2,
+            1
+          ],
+          [
+            "2025-04-22",
+            "FC Nantes",
+            "Paris Saint-Germain FC",
+            1,
+            1
+          ],
+          [
+            "2025-04-25",
+            "Paris Saint-Germain FC",
+            "OGC Nice",
+            1,
+            3
+          ],
+          [
+            "2025-04-26",
+            "RC Strasbourg Alsace",
+            "AS Saint-Étienne",
+            3,
+            1
+          ],
+          [
+            "2025-04-26",
+            "Le Havre AC",
+            "AS Monaco FC",
+            1,
+            1
+          ],
+          [
+            "2025-04-26",
+            "Olympique Lyonnais",
+            "Stade Rennais FC 1901",
+            4,
+            1
+          ],
+          [
+            "2025-04-27",
+            "Angers SCO",
+            "Lille OSC",
+            0,
+            2
+          ],
+          [
+            "2025-04-27",
+            "FC Nantes",
+            "Toulouse FC",
+            0,
+            0
+          ],
+          [
+            "2025-04-27",
+            "Montpellier HSC",
+            "Stade de Reims",
+            0,
+            0
+          ],
+          [
+            "2025-04-27",
+            "Racing Club de Lens",
+            "AJ Auxerre",
+            0,
+            4
+          ],
+          [
+            "2025-04-27",
+            "Olympique de Marseille",
+            "Stade Brestois 29",
+            4,
+            1
+          ],
+          [
+            "2025-05-02",
+            "OGC Nice",
+            "Stade de Reims",
+            1,
+            0
+          ],
+          [
+            "2025-05-03",
+            "RC Strasbourg Alsace",
+            "Paris Saint-Germain FC",
+            2,
+            1
+          ],
+          [
+            "2025-05-03",
+            "Toulouse FC",
+            "Stade Rennais FC 1901",
+            2,
+            1
+          ],
+          [
+            "2025-05-03",
+            "AS Saint-Étienne",
+            "AS Monaco FC",
+            1,
+            3
+          ],
+          [
+            "2025-05-04",
+            "FC Nantes",
+            "Angers SCO",
+            0,
+            1
+          ],
+          [
+            "2025-05-04",
+            "Olympique Lyonnais",
+            "Racing Club de Lens",
+            1,
+            2
+          ],
+          [
+            "2025-05-04",
+            "Stade Brestois 29",
+            "Montpellier HSC",
+            1,
+            0
+          ],
+          [
+            "2025-05-04",
+            "AJ Auxerre",
+            "Le Havre AC",
+            1,
+            2
+          ],
+          [
+            "2025-05-04",
+            "Lille OSC",
+            "Olympique de Marseille",
+            1,
+            1
+          ],
+          [
+            "2025-05-10",
+            "Stade de Reims",
+            "AS Saint-Étienne",
+            0,
+            2
+          ],
+          [
+            "2025-05-10",
+            "AJ Auxerre",
+            "FC Nantes",
+            1,
+            1
+          ],
+          [
+            "2025-05-10",
+            "Angers SCO",
+            "RC Strasbourg Alsace",
+            2,
+            1
+          ],
+          [
+            "2025-05-10",
+            "Le Havre AC",
+            "Olympique de Marseille",
+            1,
+            3
+          ],
+          [
+            "2025-05-10",
+            "Stade Rennais FC 1901",
+            "OGC Nice",
+            2,
+            0
+          ],
+          [
+            "2025-05-10",
+            "Montpellier HSC",
+            "Paris Saint-Germain FC",
+            1,
+            4
+          ],
+          [
+            "2025-05-10",
+            "Toulouse FC",
+            "Racing Club de Lens",
+            1,
+            1
+          ],
+          [
+            "2025-05-10",
+            "Stade Brestois 29",
+            "Lille OSC",
+            2,
+            0
+          ],
+          [
+            "2025-05-10",
+            "AS Monaco FC",
+            "Olympique Lyonnais",
+            2,
+            0
+          ],
+          [
+            "2025-05-17",
+            "Olympique de Marseille",
+            "Stade Rennais FC 1901",
+            4,
+            2
+          ],
+          [
+            "2025-05-17",
+            "Olympique Lyonnais",
+            "Angers SCO",
+            2,
+            0
+          ],
+          [
+            "2025-05-17",
+            "OGC Nice",
+            "Stade Brestois 29",
+            6,
+            0
+          ],
+          [
+            "2025-05-17",
+            "AS Saint-Étienne",
+            "Toulouse FC",
+            2,
+            3
+          ],
+          [
+            "2025-05-17",
+            "Lille OSC",
+            "Stade de Reims",
+            2,
+            1
+          ],
+          [
+            "2025-05-17",
+            "RC Strasbourg Alsace",
+            "Le Havre AC",
+            2,
+            3
+          ],
+          [
+            "2025-05-17",
+            "FC Nantes",
+            "Montpellier HSC",
+            3,
+            0
+          ],
+          [
+            "2025-05-17",
+            "Racing Club de Lens",
+            "AS Monaco FC",
+            4,
+            0
+          ],
+          [
+            "2025-05-17",
+            "Paris Saint-Germain FC",
+            "AJ Auxerre",
+            3,
+            1
+          ],
+          [
+            "2025-08-15",
+            "Stade Rennais FC 1901",
+            "Olympique de Marseille",
+            1,
+            0
+          ],
+          [
+            "2025-08-16",
+            "Racing Club de Lens",
+            "Olympique Lyonnais",
+            0,
+            1
+          ],
+          [
+            "2025-08-16",
+            "AS Monaco FC",
+            "Le Havre AC",
+            3,
+            1
+          ],
+          [
+            "2025-08-16",
+            "OGC Nice",
+            "Toulouse FC",
+            0,
+            1
+          ],
+          [
+            "2025-08-17",
+            "Stade Brestois 29",
+            "Lille OSC",
+            3,
+            3
+          ],
+          [
+            "2025-08-17",
+            "AJ Auxerre",
+            "FC Lorient",
+            1,
+            0
+          ],
+          [
+            "2025-08-17",
+            "FC Metz",
+            "RC Strasbourg Alsace",
+            0,
+            1
+          ],
+          [
+            "2025-08-17",
+            "Angers SCO",
+            "Paris FC",
+            1,
+            0
+          ],
+          [
+            "2025-08-17",
+            "FC Nantes",
+            "Paris Saint-Germain FC",
+            0,
+            1
+          ],
+          [
+            "2025-08-22",
+            "Paris Saint-Germain FC",
+            "Angers SCO",
+            1,
+            0
+          ],
+          [
+            "2025-08-23",
+            "Olympique de Marseille",
+            "Paris FC",
+            5,
+            2
+          ],
+          [
+            "2025-08-23",
+            "OGC Nice",
+            "AJ Auxerre",
+            3,
+            1
+          ],
+          [
+            "2025-08-23",
+            "Olympique Lyonnais",
+            "FC Metz",
+            3,
+            0
+          ],
+          [
+            "2025-08-24",
+            "FC Lorient",
+            "Stade Rennais FC 1901",
+            4,
+            0
+          ],
+          [
+            "2025-08-24",
+            "Le Havre AC",
+            "Racing Club de Lens",
+            1,
+            2
+          ],
+          [
+            "2025-08-24",
+            "Toulouse FC",
+            "Stade Brestois 29",
+            2,
+            0
+          ],
+          [
+            "2025-08-24",
+            "RC Strasbourg Alsace",
+            "FC Nantes",
+            1,
+            0
+          ],
+          [
+            "2025-08-24",
+            "Lille OSC",
+            "AS Monaco FC",
+            1,
+            0
+          ],
+          [
+            "2025-08-29",
+            "Racing Club de Lens",
+            "Stade Brestois 29",
+            3,
+            1
+          ],
+          [
+            "2025-08-30",
+            "FC Lorient",
+            "Lille OSC",
+            1,
+            7
+          ],
+          [
+            "2025-08-30",
+            "FC Nantes",
+            "AJ Auxerre",
+            1,
+            0
+          ],
+          [
+            "2025-08-30",
+            "Toulouse FC",
+            "Paris Saint-Germain FC",
+            3,
+            6
+          ],
+          [
+            "2025-08-31",
+            "Angers SCO",
+            "Stade Rennais FC 1901",
+            1,
+            1
+          ],
+          [
+            "2025-08-31",
+            "Le Havre AC",
+            "OGC Nice",
+            3,
+            1
+          ],
+          [
+            "2025-08-31",
+            "AS Monaco FC",
+            "RC Strasbourg Alsace",
+            3,
+            2
+          ],
+          [
+            "2025-08-31",
+            "Paris FC",
+            "FC Metz",
+            3,
+            2
+          ],
+          [
+            "2025-08-31",
+            "Olympique Lyonnais",
+            "Olympique de Marseille",
+            1,
+            0
+          ],
+          [
+            "2025-09-12",
+            "Olympique de Marseille",
+            "FC Lorient",
+            4,
+            0
+          ],
+          [
+            "2025-09-13",
+            "OGC Nice",
+            "FC Nantes",
+            1,
+            0
+          ],
+          [
+            "2025-09-13",
+            "AJ Auxerre",
+            "AS Monaco FC",
+            1,
+            2
+          ],
+          [
+            "2025-09-14",
+            "Lille OSC",
+            "Toulouse FC",
+            2,
+            1
+          ],
+          [
+            "2025-09-14",
+            "FC Metz",
+            "Angers SCO",
+            1,
+            1
+          ],
+          [
+            "2025-09-14",
+            "Paris Saint-Germain FC",
+            "Racing Club de Lens",
+            2,
+            0
+          ],
+          [
+            "2025-09-14",
+            "RC Strasbourg Alsace",
+            "Le Havre AC",
+            1,
+            0
+          ],
+          [
+            "2025-09-14",
+            "Stade Brestois 29",
+            "Paris FC",
+            1,
+            2
+          ],
+          [
+            "2025-09-14",
+            "Stade Rennais FC 1901",
+            "Olympique Lyonnais",
+            3,
+            1
+          ],
+          [
+            "2025-09-19",
+            "Olympique Lyonnais",
+            "Angers SCO",
+            1,
+            0
+          ],
+          [
+            "2025-09-20",
+            "FC Nantes",
+            "Stade Rennais FC 1901",
+            2,
+            2
+          ],
+          [
+            "2025-09-20",
+            "Stade Brestois 29",
+            "OGC Nice",
+            4,
+            1
+          ],
+          [
+            "2025-09-20",
+            "Racing Club de Lens",
+            "Lille OSC",
+            3,
+            0
+          ],
+          [
+            "2025-09-21",
+            "Paris FC",
+            "RC Strasbourg Alsace",
+            2,
+            3
+          ],
+          [
+            "2025-09-21",
+            "Le Havre AC",
+            "FC Lorient",
+            1,
+            1
+          ],
+          [
+            "2025-09-21",
+            "AJ Auxerre",
+            "Toulouse FC",
+            1,
+            0
+          ],
+          [
+            "2025-09-21",
+            "AS Monaco FC",
+            "FC Metz",
+            5,
+            2
+          ],
+          [
+            "2025-09-22",
+            "Olympique de Marseille",
+            "Paris Saint-Germain FC",
+            1,
+            0
+          ],
+          [
+            "2025-09-26",
+            "RC Strasbourg Alsace",
+            "Olympique de Marseille",
+            1,
+            2
+          ],
+          [
+            "2025-09-27",
+            "FC Lorient",
+            "AS Monaco FC",
+            3,
+            1
+          ],
+          [
+            "2025-09-27",
+            "Toulouse FC",
+            "FC Nantes",
+            2,
+            2
+          ],
+          [
+            "2025-09-27",
+            "Paris Saint-Germain FC",
+            "AJ Auxerre",
+            2,
+            0
+          ],
+          [
+            "2025-09-28",
+            "OGC Nice",
+            "Paris FC",
+            1,
+            1
+          ],
+          [
+            "2025-09-28",
+            "Lille OSC",
+            "Olympique Lyonnais",
+            0,
+            1
+          ],
+          [
+            "2025-09-28",
+            "Angers SCO",
+            "Stade Brestois 29",
+            0,
+            2
+          ],
+          [
+            "2025-10-03",
+            "Paris FC",
+            "FC Lorient",
+            2,
+            0
+          ],
+          [
+            "2025-10-04",
+            "FC Metz",
+            "Olympique de Marseille",
+            0,
+            3
+          ],
+          [
+            "2025-10-04",
+            "AJ Auxerre",
+            "Racing Club de Lens",
+            1,
+            2
+          ],
+          [
+            "2025-10-05",
+            "Olympique Lyonnais",
+            "Toulouse FC",
+            1,
+            2
+          ],
+          [
+            "2025-10-05",
+            "RC Strasbourg Alsace",
+            "Angers SCO",
+            5,
+            0
+          ],
+          [
+            "2025-10-05",
+            "Le Havre AC",
+            "Stade Rennais FC 1901",
+            2,
+            2
+          ],
+          [
+            "2025-10-05",
+            "AS Monaco FC",
+            "OGC Nice",
+            2,
+            2
+          ],
+          [
+            "2025-10-05",
+            "Lille OSC",
+            "Paris Saint-Germain FC",
+            1,
+            1
+          ],
+          [
+            "2025-10-17",
+            "Paris Saint-Germain FC",
+            "RC Strasbourg Alsace",
+            3,
+            3
+          ],
+          [
+            "2025-10-18",
+            "OGC Nice",
+            "Olympique Lyonnais",
+            3,
+            2
+          ],
+          [
+            "2025-10-18",
+            "Angers SCO",
+            "AS Monaco FC",
+            1,
+            1
+          ],
+          [
+            "2025-10-18",
+            "Olympique de Marseille",
+            "Le Havre AC",
+            6,
+            2
+          ],
+          [
+            "2025-10-19",
+            "Racing Club de Lens",
+            "Paris FC",
+            2,
+            1
+          ],
+          [
+            "2025-10-19",
+            "FC Lorient",
+            "Stade Brestois 29",
+            3,
+            3
+          ],
+          [
+            "2025-10-19",
+            "Toulouse FC",
+            "FC Metz",
+            4,
+            0
+          ],
+          [
+            "2025-10-19",
+            "Stade Rennais FC 1901",
+            "AJ Auxerre",
+            2,
+            2
+          ],
+          [
+            "2025-10-19",
+            "FC Nantes",
+            "Lille OSC",
+            0,
+            2
+          ],
+          [
+            "2025-10-24",
+            "Paris FC",
+            "FC Nantes",
+            1,
+            2
+          ],
+          [
+            "2025-10-25",
+            "Stade Brestois 29",
+            "Paris Saint-Germain FC",
+            0,
+            3
+          ],
+          [
+            "2025-10-25",
+            "AS Monaco FC",
+            "Toulouse FC",
+            1,
+            0
+          ],
+          [
+            "2025-10-25",
+            "Racing Club de Lens",
+            "Olympique de Marseille",
+            2,
+            1
+          ],
+          [
+            "2025-10-26",
+            "Lille OSC",
+            "FC Metz",
+            6,
+            1
+          ],
+          [
+            "2025-10-26",
+            "AJ Auxerre",
+            "Le Havre AC",
+            0,
+            1
+          ],
+          [
+            "2025-10-26",
+            "Angers SCO",
+            "FC Lorient",
+            2,
+            0
+          ],
+          [
+            "2025-10-26",
+            "Stade Rennais FC 1901",
+            "OGC Nice",
+            1,
+            2
+          ],
+          [
+            "2025-10-26",
+            "Olympique Lyonnais",
+            "RC Strasbourg Alsace",
+            2,
+            1
+          ],
+          [
+            "2025-10-29",
+            "Le Havre AC",
+            "Stade Brestois 29",
+            1,
+            0
+          ],
+          [
+            "2025-10-29",
+            "FC Lorient",
+            "Paris Saint-Germain FC",
+            1,
+            1
+          ],
+          [
+            "2025-10-29",
+            "FC Metz",
+            "Racing Club de Lens",
+            2,
+            0
+          ],
+          [
+            "2025-10-29",
+            "OGC Nice",
+            "Lille OSC",
+            2,
+            0
+          ],
+          [
+            "2025-10-29",
+            "FC Nantes",
+            "AS Monaco FC",
+            3,
+            5
+          ],
+          [
+            "2025-10-29",
+            "Paris FC",
+            "Olympique Lyonnais",
+            3,
+            3
+          ],
+          [
+            "2025-10-29",
+            "Toulouse FC",
+            "Stade Rennais FC 1901",
+            2,
+            2
+          ],
+          [
+            "2025-10-29",
+            "Olympique de Marseille",
+            "Angers SCO",
+            2,
+            2
+          ],
+          [
+            "2025-10-29",
+            "RC Strasbourg Alsace",
+            "AJ Auxerre",
+            3,
+            0
+          ],
+          [
+            "2025-11-01",
+            "Paris Saint-Germain FC",
+            "OGC Nice",
+            1,
+            0
+          ],
+          [
+            "2025-11-01",
+            "AS Monaco FC",
+            "Paris FC",
+            0,
+            1
+          ],
+          [
+            "2025-11-01",
+            "AJ Auxerre",
+            "Olympique de Marseille",
+            0,
+            1
+          ],
+          [
+            "2025-11-02",
+            "Stade Rennais FC 1901",
+            "RC Strasbourg Alsace",
+            4,
+            1
+          ],
+          [
+            "2025-11-02",
+            "FC Nantes",
+            "FC Metz",
+            0,
+            2
+          ],
+          [
+            "2025-11-02",
+            "Lille OSC",
+            "Angers SCO",
+            1,
+            0
+          ],
+          [
+            "2025-11-02",
+            "Racing Club de Lens",
+            "FC Lorient",
+            3,
+            0
+          ],
+          [
+            "2025-11-07",
+            "Paris FC",
+            "Stade Rennais FC 1901",
+            0,
+            1
+          ],
+          [
+            "2025-11-08",
+            "Olympique de Marseille",
+            "Stade Brestois 29",
+            3,
+            0
+          ],
+          [
+            "2025-11-08",
+            "Le Havre AC",
+            "FC Nantes",
+            1,
+            1
+          ],
+          [
+            "2025-11-08",
+            "AS Monaco FC",
+            "Racing Club de Lens",
+            1,
+            4
+          ],
+          [
+            "2025-11-09",
+            "FC Lorient",
+            "Toulouse FC",
+            1,
+            1
+          ],
+          [
+            "2025-11-09",
+            "FC Metz",
+            "OGC Nice",
+            2,
+            1
+          ],
+          [
+            "2025-11-09",
+            "RC Strasbourg Alsace",
+            "Lille OSC",
+            2,
+            0
+          ],
+          [
+            "2025-11-09",
+            "Angers SCO",
+            "AJ Auxerre",
+            2,
+            0
+          ],
+          [
+            "2025-11-09",
+            "Olympique Lyonnais",
+            "Paris Saint-Germain FC",
+            2,
+            3
+          ],
+          [
+            "2025-11-21",
+            "OGC Nice",
+            "Olympique de Marseille",
+            1,
+            5
+          ],
+          [
+            "2025-11-22",
+            "Racing Club de Lens",
+            "RC Strasbourg Alsace",
+            1,
+            0
+          ],
+          [
+            "2025-11-22",
+            "Stade Rennais FC 1901",
+            "AS Monaco FC",
+            4,
+            1
+          ],
+          [
+            "2025-11-22",
+            "Paris Saint-Germain FC",
+            "Le Havre AC",
+            3,
+            0
+          ],
+          [
+            "2025-11-23",
+            "FC Nantes",
+            "FC Lorient",
+            1,
+            1
+          ],
+          [
+            "2025-11-23",
+            "Toulouse FC",
+            "Angers SCO",
+            0,
+            1
+          ],
+          [
+            "2025-11-23",
+            "Stade Brestois 29",
+            "FC Metz",
+            3,
+            2
+          ],
+          [
+            "2025-11-23",
+            "Lille OSC",
+            "Paris FC",
+            4,
+            2
+          ],
+          [
+            "2025-11-28",
+            "FC Metz",
+            "Stade Rennais FC 1901",
+            0,
+            1
+          ],
+          [
+            "2025-11-29",
+            "AS Monaco FC",
+            "Paris Saint-Germain FC",
+            1,
+            0
+          ],
+          [
+            "2025-11-29",
+            "Paris FC",
+            "AJ Auxerre",
+            1,
+            1
+          ],
+          [
+            "2025-11-29",
+            "Olympique de Marseille",
+            "Toulouse FC",
+            2,
+            2
+          ],
+          [
+            "2025-11-30",
+            "RC Strasbourg Alsace",
+            "Stade Brestois 29",
+            1,
+            2
+          ],
+          [
+            "2025-11-30",
+            "Le Havre AC",
+            "Lille OSC",
+            0,
+            1
+          ],
+          [
+            "2025-11-30",
+            "FC Lorient",
+            "OGC Nice",
+            3,
+            1
+          ],
+          [
+            "2025-11-30",
+            "Angers SCO",
+            "Racing Club de Lens",
+            1,
+            2
+          ],
+          [
+            "2025-11-30",
+            "Olympique Lyonnais",
+            "FC Nantes",
+            3,
+            0
+          ],
+          [
+            "2025-12-05",
+            "Stade Brestois 29",
+            "AS Monaco FC",
+            1,
+            0
+          ],
+          [
+            "2025-12-05",
+            "Lille OSC",
+            "Olympique de Marseille",
+            1,
+            0
+          ],
+          [
+            "2025-12-06",
+            "FC Nantes",
+            "Racing Club de Lens",
+            1,
+            2
+          ],
+          [
+            "2025-12-06",
+            "Toulouse FC",
+            "RC Strasbourg Alsace",
+            1,
+            0
+          ],
+          [
+            "2025-12-06",
+            "Paris Saint-Germain FC",
+            "Stade Rennais FC 1901",
+            5,
+            0
+          ],
+          [
+            "2025-12-07",
+            "OGC Nice",
+            "Angers SCO",
+            0,
+            1
+          ],
+          [
+            "2025-12-07",
+            "AJ Auxerre",
+            "FC Metz",
+            3,
+            1
+          ],
+          [
+            "2025-12-07",
+            "FC Lorient",
+            "Olympique Lyonnais",
+            1,
+            0
+          ],
+          [
+            "2025-12-12",
+            "Angers SCO",
+            "FC Nantes",
+            4,
+            1
+          ],
+          [
+            "2025-12-13",
+            "Stade Rennais FC 1901",
+            "Stade Brestois 29",
+            3,
+            1
+          ],
+          [
+            "2025-12-13",
+            "FC Metz",
+            "Paris Saint-Germain FC",
+            2,
+            3
+          ],
+          [
+            "2025-12-13",
+            "Paris FC",
+            "Toulouse FC",
+            0,
+            3
+          ],
+          [
+            "2025-12-14",
+            "Olympique Lyonnais",
+            "Le Havre AC",
+            1,
+            0
+          ],
+          [
+            "2025-12-14",
+            "AJ Auxerre",
+            "Lille OSC",
+            3,
+            4
+          ],
+          [
+            "2025-12-14",
+            "Racing Club de Lens",
+            "OGC Nice",
+            2,
+            0
+          ],
+          [
+            "2025-12-14",
+            "Olympique de Marseille",
+            "AS Monaco FC",
+            1,
+            0
+          ],
+          [
+            "2026-01-02",
+            "Toulouse FC",
+            "Racing Club de Lens",
+            0,
+            3
+          ],
+          [
+            "2026-01-03",
+            "AS Monaco FC",
+            "Olympique Lyonnais",
+            1,
+            3
+          ],
+          [
+            "2026-01-03",
+            "OGC Nice",
+            "RC Strasbourg Alsace",
+            1,
+            1
+          ],
+          [
+            "2026-01-03",
+            "Lille OSC",
+            "Stade Rennais FC 1901",
+            0,
+            2
+          ],
+          [
+            "2026-01-04",
+            "Olympique de Marseille",
+            "FC Nantes",
+            0,
+            2
+          ],
+          [
+            "2026-01-04",
+            "Le Havre AC",
+            "Angers SCO",
+            2,
+            1
+          ],
+          [
+            "2026-01-04",
+            "FC Lorient",
+            "FC Metz",
+            1,
+            1
+          ],
+          [
+            "2026-01-04",
+            "Stade Brestois 29",
+            "AJ Auxerre",
+            2,
+            0
+          ],
+          [
+            "2026-01-04",
+            "Paris Saint-Germain FC",
+            "Paris FC",
+            2,
+            1
+          ],
+          [
+            "2026-01-16",
+            "AS Monaco FC",
+            "FC Lorient",
+            1,
+            3
+          ],
+          [
+            "2026-01-16",
+            "Paris Saint-Germain FC",
+            "Lille OSC",
+            3,
+            0
+          ],
+          [
+            "2026-01-17",
+            "Racing Club de Lens",
+            "AJ Auxerre",
+            1,
+            0
+          ],
+          [
+            "2026-01-17",
+            "Toulouse FC",
+            "OGC Nice",
+            5,
+            1
+          ],
+          [
+            "2026-01-17",
+            "Angers SCO",
+            "Olympique de Marseille",
+            2,
+            5
+          ],
+          [
+            "2026-01-18",
+            "RC Strasbourg Alsace",
+            "FC Metz",
+            2,
+            1
+          ],
+          [
+            "2026-01-18",
+            "FC Nantes",
+            "Paris FC",
+            1,
+            2
+          ],
+          [
+            "2026-01-18",
+            "Stade Rennais FC 1901",
+            "Le Havre AC",
+            1,
+            1
+          ],
+          [
+            "2026-01-18",
+            "Olympique Lyonnais",
+            "Stade Brestois 29",
+            2,
+            1
+          ],
+          [
+            "2026-01-23",
+            "AJ Auxerre",
+            "Paris Saint-Germain FC",
+            0,
+            1
+          ],
+          [
+            "2026-01-24",
+            "Stade Rennais FC 1901",
+            "FC Lorient",
+            0,
+            2
+          ],
+          [
+            "2026-01-24",
+            "Olympique de Marseille",
+            "Racing Club de Lens",
+            3,
+            1
+          ],
+          [
+            "2026-01-25",
+            "FC Nantes",
+            "OGC Nice",
+            1,
+            4
+          ],
+          [
+            "2026-01-25",
+            "FC Metz",
+            "Olympique Lyonnais",
+            2,
+            5
+          ],
+          [
+            "2026-01-25",
+            "Stade Brestois 29",
+            "Toulouse FC",
+            0,
+            2
+          ],
+          [
+            "2026-01-25",
+            "Lille OSC",
+            "RC Strasbourg Alsace",
+            1,
+            4
+          ],
+          [
+            "2026-01-30",
+            "Racing Club de Lens",
+            "Le Havre AC",
+            1,
+            0
+          ],
+          [
+            "2026-01-31",
+            "Paris FC",
+            "Olympique de Marseille",
+            2,
+            2
+          ],
+          [
+            "2026-01-31",
+            "FC Lorient",
+            "FC Nantes",
+            2,
+            1
+          ],
+          [
+            "2026-01-31",
+            "AS Monaco FC",
+            "Stade Rennais FC 1901",
+            4,
+            0
+          ],
+          [
+            "2026-02-01",
+            "Olympique Lyonnais",
+            "Lille OSC",
+            1,
+            0
+          ],
+          [
+            "2026-02-01",
+            "OGC Nice",
+            "Stade Brestois 29",
+            2,
+            2
+          ],
+          [
+            "2026-02-01",
+            "Angers SCO",
+            "FC Metz",
+            1,
+            0
+          ],
+          [
+            "2026-02-01",
+            "RC Strasbourg Alsace",
+            "Paris Saint-Germain FC",
+            1,
+            2
+          ],
+          [
+            "2026-02-07",
+            "Racing Club de Lens",
+            "Stade Rennais FC 1901",
+            3,
+            1
+          ],
+          [
+            "2026-02-07",
+            "Stade Brestois 29",
+            "FC Lorient",
+            2,
+            0
+          ],
+          [
+            "2026-02-07",
+            "FC Nantes",
+            "Olympique Lyonnais",
+            0,
+            1
+          ],
+          [
+            "2026-02-08",
+            "Le Havre AC",
+            "RC Strasbourg Alsace",
+            2,
+            1
+          ],
+          [
+            "2026-02-08",
+            "Angers SCO",
+            "Toulouse FC",
+            1,
+            0
+          ],
+          [
+            "2026-02-08",
+            "Paris Saint-Germain FC",
+            "Olympique de Marseille",
+            5,
+            0
+          ],
+          [
+            "2026-02-13",
+            "Stade Rennais FC 1901",
+            "Paris Saint-Germain FC",
+            3,
+            1
+          ],
+          [
+            "2026-02-13",
+            "AS Monaco FC",
+            "FC Nantes",
+            3,
+            1
+          ],
+          [
+            "2026-02-14",
+            "Olympique de Marseille",
+            "RC Strasbourg Alsace",
+            2,
+            2
+          ],
+          [
+            "2026-02-14",
+            "Lille OSC",
+            "Stade Brestois 29",
+            1,
+            1
+          ],
+          [
+            "2026-02-14",
+            "Paris FC",
+            "Racing Club de Lens",
+            0,
+            5
+          ],
+          [
+            "2026-02-15",
+            "Le Havre AC",
+            "Toulouse FC",
+            2,
+            1
+          ],
+          [
+            "2026-02-15",
+            "FC Lorient",
+            "Angers SCO",
+            2,
+            0
+          ],
+          [
+            "2026-02-15",
+            "FC Metz",
+            "AJ Auxerre",
+            1,
+            3
+          ],
+          [
+            "2026-02-15",
+            "Olympique Lyonnais",
+            "OGC Nice",
+            2,
+            0
+          ],
+          [
+            "2026-02-20",
+            "Stade Brestois 29",
+            "Olympique de Marseille",
+            2,
+            0
+          ],
+          [
+            "2026-02-21",
+            "Racing Club de Lens",
+            "AS Monaco FC",
+            2,
+            3
+          ],
+          [
+            "2026-02-21",
+            "Toulouse FC",
+            "Paris FC",
+            1,
+            1
+          ],
+          [
+            "2026-02-21",
+            "Paris Saint-Germain FC",
+            "FC Metz",
+            3,
+            0
+          ],
+          [
+            "2026-02-22",
+            "AJ Auxerre",
+            "Stade Rennais FC 1901",
+            0,
+            3
+          ],
+          [
+            "2026-02-22",
+            "FC Nantes",
+            "Le Havre AC",
+            2,
+            0
+          ],
+          [
+            "2026-02-22",
+            "OGC Nice",
+            "FC Lorient",
+            3,
+            3
+          ],
+          [
+            "2026-02-22",
+            "Angers SCO",
+            "Lille OSC",
+            0,
+            1
+          ],
+          [
+            "2026-02-22",
+            "RC Strasbourg Alsace",
+            "Olympique Lyonnais",
+            3,
+            1
+          ],
+          [
+            "2026-02-27",
+            "RC Strasbourg Alsace",
+            "Racing Club de Lens",
+            1,
+            1
+          ],
+          [
+            "2026-02-28",
+            "Stade Rennais FC 1901",
+            "Toulouse FC",
+            1,
+            0
+          ],
+          [
+            "2026-02-28",
+            "AS Monaco FC",
+            "Angers SCO",
+            2,
+            0
+          ],
+          [
+            "2026-02-28",
+            "Le Havre AC",
+            "Paris Saint-Germain FC",
+            0,
+            1
+          ],
+          [
+            "2026-03-01",
+            "Paris FC",
+            "OGC Nice",
+            1,
+            0
+          ],
+          [
+            "2026-03-01",
+            "FC Lorient",
+            "AJ Auxerre",
+            2,
+            2
+          ],
+          [
+            "2026-03-01",
+            "FC Metz",
+            "Stade Brestois 29",
+            0,
+            1
+          ],
+          [
+            "2026-03-01",
+            "Lille OSC",
+            "FC Nantes",
+            1,
+            0
+          ],
+          [
+            "2026-03-01",
+            "Olympique de Marseille",
+            "Olympique Lyonnais",
+            3,
+            2
+          ],
+          [
+            "2026-03-06",
+            "Paris Saint-Germain FC",
+            "AS Monaco FC",
+            1,
+            3
+          ],
+          [
+            "2026-03-07",
+            "FC Nantes",
+            "Angers SCO",
+            0,
+            1
+          ],
+          [
+            "2026-03-07",
+            "Toulouse FC",
+            "Olympique de Marseille",
+            0,
+            1
+          ],
+          [
+            "2026-03-08",
+            "Racing Club de Lens",
+            "FC Metz",
+            3,
+            0
+          ],
+          [
+            "2026-03-08",
+            "OGC Nice",
+            "Stade Rennais FC 1901",
+            0,
+            4
+          ],
+          [
+            "2026-03-08",
+            "Lille OSC",
+            "FC Lorient",
+            1,
+            1
+          ],
+          [
+            "2026-03-08",
+            "Stade Brestois 29",
+            "Le Havre AC",
+            2,
+            0
+          ],
+          [
+            "2026-03-08",
+            "Olympique Lyonnais",
+            "Paris FC",
+            1,
+            1
+          ],
+          [
+            "2026-03-13",
+            "Olympique de Marseille",
+            "AJ Auxerre",
+            1,
+            0
+          ],
+          [
+            "2026-03-14",
+            "FC Lorient",
+            "Racing Club de Lens",
+            2,
+            1
+          ],
+          [
+            "2026-03-14",
+            "Angers SCO",
+            "OGC Nice",
+            0,
+            2
+          ],
+          [
+            "2026-03-14",
+            "AS Monaco FC",
+            "Stade Brestois 29",
+            2,
+            0
+          ],
+          [
+            "2026-03-15",
+            "FC Metz",
+            "Toulouse FC",
+            3,
+            4
+          ],
+          [
+            "2026-03-15",
+            "Stade Rennais FC 1901",
+            "Lille OSC",
+            1,
+            2
+          ],
+          [
+            "2026-03-20",
+            "Racing Club de Lens",
+            "Angers SCO",
+            5,
+            1
+          ],
+          [
+            "2026-03-21",
+            "Toulouse FC",
+            "FC Lorient",
+            1,
+            0
+          ],
+          [
+            "2026-03-21",
+            "AJ Auxerre",
+            "Stade Brestois 29",
+            3,
+            0
+          ],
+          [
+            "2026-03-21",
+            "OGC Nice",
+            "Paris Saint-Germain FC",
+            0,
+            4
+          ],
+          [
+            "2026-03-22",
+            "Olympique Lyonnais",
+            "AS Monaco FC",
+            1,
+            2
+          ],
+          [
+            "2026-03-22",
+            "Paris FC",
+            "Le Havre AC",
+            3,
+            2
+          ],
+          [
+            "2026-03-22",
+            "Olympique de Marseille",
+            "Lille OSC",
+            1,
+            2
+          ],
+          [
+            "2026-03-22",
+            "FC Nantes",
+            "RC Strasbourg Alsace",
+            2,
+            3
+          ],
+          [
+            "2026-04-03",
+            "Paris Saint-Germain FC",
+            "Toulouse FC",
+            3,
+            1
+          ],
+          [
+            "2026-04-04",
+            "RC Strasbourg Alsace",
+            "OGC Nice",
+            3,
+            1
+          ],
+          [
+            "2026-04-04",
+            "Stade Brestois 29",
+            "Stade Rennais FC 1901",
+            3,
+            4
+          ],
+          [
+            "2026-04-04",
+            "Lille OSC",
+            "Racing Club de Lens",
+            3,
+            0
+          ],
+          [
+            "2026-04-05",
+            "Le Havre AC",
+            "AJ Auxerre",
+            1,
+            1
+          ],
+          [
+            "2026-04-05",
+            "FC Lorient",
+            "Paris FC",
+            1,
+            1
+          ],
+          [
+            "2026-04-05",
+            "AS Monaco FC",
+            "Olympique de Marseille",
+            2,
+            1
+          ],
+          [
+            "2026-04-10",
+            "Paris FC",
+            "AS Monaco FC",
+            4,
+            1
+          ],
+          [
+            "2026-04-10",
+            "Olympique de Marseille",
+            "FC Metz",
+            3,
+            1
+          ],
+          [
+            "2026-04-11",
+            "Stade Rennais FC 1901",
+            "Angers SCO",
+            2,
+            1
+          ],
+          [
+            "2026-04-12",
+            "Toulouse FC",
+            "Lille OSC",
+            0,
+            4
+          ],
+          [
+            "2026-04-12",
+            "OGC Nice",
+            "Le Havre AC",
+            1,
+            1
+          ],
+          [
+            "2026-04-12",
+            "Olympique Lyonnais",
+            "FC Lorient",
+            2,
+            0
+          ],
+          [
+            "2026-04-17",
+            "Racing Club de Lens",
+            "Toulouse FC",
+            3,
+            2
+          ],
+          [
+            "2026-04-18",
+            "FC Lorient",
+            "Olympique de Marseille",
+            2,
+            0
+          ],
+          [
+            "2026-04-18",
+            "Angers SCO",
+            "Le Havre AC",
+            1,
+            1
+          ],
+          [
+            "2026-04-19",
+            "AS Monaco FC",
+            "AJ Auxerre",
+            2,
+            2
+          ],
+          [
+            "2026-04-19",
+            "FC Metz",
+            "Paris FC",
+            1,
+            3
+          ],
+          [
+            "2026-04-19",
+            "FC Nantes",
+            "Stade Brestois 29",
+            1,
+            1
+          ],
+          [
+            "2026-04-19",
+            "RC Strasbourg Alsace",
+            "Stade Rennais FC 1901",
+            0,
+            3
+          ],
+          [
+            "2026-04-19",
+            "Paris Saint-Germain FC",
+            "Olympique Lyonnais",
+            1,
+            2
+          ],
+          [
+            "2026-04-22",
+            "Paris Saint-Germain FC",
+            "FC Nantes",
+            3,
+            0
+          ],
+          [
+            "2026-04-24",
+            "Stade Brestois 29",
+            "Racing Club de Lens",
+            3,
+            3
+          ],
+          [
+            "2026-04-25",
+            "Olympique Lyonnais",
+            "AJ Auxerre",
+            3,
+            2
+          ],
+          [
+            "2026-04-25",
+            "Angers SCO",
+            "Paris Saint-Germain FC",
+            0,
+            3
+          ],
+          [
+            "2026-04-25",
+            "Toulouse FC",
+            "AS Monaco FC",
+            2,
+            2
+          ],
+          [
+            "2026-04-26",
+            "FC Lorient",
+            "RC Strasbourg Alsace",
+            2,
+            3
+          ],
+          [
+            "2026-04-26",
+            "Le Havre AC",
+            "FC Metz",
+            4,
+            4
+          ],
+          [
+            "2026-04-26",
+            "Paris FC",
+            "Lille OSC",
+            0,
+            1
+          ],
+          [
+            "2026-04-26",
+            "Stade Rennais FC 1901",
+            "FC Nantes",
+            2,
+            1
+          ],
+          [
+            "2026-04-26",
+            "Olympique de Marseille",
+            "OGC Nice",
+            1,
+            1
+          ],
+          [
+            "2026-05-02",
+            "FC Nantes",
+            "Olympique de Marseille",
+            3,
+            0
+          ],
+          [
+            "2026-05-02",
+            "Paris Saint-Germain FC",
+            "FC Lorient",
+            2,
+            2
+          ],
+          [
+            "2026-05-02",
+            "FC Metz",
+            "AS Monaco FC",
+            1,
+            2
+          ],
+          [
+            "2026-05-02",
+            "OGC Nice",
+            "Racing Club de Lens",
+            1,
+            1
+          ],
+          [
+            "2026-05-03",
+            "Lille OSC",
+            "Le Havre AC",
+            1,
+            1
+          ],
+          [
+            "2026-05-03",
+            "AJ Auxerre",
+            "Angers SCO",
+            3,
+            1
+          ],
+          [
+            "2026-05-03",
+            "Paris FC",
+            "Stade Brestois 29",
+            4,
+            0
+          ],
+          [
+            "2026-05-03",
+            "RC Strasbourg Alsace",
+            "Toulouse FC",
+            1,
+            2
+          ],
+          [
+            "2026-05-03",
+            "Olympique Lyonnais",
+            "Stade Rennais FC 1901",
+            4,
+            2
+          ],
+          [
+            "2026-05-08",
+            "Racing Club de Lens",
+            "FC Nantes",
+            1,
+            0
+          ],
+          [
+            "2026-05-10",
+            "Le Havre AC",
+            "Olympique de Marseille",
+            0,
+            1
+          ],
+          [
+            "2026-05-10",
+            "AJ Auxerre",
+            "OGC Nice",
+            2,
+            1
+          ],
+          [
+            "2026-05-10",
+            "AS Monaco FC",
+            "Lille OSC",
+            0,
+            1
+          ],
+          [
+            "2026-05-10",
+            "FC Metz",
+            "FC Lorient",
+            0,
+            4
+          ],
+          [
+            "2026-05-10",
+            "Toulouse FC",
+            "Olympique Lyonnais",
+            2,
+            1
+          ],
+          [
+            "2026-05-10",
+            "Paris Saint-Germain FC",
+            "Stade Brestois 29",
+            1,
+            0
+          ],
+          [
+            "2026-05-10",
+            "Angers SCO",
+            "RC Strasbourg Alsace",
+            1,
+            1
+          ],
+          [
+            "2026-05-10",
+            "Stade Rennais FC 1901",
+            "Paris FC",
+            2,
+            1
+          ],
+          [
+            "2026-05-13",
+            "Stade Brestois 29",
+            "RC Strasbourg Alsace",
+            1,
+            2
+          ],
+          [
+            "2026-05-13",
+            "Racing Club de Lens",
+            "Paris Saint-Germain FC",
+            0,
+            2
+          ],
+          [
+            "2026-05-17",
+            "FC Lorient",
+            "Le Havre AC",
+            0,
+            2
+          ],
+          [
+            "2026-05-17",
+            "Paris FC",
+            "Paris Saint-Germain FC",
+            2,
+            1
+          ],
+          [
+            "2026-05-17",
+            "Olympique Lyonnais",
+            "Racing Club de Lens",
+            0,
+            4
+          ],
+          [
+            "2026-05-17",
+            "Olympique de Marseille",
+            "Stade Rennais FC 1901",
+            3,
+            1
+          ],
+          [
+            "2026-05-17",
+            "Lille OSC",
+            "AJ Auxerre",
+            0,
+            2
+          ],
+          [
+            "2026-05-17",
+            "RC Strasbourg Alsace",
+            "AS Monaco FC",
+            5,
+            4
+          ],
+          [
+            "2026-05-17",
+            "Stade Brestois 29",
+            "Angers SCO",
+            1,
+            1
+          ],
+          [
+            "2026-08-21",
+            "Olympique de Marseille",
+            "RC Strasbourg Alsace",
+            4,
+            0
+          ],
+          [
+            "2026-08-22",
+            "Racing Club de Lens",
+            "AJ Auxerre",
+            5,
+            2
+          ],
+          [
+            "2026-08-22",
+            "Le Mans FC",
+            "Stade Brestois 29",
+            2,
+            2
+          ],
+          [
+            "2026-08-22",
+            "Toulouse FC",
+            "Olympique Lyonnais",
+            0,
+            2
+          ],
+          [
+            "2026-08-23",
+            "Angers SCO",
+            "Lille OSC",
+            0,
+            2
+          ],
+          [
+            "2026-08-23",
+            "Le Havre AC",
+            "AS Monaco FC",
+            0,
+            1
+          ],
+          [
+            "2026-08-23",
+            "Stade Rennais FC 1901",
+            "Paris Saint-Germain FC",
+            2,
+            2
+          ],
+          [
+            "2026-08-28",
+            "Lille OSC",
+            "Paris Saint-Germain FC",
+            2,
+            2
+          ],
+          [
+            "2026-08-29",
+            "RC Strasbourg Alsace",
+            "Racing Club de Lens",
+            2,
+            1
+          ],
+          [
+            "2026-08-29",
+            "FC Lorient",
+            "ES Troyes AC",
+            1,
+            2
+          ],
+          [
+            "2026-08-29",
+            "Olympique Lyonnais",
+            "Le Havre AC",
+            1,
+            1
+          ],
+          [
+            "2026-08-29",
+            "AJ Auxerre",
+            "Angers SCO",
+            1,
+            3
+          ],
+          [
+            "2026-08-29",
+            "Stade Brestois 29",
+            "Toulouse FC",
+            2,
+            2
+          ],
+          [
+            "2026-08-30",
+            "Paris FC",
+            "OGC Nice",
+            3,
+            0
+          ],
+          [
+            "2026-08-30",
+            "Stade Rennais FC 1901",
+            "Le Mans FC",
+            3,
+            2
+          ],
+          [
+            "2026-08-30",
+            "AS Monaco FC",
+            "Olympique de Marseille",
+            2,
+            0
+          ],
+          [
+            "2026-09-03",
+            "Toulouse FC",
+            "Lille OSC",
+            0,
+            1
+          ],
+          [
+            "2026-09-04",
+            "Olympique Lyonnais",
+            "AJ Auxerre",
+            3,
+            1
+          ],
+          [
+            "2026-09-04",
+            "Paris Saint-Germain FC",
+            "AS Monaco FC",
+            1,
+            2
+          ],
+          [
+            "2026-09-05",
+            "Racing Club de Lens",
+            "FC Lorient",
+            0,
+            1
+          ],
+          [
+            "2026-09-05",
+            "Le Havre AC",
+            "Stade Brestois 29",
+            1,
+            2
+          ],
+          [
+            "2026-09-05",
+            "OGC Nice",
+            "Le Mans FC",
+            1,
+            1
+          ],
+          [
+            "2026-09-06",
+            "ES Troyes AC",
+            "RC Strasbourg Alsace",
+            2,
+            6
+          ],
+          [
+            "2026-09-06",
+            "Angers SCO",
+            "Stade Rennais FC 1901",
+            1,
+            2
+          ],
+          [
+            "2026-09-06",
+            "Olympique de Marseille",
+            "Paris FC",
+            2,
+            3
+          ],
+          [
+            "2026-09-11",
+            "Stade Rennais FC 1901",
+            "Olympique de Marseille",
+            1,
+            0
+          ],
+          [
+            "2026-09-12",
+            "RC Strasbourg Alsace",
+            "AS Monaco FC",
+            1,
+            1
+          ],
+          [
+            "2026-09-12",
+            "FC Lorient",
+            "Toulouse FC",
+            2,
+            2
+          ],
+          [
+            "2026-09-12",
+            "AJ Auxerre",
+            "OGC Nice",
+            1,
+            0
+          ],
+          [
+            "2026-09-13",
+            "Lille OSC",
+            "ES Troyes AC",
+            2,
+            0
+          ],
+          [
+            "2026-09-13",
+            "Le Mans FC",
+            "Racing Club de Lens",
+            2,
+            2
+          ],
+          [
+            "2026-09-13",
+            "Stade Brestois 29",
+            "Paris Saint-Germain FC",
+            0,
+            1
+          ],
+          [
+            "2026-09-18",
+            "AS Monaco FC",
+            "Racing Club de Lens",
+            2,
+            1
+          ],
+          [
+            "2026-09-19",
+            "Paris FC",
+            "RC Strasbourg Alsace",
+            2,
+            1
+          ],
+          [
+            "2026-09-19",
+            "Le Mans FC",
+            "FC Lorient",
+            2,
+            1
+          ],
+          [
+            "2026-09-19",
+            "Toulouse FC",
+            "Le Havre AC",
+            3,
+            2
+          ],
+          [
+            "2026-09-19",
+            "Angers SCO",
+            "ES Troyes AC",
+            2,
+            0
+          ],
+          [
+            "2026-09-19",
+            "Olympique Lyonnais",
+            "Stade Rennais FC 1901",
+            4,
+            0
+          ],
+          [
+            "2026-09-20",
+            "AJ Auxerre",
+            "Stade Brestois 29",
+            2,
+            1
+          ],
+          [
+            "2026-09-20",
+            "OGC Nice",
+            "Lille OSC",
+            2,
+            1
+          ],
+          [
+            "2026-09-20",
+            "Olympique de Marseille",
+            "Paris Saint-Germain FC",
+            1,
+            2
+          ]
+        ],
+        "revision": "2023-24:e6744429ee395bc86f247348c6184bb08d4eb361;2024-25:e6744429ee395bc86f247348c6184bb08d4eb361;2025-26:e6744429ee395bc86f247348c6184bb08d4eb361;2026-27:e6744429ee395bc86f247348c6184bb08d4eb361"
+      }
+    }
+  }
+}

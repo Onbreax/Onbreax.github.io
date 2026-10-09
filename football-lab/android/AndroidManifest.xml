@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="fr.onbreax.footballlab" android:versionCode="3" android:versionName="1.1.1">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="fr.onbreax.footballlab" android:versionCode="4" android:versionName="1.2.0">
 <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35"/>
 <uses-permission android:name="android.permission.INTERNET"/>
 <application android:label="Football Lab" android:icon="@drawable/icon" android:theme="@android:style/Theme.Material.Light.NoActionBar" android:allowBackup="false" android:usesCleartextTraffic="false" android:supportsRtl="true">

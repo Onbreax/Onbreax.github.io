@@ -1,6 +1,6 @@
-# Football Lab 1.1.1
+# Football Lab 1.2.0
 
-Personal, free football probability laboratory. Shared standalone HTML and Android app. OpenFootball mode needs no account or token. Optional Football-data.org connection uses a personal free API key. No paid AI, betting placement or staking calculation. App ID: `fr.onbreax.footballlab` (separate from Polylog AI).
+Personal, free football probability laboratory with a fixed original model and an optional, chronologically tuned variant. Shared standalone HTML and Android app. OpenFootball mode needs no account or token. Optional Football-data.org connection uses a personal free API key. No paid AI, betting placement or staking calculation. App ID: `fr.onbreax.footballlab` (separate from Polylog AI).
 
 ## Use
 
@@ -71,7 +71,7 @@ Conflicting final scores are excluded from calculation and shown as data issues.
 
 The original `src/model.js` is unchanged byte-for-byte from 1.0.0. Previously saved probabilities and snapshots are not rewritten on updates, reports or imports. Historical scores can change with updated data, which is intentional. Archive schema remains backward compatible with v1.
 
-Android 1.1.1 uses versionCode 3, same package and signing certificate as 1.0.0. Install as an update without uninstalling to retain local data. APK compilation/signature verification and browser tests were performed; no physical Android device or emulator test was performed.
+Android 1.2.0 uses versionCode 4, same package and signing certificate as 1.0.0. Install as an update without uninstalling to retain local data. APK compilation/signature verification and browser tests were performed; no physical Android device or emulator test was performed.
 
 ## Version 1.1.1 connection diagnostics
 
@@ -82,3 +82,38 @@ The notice is also above the cards. Browser network/CORS failures explain the na
 Both browser and native HTTP errors display their status code. Error text redacts the active key, and changing/forgetting a key is blocked only while an actual refresh is running. Failed OpenFootball validation no longer leaves a partially modified dataset candidate for the other provider. Archives and the mathematical model remain unchanged.
 
 Additional regression: `CHROME_EXECUTABLE=/path/to/chromium NODE_PATH=/path/to/node_modules node football-lab/tests/connection-errors.cjs`. It reproduces successful OpenFootball reads alongside browser API failure, native HTTP 403, and invalid provider data; verifies independent counts, visible mobile diagnostics, data preservation, season-specific status and no key in the UI/storage. The native-bridge connection test also checks a newly received final score while remaining gaps stay explicitly visible. These tests use synthetic responses; APK build/signature checks do not constitute on-device authenticated validation.
+
+## Version 1.2 model comparison
+
+The original `src/model.js` remains byte-for-byte unchanged (SHA-256 `694d66ac71a7ef96b208051639596578e2ec995d2cc26a837b77e325689a60bb`). Its fixed 180-day half-life / 8-match prior is the default. `src/experiment.js` supplies a separate original implementation using the same Poisson goal model with selectable settings. It has no additional runtime dependency or network request. It does not add Dixon–Coles, xG, injuries or lineups.
+
+In **Laboratoire**, press **Comparer les modèles**. The predefined grid is half-lives `[90,180,365]` days × priors `[4,8,16]` equivalent matches (nine combinations, with the original default first for deterministic ties). For the selected league and test season, settings minimize multiclass Brier over walk-forward predictions in the immediately previous season, using only scored dates before the earlier of the test season boundary (July 1) and the as-of day. At least 120 validation matches and 60 prior scored matches per prediction are required. Validation targets, team statistics and parameter selection never use same-day or later results. An insufficient validation season leaves the adjusted variant unavailable.
+
+The selected settings are frozen for the test season. Team strengths are refitted before each test match using only earlier dates and the same 1,096-day history window. This includes earlier test-season results as they become past observations; it does not use them to reselect settings. Both variants are evaluated on the same scored test matches. Brier, natural-log loss and favorite-outcome accuracy are shown side by side. A common historical-frequency reference uses the original 180-day weighting. These are retrospective simulations using the currently available, potentially corrected/incomplete data. They are not a reconstruction of historical publication timing, independent certification, or a guarantee of improvement.
+
+Progress updates yield between candidates/test batches; calculations stay on the device. Results are cached in memory by league, season, as-of day and data revision. A different data revision makes cached comparisons inapplicable. No comparison results, keys or personal settings are sent to a server. Calibration diagrams now cover home win, draw and away win in both Laboratory and saved-forecast tracking. They measure agreement with observed frequencies in five probability bins; they do not automatically recalibrate probabilities. Brier is a combined quality score, not a calibration-only measure.
+
+After comparing, **Initial · v1** / **Ajusté · v2** chooses the model for new calculations/records. The choice is global and retained locally. The adjusted mode selects settings separately for each league and season; a league/season lacking sufficient validation data falls back to the original model. Each card/detail and tracking record identifies the actual model. The original remains the default. Changing a preference or importing/updating source data never rewrites saved predictions, timestamps or snapshots. Tracking indicators describe the records currently selected, which may contain several model versions; the controlled same-match comparison is in Laboratory.
+
+Archive format stays version 1. Old records continue to load, export and import unchanged. A new adjusted record uses model version `poisson-ajuste-2` and adds the chosen settings/selection audit. Its snapshot hash includes the prediction training rows, data revision, model/settings/validation selection and all input rows needed to replay that selection. `tuningInputs` rows are `[date,home,away,homeGoals,awayGoals,season]`; regular prediction training rows keep their original five-field format. The import validator rejects unsupported settings, unknown model versions, inconsistent model metadata and selection/input dates beyond the allowed cutoff. Imported records remain declarative, without a trusted external clock or cryptographic certification of publication.
+
+Tests added:
+
+- `node football-lab/tests/experiment.cjs` — original-model numerical parity, exact original-source hash, normalized outcome calculations, frozen hyperparameters under polluted test results, same-day/future exclusion, common test matches, three-outcome calibration and selection replay from audit inputs.
+- `CHROME_EXECUTABLE=/path/to/chromium NODE_PATH=/path/to/node_modules node football-lab/tests/experiment-ui.cjs` — 390/1280 px, legacy archive preservation, comparison/progress, all three calibration outcomes, model selection/reload, adjusted forecast/audit replay, export, and atomic rejection of a future-dated selection. `tests/fixtures/legacy-forecast.json` was generated by the released 1.1.1 HTML with a synthetic 2026-10-09T12:00:00Z clock; it contains no user key or private user forecast. The test is self-contained and requires no downloaded old HTML.
+
+Validation methodology references (consulted 2026-10-09):
+- https://scikit-learn.org/stable/modules/cross_validation.html — holdout/validation separation and leakage when choosing settings on test data.
+- https://scikit-learn.org/stable/modules/calibration.html — probability bins, observed frequencies, and the distinction between overall Brier quality and calibration.
+
+No scikit-learn code is bundled; these are methodological references for the original JavaScript implementation.
+
+Bundled-data check (2025–26, settings selected on 2024–25; incomplete snapshot, not a prospective result):
+
+| League | Matches | Initial Brier | Adjusted Brier | Half-life / prior |
+| --- | ---: | ---: | ---: | --- |
+| fr | 282 | 0.588764 | 0.585667 | 365 days / 4 |
+| en | 353 | 0.605921 | 0.600526 | 365 days / 4 |
+| es | 365 | 0.577606 | 0.573181 | 365 days / 4 |
+
+The bundled current-season test still has only 41/45/64 scored matches (FR/EN/ES), last scored 2026-09-20. The new model does not resolve the unverified authenticated API freshness on the user’s phone. HTML still has the documented browser/CORS restriction; the native Android connection and 1.1.1 diagnostics are preserved. Android build/signature and browser checks do not replace an authenticated on-device test.
