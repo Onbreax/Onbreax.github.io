@@ -1,0 +1,17 @@
+const assert=require('assert/strict'),M=require('../src/model.js'),D=require('../src/data.js'),bundle=require('../data/openfootball-snapshot.json');
+const reg=D.registry(bundle.datasets),sample=bundle.datasets.find(x=>x.league==='fr'&&x.season==='2026-27'),base=D.openfootball(sample.data,'fr','2026-27',reg);
+const fixture=base.find(m=>m.date>'2026-10-09'&&!m.score);
+const event=(status='TIMED',time='2026-10-10T18:00:00Z',score=null)=>({id:12345,utcDate:time,status,season:{startDate:'2026-08-01'},competition:{code:'FL1'},homeTeam:{id:100,name:fixture.home},awayTeam:{id:200,name:fixture.away},score:{duration:'REGULAR',fullTime:score?{home:score[0],away:score[1]}:{home:null,away:null}},lastUpdated:'2026-10-09T12:00:00Z',matchday:8});
+const wrap=ev=>({competition:{code:'FL1'},matches:ev});
+const parse=ev=>D.footballData(wrap(ev),'fr','2026-27',reg);
+let official=parse([event()]),rows=D.merge(base,official,base).rows,m=rows.find(m=>m.providerId===12345);
+assert.equal(D.key(m),D.key(fixture));assert.equal(D.resolve(fixture,rows).providerId,12345);assert(D.eligible(m,Date.parse('2026-10-10T17:59:59Z')));assert(!D.eligible(m,Date.parse(m.kickoff)));
+let postponed=D.merge(base,parse([event('POSTPONED','2026-11-01T18:00:00Z')]),rows).rows;const p=postponed.find(m=>m.providerId===12345);assert(!D.eligible(p));assert.equal(p.kickoff,null);assert(!D.health(postponed,Date.parse('2026-11-02T12:00:00Z')).missing.some(x=>x.providerId===12345));assert.equal(D.resolve(fixture,postponed).date,'2026-11-01');
+const saved={match:fixture,savedAt:'2026-10-09T12:00:00Z'};assert(D.timely(saved,p));const advanced={...m,kickoff:'2026-10-08T18:00:00Z'};assert(!D.timely(saved,advanced));
+const zero=parse([event('FINISHED','2026-10-10T18:00:00Z',[0,0])]);assert.deepEqual(zero.rows[0].score,[0,0]);assert.equal(parse([event('IN_PLAY','2026-10-10T18:00:00Z',[2,1])]).rows[0].score,null);
+const conflict=D.merge(base.map(r=>D.key(r)===D.key(m)?{...r,score:[3,1]}:r),zero,rows);assert.equal(conflict.rows.find(r=>r.providerId===12345).score,null);assert.equal(conflict.issues.length,1);
+assert.throws(()=>parse([event(),event()]));assert.throws(()=>D.footballData({...wrap([event()]),competition:{code:'PL'}},'fr','2026-27',reg));assert.throws(()=>parse([{...event(),utcDate:'2026-10-10T18:00:00'}]));assert.throws(()=>parse([{...event(),homeTeam:{id:100,name:'Unknown team'}}]));
+const london=new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'2-digit',minute:'2-digit'});assert.equal(london.format(new Date('2026-10-24T18:00:00Z')),'20:00');assert.equal(london.format(new Date('2026-10-26T18:00:00Z')),'19:00');
+assert.equal(D.openfootball({matches:[{team1:fixture.home,team2:fixture.away,date:'2026-10-10',time:'20:00'}]},'fr','2026-27',reg)[0].kickoff,null);
+require('fs').writeFileSync('/tmp/football-v11-fixture.json',JSON.stringify(wrap([event()])));
+console.log('Stable IDs, old archive matching, reports, time cutoff, DST, conflicts, live-score rejection and schema checks PASS');

@@ -1,20 +1,20 @@
-# Football Lab 1.0.0
+# Football Lab 1.1.0
 
-Personal, free football probability laboratory. Shared standalone HTML and Android app. No account, API token, paid AI, betting placement or staking calculation. App ID: `fr.onbreax.footballlab` (separate from Polylog AI).
+Personal, free football probability laboratory. Shared standalone HTML and Android app. OpenFootball mode needs no account or token. Optional Football-data.org connection uses a personal free API key. No paid AI, betting placement or staking calculation. App ID: `fr.onbreax.footballlab` (separate from Polylog AI).
 
 ## Use
 
-Open `../football-lab.html` in a recent browser, or install the signed APK. Ligue 1, Premier League and La Liga; 2023–24 through 2026–27. Initial data is embedded, so the app opens offline. **Actualiser** manually reloads the three 2026–27 datasets from OpenFootball. Network or source failures preserve the existing data. Refreshing the source is not evidence that its results are up to date.
+Open `../football-lab.html` in a recent browser, or install the signed APK. Ligue 1, Premier League and La Liga; 2023–24 through 2026–27. Initial data is embedded, so the app opens offline. **Actualiser** manually reloads the three leagues for the selected season from OpenFootball, plus Football-data.org if a key has been entered for this session. A 60-second cooldown prevents repeated refreshes from exhausting the free quota. Network or source failures preserve the existing data. Refreshing the source is not evidence that its results are up to date.
 
-Screens: match analysis, reconstructed standings, locally saved forecasts, and historical walk-forward evaluation. No kickoff time is presented because the source timezone has not been verified. Saved predictions are permitted only for match dates strictly after today's UTC date, using the device clock. This deliberately excludes same-day recording. No server-side timestamp certification.
+Screens: match analysis, reconstructed standings, locally saved forecasts, and historical walk-forward evaluation. OpenFootball times remain unconfirmed and are never assigned a guessed timezone. Football-data.org TIMED / IN_PLAY / PAUSED / FINISHED timestamps are validated as UTC and displayed in the device timezone, with DST handled by Intl. SCHEDULED dates remain provisional. Recording is allowed before a confirmed kickoff; without one it closes before the UTC match day. Postponed, cancelled, suspended, in-play and conflicting matches cannot receive new predictions. No server-side timestamp certification.
 
-HTML and Android keep separate local storage. Export/import JSON transfers the forecast archive and exact training inputs. An existing forecast for a match is never replaced on import. Export before clearing app/browser data. Android exports with the system document picker and can import user-selected JSON.
+HTML and Android keep separate local storage. Export/import JSON transfers the forecast archive and exact training inputs. A separate Data export/import transfers source datasets between Android and HTML without including keys. An existing forecast for a match is never replaced on import. Export before clearing app/browser data. Android exports with the system document picker and can import user-selected JSON.
 
 ## Data provenance
 
-`data/openfootball-snapshot.json` contains the retrieved source files, retrieval timestamp and immutable upstream commit SHA. Source: https://github.com/openfootball/football.json . The upstream project dedicates its schema, data and scripts to the public domain; see its README. The original source names are retained; there is no fuzzy team-name matching. New or renamed teams receive the league prior and display a low-history notice.
+`data/openfootball-snapshot.json` contains the retrieved source files, retrieval timestamp and immutable upstream commit SHA. Source: https://github.com/openfootball/football.json . The upstream project dedicates its schema, data and scripts to the public domain; see its README. The original source names are retained; there is no fuzzy team-name matching. The data adapter normalizes accents, punctuation and FC/CF/AFC/1901 tokens against the embedded registry. Unknown Football-data.org teams are reported and excluded instead of fuzzy-matched. New OpenFootball teams receive the league prior and display a low-history notice.
 
-The 2025–26 snapshot includes 282/306 Ligue 1, 353/380 Premier League and 365/380 La Liga final scores. The newest populated 2026–27 result date in all three datasets at retrieval was 2026-09-20. Missing scores are NOT converted to zero, and displayed coverage reflects only dates before today. Results can be delayed, wrong, corrected or incomplete. Standings omit sanctions and league-specific tie-breakers. Revised dates can leave a saved forecast unmatched.
+The 2025–26 snapshot includes 282/306 Ligue 1, 353/380 Premier League and 365/380 La Liga final scores. The newest populated 2026–27 result date in all three datasets at retrieval was 2026-09-20. Missing scores are NOT converted to zero, and displayed coverage reflects only dates before today. Results can be delayed, wrong, corrected or incomplete. Standings omit sanctions and league-specific tie-breakers. Within these double round-robin leagues, an internal match identity combines league, season and ordered home/away team identities, independently of date. Duplicate pairs are rejected as ambiguous. Provider match/team IDs are retained and checked where available. Original forecast records remain unchanged; matching is resolved dynamically. A kickoff moved before the original recording time makes that record ineligible for evaluation.
 
 ## Model: original Poisson lissé v1
 
@@ -45,4 +45,30 @@ For Android, install JDK 17, Android platform 35 and build-tools 35.0.0. Set `JA
 
 `CHROME_EXECUTABLE=/path/to/chromium NODE_PATH=/path/to/node_modules node football-lab/tests/interface.cjs`
 
-The browser test requires Playwright. It covers mobile/desktop layout, offline data, persistence, archive export/import, malformed import rejection, backtest rendering and offline refresh failures. Model tests check independent probability identities, missing versus nil-nil scores, and future/same-day exclusion. APK compilation/signature checks are not on-device validation.
+Additional v1.1 tests:
+
+`node football-lab/tests/data.cjs`
+
+`CHROME_EXECUTABLE=/path/to/chromium NODE_PATH=/path/to/node_modules node football-lab/tests/calendar-ui.cjs`
+
+Run the data test first; it prepares a synthetic provider fixture in `/tmp`. The calendar UI test checks UTC conversion, reports, preserved forecasts, matching final scores, invalid imports and key privacy. The browser tests require Playwright. It covers mobile/desktop layout, offline data, persistence, archive export/import, malformed import rejection, backtest rendering and offline refresh failures. Model tests check independent probability identities, missing versus nil-nil scores, and future/same-day exclusion. APK compilation/signature checks are not on-device validation.
+
+
+## Version 1.1 data connection and limitations
+
+Football-data.org documentation and terms checked on 2026-10-09:
+- https://www.football-data.org/pricing — free plan: delayed scores/schedules, 10 requests/minute.
+- https://www.football-data.org/coverage — FL1, PL, PD included.
+- https://docs.football-data.org/general/v4/match.html — stable match/team IDs, UTC timestamps, status lifecycle.
+- https://www.football-data.org/about — API attribution required; a key covers a single app in web/mobile form, and must not be placed in a public repository. Data display rights are tied to the subscription; consult the provider's terms before discontinuing it.
+- https://www.football-data.org/client/register — personal free registration.
+
+Required attribution is included in the Data panel. No provider artwork is used. The user enters the key in Data, valid for the current page session only; it is not stored, logged or exported. Android requests use a native HTTPS bridge restricted to API host/three competitions and selected season, with timeouts, response size limit and no redirects. Desktop browsers may reject direct API access under CORS. Exporting source data from Android then importing that JSON into HTML is the supported fallback; no third-party public proxy is used.
+
+No authenticated live provider request was tested during development because no personal key was available. API schema/status/error flows were checked against the documentation and synthetic fixtures. The anonymous endpoint returned 403. Source freshness improvement is conditional on a valid key and provider coverage; the bundled OpenFootball snapshot has not been represented as newly updated. TheSportsDB was examined and not integrated: its free season endpoint returned only 15 records, inadequate for our full calendar.
+
+Conflicting final scores are excluded from calculation and shown as data issues. Live scores are never ingested as finals. Cancelled / awarded / suspended / postponed fixtures are tracked as statuses rather than treated as missing finals. Missing IDs in a partial provider response keep previous observations, with a diagnostic. Import rejects wrong competitions, seasons, malformed scores/dates, duplicate identities and unknown team pairings. Source consultation timestamps are distinct from the last known result date. Current source files can still be incomplete or contain errors; this is not an official results service.
+
+The original `src/model.js` is unchanged byte-for-byte from 1.0.0. Previously saved probabilities and snapshots are not rewritten on updates, reports or imports. Historical scores can change with updated data, which is intentional. Archive schema remains backward compatible with v1.
+
+Android 1.1.0 uses versionCode 2, same package and signing certificate as 1.0.0. Install as an update without uninstalling to retain local data. APK compilation/signature verification and browser tests were performed; no physical Android device or emulator test was performed.
