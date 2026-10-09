@@ -1,0 +1,6 @@
+android/build/
+android/assets/
+*.apk
+*.idsig
+*.jks
+*.keystore

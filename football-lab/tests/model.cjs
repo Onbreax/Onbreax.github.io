@@ -1,0 +1,8 @@
+const assert=require('assert/strict'),M=require('../src/model.js'),raw=require('../data/openfootball-snapshot.json');
+const matches=raw.datasets.flatMap(x=>M.normalize(x.data,x.league,x.season));
+for(const h of [.15,1,2.7,5])for(const a of [.15,1,3,5]){const g=M.grid(h,a);assert(Math.abs(g.probs.reduce((a,b)=>a+b)-1)<1e-12);assert(g.probs.every(p=>p>=0&&p<=1));assert(Math.abs(g.btts-(1-Math.exp(-h))*(1-Math.exp(-a)))<1e-8);const tot=h+a;assert(Math.abs(g.over-(1-Math.exp(-tot)*(1+tot+tot*tot/2)))<1e-8)}
+const toy={matches:[{date:'2025-01-01',team1:'A',team2:'B',score:{}},{date:'2025-01-02',team1:'A',team2:'B',score:{ft:[0,0]}}]};assert.equal(M.normalize(toy,'fr','2024-25')[0].score,null);assert.deepEqual(M.normalize(toy,'fr','2024-25')[1].score,[0,0]);
+const f=M.fit(matches,'fr','2025-02-01');const polluted=matches.map(m=>m.date>='2025-02-01'?{...m,score:[99,0]}:m);assert.deepEqual(f,M.fit(polluted,'fr','2025-02-01'),'Future and same-day results must never enter training');
+assert.equal(M.predict(null,'A','B'),null);assert(M.predict(f,'Unknown','Other').probs.every(Number.isFinite));
+const rows=[];for(const league of ['fr','en','es']){const t=M.backtest(matches,league,'2025-26');assert(t.metrics.n>250);assert(Number.isFinite(t.metrics.logloss));assert(t.rows.every(r=>r.pred.last<r.date));rows.push({league,...t.metrics,skipped:t.skipped});}
+require('fs').writeFileSync('/tmp/football-backtest.json',JSON.stringify(rows,null,2));console.log(rows.map(r=>({league:r.league,n:r.n,brier:r.brier,baseline:r.baseline,accuracy:r.accuracy})));console.log('Probability identities, no leakage, missing/zero scores and chronological tests PASS');
