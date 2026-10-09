@@ -12,7 +12,7 @@ const {chromium}=require('playwright'),fs=require('fs'),http=require('http'),ass
   const before=JSON.stringify(legacy),original=legacy,oldId=legacy.forecasts[0].match.id;
   await page.addInitScript(archive=>{if(!localStorage.getItem('football-lab-archive'))localStorage.setItem('football-lab-archive',archive)},before);
   await page.goto(root);assert.equal(await page.evaluate(()=>localStorage.getItem('football-lab-archive')),before);
-  await page.locator('[data-tab="lab"]').click();await page.locator('#runComparison').click();await page.waitForSelector('#comparisonTable');
+  await page.locator('nav [data-tab="lab"]').click();await page.locator('#runComparison').click();await page.waitForSelector('#comparisonTable');
   assert.equal(await page.locator('#comparisonTable tbody tr').count(),2);assert((await page.locator('#content').textContent()).includes('2025-26'));
   await page.selectOption('#season','2025-26');await page.locator('#runComparison').click();await page.waitForSelector('#comparisonTable');
   assert((await page.locator('#content').textContent()).includes('2024-25'));assert((await page.locator('#content').textContent()).includes('0.5888'));
@@ -23,7 +23,7 @@ const {chromium}=require('playwright'),fs=require('fs'),http=require('http'),ass
   await page.locator('#calibrationPanel').screenshot({path:`/tmp/football-v12-calibration-${width}.png`});
   await page.locator('[data-forecast-mode="adjusted"]').click();assert.equal(await page.evaluate(()=>localStorage.getItem('football-lab-model')),'adjusted');
   assert.equal(await page.evaluate(()=>localStorage.getItem('football-lab-archive')),before,'Changing model cannot rewrite an archive');
-  await page.selectOption('#season','2026-27');await page.locator('[data-tab="matches"]').click();
+  await page.selectOption('#season','2026-27');await page.locator('nav [data-tab="matches"]').click();
   const newId=await page.locator('[data-match]').evaluateAll((bs,oldId)=>bs.find(b=>b.dataset.match!==oldId&&b.dataset.match.split('|')[1]>'2026-10-09').dataset.match,oldId);
   await page.locator('[data-match]').evaluateAll((bs,id)=>bs.find(b=>b.dataset.match===id).click(),newId);assert((await page.locator('#dialogBody').textContent()).includes('Poisson ajusté'));
   await page.locator('#saveForecast').click();await page.waitForFunction(()=>JSON.parse(localStorage.getItem('football-lab-archive')||'{}').forecasts?.length===2);
@@ -34,12 +34,12 @@ const {chromium}=require('playwright'),fs=require('fs'),http=require('http'),ass
    const rows=snap.training.map(r=>({league:fresh.match.league,date:r[0],home:r[1],away:r[2],score:r.slice(3)}));
    return FootExperiment.predict(FootExperiment.fit(rows,fresh.match.league,fresh.pred.cutoff,snap.model.params),fresh.match.home,fresh.match.away).probs;
   },{fresh,snap});replay.forEach((p,i)=>assert(Math.abs(p-fresh.pred.probs[i])<1e-12));
-  await page.reload();assert((await page.locator('#modelTag').textContent()).includes('ajusté'));await page.locator('[data-tab="tracking"]').click();
+  await page.reload();assert((await page.locator('#modelTag').textContent()).includes('ajusté'));await page.locator('nav [data-tab="tracking"]').click();
   assert((await page.locator('#content').textContent()).includes('Poisson initial'));assert((await page.locator('#content').textContent()).includes('Poisson ajusté'));
   const dlPromise=page.waitForEvent('download');await page.locator('#export').click();const dl=await dlPromise,backup=JSON.parse(fs.readFileSync(await dl.path(),'utf8'));assert.equal(backup.forecasts.length,2);
   const bad=JSON.parse(JSON.stringify(backup));bad.forecasts[1].pred.selection.before='2027-07-01';const stable=await page.evaluate(()=>localStorage.getItem('football-lab-archive'));
   await page.locator('#import').setInputFiles({name:'bad-audit.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(bad))});await page.waitForFunction(()=>document.querySelector('#notice').textContent.includes('Import impossible'));assert.equal(await page.evaluate(()=>localStorage.getItem('football-lab-archive')),stable);
-  await page.locator('[data-tab="lab"]').click();await page.selectOption('#season','2023-24');await page.locator('#runComparison').click();await page.waitForSelector('#comparisonTable');
+  await page.locator('nav [data-tab="lab"]').click();await page.selectOption('#season','2023-24');await page.locator('#runComparison').click();await page.waitForSelector('#comparisonTable');
   assert.equal(await page.locator('#comparisonTable tbody tr').count(),1);assert(await page.locator('[data-forecast-mode="adjusted"]').isDisabled());
   assert((await page.locator('#content').textContent()).includes('Seul le modèle initial'));assert.equal(await page.evaluate(()=>localStorage.getItem('football-lab-archive')),stable);
   assert.deepEqual(errors,[]);console.log('Legacy archive, model comparison, all outcomes, adjusted forecast/audit replay, reload/export and invalid future audit rejection PASS '+width);

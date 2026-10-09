@@ -23,7 +23,7 @@ const KEY='TESTKEY_PRIVATE_123';
    },{kind,KEY});
    await page.goto(`http://127.0.0.1:${server.address().port}`);
    const before=await page.locator('#health').textContent();
-   await page.locator('#sources').click();await page.locator('#fdKey').fill(KEY);await page.locator('#useKey').click();
+   await page.locator('#menuToggle').click();await page.locator('#sources').click();await page.locator('#fdKey').fill(KEY);await page.locator('#useKey').click();
    assert((await page.locator('#connection').textContent()).includes('connexion non vérifiée'));
    await page.locator('#refresh').click();await page.waitForFunction(()=>!document.querySelector('#refresh').disabled);
    const banner=await page.locator('#connection').textContent();

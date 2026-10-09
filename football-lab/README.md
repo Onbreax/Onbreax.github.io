@@ -1,6 +1,6 @@
-# Football Lab 1.2.0
+# Football Lab 1.3.0
 
-Personal, free football probability laboratory with a fixed original model and an optional, chronologically tuned variant. Shared standalone HTML and Android app. OpenFootball mode needs no account or token. Optional Football-data.org connection uses a personal free API key. No paid AI, betting placement or staking calculation. App ID: `fr.onbreax.footballlab` (separate from Polylog AI).
+Personal football probability laboratory with free local calculation, a fixed original model and an optional, chronologically tuned variant. Shared standalone HTML and Android app. OpenFootball mode needs no account or token. Optional Football-data.org connection uses a personal free API key. Version 1.3 adds an optional OpenRouter explanation on explicit request; its charges and quotas depend on the selected model and key. No betting placement or staking calculation. App ID: `fr.onbreax.footballlab` (separate from Polylog AI).
 
 ## Use
 
@@ -71,7 +71,7 @@ Conflicting final scores are excluded from calculation and shown as data issues.
 
 The original `src/model.js` is unchanged byte-for-byte from 1.0.0. Previously saved probabilities and snapshots are not rewritten on updates, reports or imports. Historical scores can change with updated data, which is intentional. Archive schema remains backward compatible with v1.
 
-Android 1.2.0 uses versionCode 4, same package and signing certificate as 1.0.0. Install as an update without uninstalling to retain local data. APK compilation/signature verification and browser tests were performed; no physical Android device or emulator test was performed.
+Android 1.3.0 uses versionCode 5, same package and signing certificate as 1.0.0. Install as an update without uninstalling to retain local data. APK compilation/signature verification and browser tests were performed; no physical Android device or emulator test was performed.
 
 ## Version 1.1.1 connection diagnostics
 
@@ -117,3 +117,42 @@ Bundled-data check (2025–26, settings selected on 2024–25; incomplete snapsh
 | es | 365 | 0.577606 | 0.573181 | 365 days / 4 |
 
 The bundled current-season test still has only 41/45/64 scored matches (FR/EN/ES), last scored 2026-09-20. The new model does not resolve the unverified authenticated API freshness on the user’s phone. HTML still has the documented browser/CORS restriction; the native Android connection and 1.1.1 diagnostics are preserved. Android build/signature and browser checks do not replace an authenticated on-device test.
+
+## Version 1.3 dashboard, history and analyst
+
+The default **Accueil** shows the device-local date, today's known fixtures (or the next fixture), available results, source coverage and locally recorded forecast counts. **Matchs**, **Mon suivi** and **Laboratoire** remain in the main navigation; mobile navigation stays at the bottom. **Menu** opens a drawer with **Classement**, **Données et clé Football-data.org**, **Analyse IA et clé OpenRouter**, and the methodology. A compact source-coverage summary remains visible, and connection failures retain their prominent diagnostic banner. Refresh is still manual and applies to the selected season. No background/live feed is added.
+
+**Mon suivi** filters by model and record state, shows archived forecasts in readable cards, and opens the exact recorded probabilities and audit independently of later calculations. On each view/update, available results are resolved against the immutable records. Conflicts, ambiguous matching, an advanced kickoff, cancelled matches and administrative awards are excluded from the evaluation. Postponements remain pending. A newly received or corrected score changes the descriptive evaluation, never the original forecast. Reference probability triples on archive import must now sum to one as the forecast triples already did; invalid imports are atomic.
+
+`src/insights.js` builds a cumulative Brier curve after every distinct scored match date. All matches on the same date enter one point. The final curve value agrees with the existing aggregate metric. The historical-frequency reference is shown alongside, and Laboratory shows the two statistical models on their common target matches. Small samples are identified. The tracking model table may contain different match sets, so it cannot establish which model is superior. There are no demonstration results in the shipped dashboard; an empty archive produces an explicit empty graph. Chart values can be read in a table. The unchanged statistical source files are `src/model.js` and `src/experiment.js`; `src/data.js` and the bundled data are also unchanged from 1.2.
+
+### Optional OpenRouter explanation
+
+In **Menu → Analyse IA**, enter a personal key and press **Activer et vérifier**. GET `/key` verifies access for this session without generating text. A key entered or a cached model list does not establish authentication. First successful verification loads the public model catalog; **Charger les modèles / Actualiser le catalogue** can also load it independently. Pick a concrete text model advertising structured outputs and a response-token limit. Endpoints with unknown/negative token-price placeholders, automatic routers, and models marked for expiration are omitted. Provider routing requires support for the requested parameters. Token prices shown are catalog rates, not an inferred bill. Models with zero token rates may still have provider quotas or other pricing conditions.
+
+Press **Analyser avec l’IA** on a match, the home summary, tracking summary, or a completed laboratory comparison. No generation occurs during opening, refreshing, model selection or parameter tuning. The dossier has a maximum of 14,000 JSON characters and contains sources, data revision/coverage, statistical probabilities or aggregate metrics, and the distinction between an archived forecast and a retrospective simulation. It never contains the API key, the full archive, or raw training-history rows. The user can inspect the identified sources. No Internet-search plugin, external news, injuries, lineups or odds are added by the analyst.
+
+`src/analyst.js` requests a short JSON answer with summary, observations and limitations. Every observation must reference at least one identifier from the supplied dossier; unknown references or malformed/truncated answers are rejected without an automatic retry. This checks structure and reference identity, **not the factual correctness of generated prose**. All output is escaped as text. The LLM explanation does not modify the statistical model or any probability, and is not training/fine-tuning. Direct-provider adapters are not included in this version.
+
+The key lives in session memory, is redacted from client errors, and is never written to local storage or exported. The Android bridge permits only fixed HTTPS OpenRouter `/models`, `/key` and `/chat/completions` routes; it has no arbitrary URL, ignores redirects, validates/bounds the request, limits response size and uses timeouts. The browser uses direct HTTPS with CORS. Keys are never embedded in the public HTML or repository. All ordinary statistical computation stays on the device; explicit AI requests send the displayed dossier to OpenRouter and its selected provider.
+
+Valid answers are cached locally by protocol, selected model and exact dossier content. Data/revision/date or model changes invalidate the relevant lookup. Reopening with the same dossier/model reuses the saved answer without a new API call, even after the session key has been forgotten. The drawer lists the last eight stored answers; up to forty answers are retained. **Exporter les analyses** includes the saved dossier, requested/served model, response, token/cost metadata and attempt ledger, with no key. This export is separate from the forecast/data exports. HTML and Android keep separate local stores; AI export/import transfer is not implemented (AI export only).
+
+Response limits are 700/1,000/1,400 tokens. A local attempt limit (default 10, configurable 1–50 per device-local day) is reserved/persisted before transmitting a generation request; failures and timeouts count, cached reads do not. Single-flight logic prevents concurrent generation. Missing cost metadata stays **unknown**, never estimated as zero; supplied token counts and `usage.cost` are shown separately from catalog prices. The local limit is not a financial cap and can be reset by clearing storage; a financial credit limit must be configured at OpenRouter. No automatic repeated/multi-model calls are performed.
+
+Official documentation consulted on 2026-10-09:
+
+- OpenRouter, Chat Completions: https://openrouter.ai/docs/api-reference/chat-completion — HTTPS endpoint, authentication, `max_completion_tokens` (or supported legacy `max_tokens`), JSON response format.
+- OpenRouter, Models: https://openrouter.ai/docs/guides/overview/models — public catalog, capability flags and token pricing.
+- OpenRouter, Structured Outputs: https://openrouter.ai/docs/guides/features/structured-outputs — endpoint-specific support, schema validation and `provider.require_parameters`.
+- OpenRouter, Authentication: https://openrouter.ai/docs/api-reference/authentication — key verification/authentication and server-side credit limits; no keys in public repositories.
+
+The public catalog and anonymous CORS preflight were checked without a personal key. The preflight returned 204 with `Access-Control-Allow-Origin: *` and permitted Authorization/Content-Type and POST. This is distinct from Football-data.org's documented browser restriction. No paid/authenticated model generation was performed. The Android bridge, provider error codes, response validation and ledger/cache behavior were exercised using synthetic responses. The user's valid key, model access and fresh Football-data.org results still require validation on their own device. Build/signature checks are not a physical Android test.
+
+Additional tests:
+
+- `node football-lab/tests/insights.cjs` — cumulative metric agreement, same-day batching, unknown scores and model grouping.
+- `node football-lab/tests/analyst.cjs` — source/schema validation, unchanged input facts, cache/reload/revision/model isolation, key redaction/privacy, reported/unknown costs, request limits, storage failure before transmission, no retries and concurrent-click protection.
+- `CHROME_EXECUTABLE=/path/to/chromium NODE_PATH=/path/to/node_modules node football-lab/tests/dashboard-ui.cjs` — 390/1280 px home/drawer, preserved old and adjusted forecasts, synthetic final scores and corrections, cumulative charts and filters, cancelled-record exclusion, invalid-reference rejection, generated explanation metadata, cache across reopening, daily limit, AI export, native HTTP error callbacks and escaped stored prose. This test creates explicit synthetic future records/results in an isolated browser; they are never included in the release data.
+
+The existing interface/calendar/connection/experiment tests were updated only for the new drawer/navigation paths and retained their previous assertions. The old forecast fixture remains unchanged.
