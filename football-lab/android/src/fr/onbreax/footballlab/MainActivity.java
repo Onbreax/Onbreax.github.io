@@ -42,6 +42,7 @@ public class MainActivity extends Activity {
       String path;
       if("models".equals(operation))path="/models";
       else if("key".equals(operation))path="/key";
+      else if("credits".equals(operation))path="/credits";
       else if("chat".equals(operation))path="/chat/completions";
       else throw new IllegalArgumentException();
       if(!"models".equals(operation)&&(key==null||!key.matches("[A-Za-z0-9_-]{10,256}")))throw new IllegalArgumentException();

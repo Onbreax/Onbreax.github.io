@@ -1,10 +1,10 @@
-# Football Lab 1.3.0
+# Football Lab 1.3.1
 
 Personal football probability laboratory with free local calculation, a fixed original model and an optional, chronologically tuned variant. Shared standalone HTML and Android app. OpenFootball mode needs no account or token. Optional Football-data.org connection uses a personal free API key. Version 1.3 adds an optional OpenRouter explanation on explicit request; its charges and quotas depend on the selected model and key. No betting placement or staking calculation. App ID: `fr.onbreax.footballlab` (separate from Polylog AI).
 
 ## Use
 
-Open `../football-lab.html` in a recent browser, or install the signed APK. Ligue 1, Premier League and La Liga; 2023–24 through 2026–27. Initial data is embedded, so the app opens offline. **Actualiser** manually reloads the three leagues for the selected season from OpenFootball, plus Football-data.org if a key has been entered for this session. A 60-second cooldown prevents repeated refreshes from exhausting the free quota. Network or source failures preserve the existing data. Refreshing the source is not evidence that its results are up to date.
+For a connected browser, use https://football-lab-web.superowl16.chatgpt.site (owner-private ChatGPT access). Alternatively open `../football-lab.html` in a recent browser, or install the signed APK. Enter both keys in **Menu → Connexions et clés**. The standalone HTML and GitHub Pages retain the provider CORS restriction; the private hosted version uses its own same-origin football relay. Ligue 1, Premier League and La Liga; 2023–24 through 2026–27. Initial data is embedded, so the app opens offline. **Actualiser** manually reloads the three leagues for the selected season from OpenFootball, plus Football-data.org if a key has been entered for this session. A 60-second cooldown prevents repeated refreshes from exhausting the free quota. Network or source failures preserve the existing data. Refreshing the source is not evidence that its results are up to date.
 
 Screens: match analysis, reconstructed standings, locally saved forecasts, and historical walk-forward evaluation. OpenFootball times remain unconfirmed and are never assigned a guessed timezone. Football-data.org TIMED / IN_PLAY / PAUSED / FINISHED timestamps are validated as UTC and displayed in the device timezone, with DST handled by Intl. SCHEDULED dates remain provisional. Recording is allowed before a confirmed kickoff; without one it closes before the UTC match day. Postponed, cancelled, suspended, in-play and conflicting matches cannot receive new predictions. No server-side timestamp certification.
 
@@ -71,7 +71,7 @@ Conflicting final scores are excluded from calculation and shown as data issues.
 
 The original `src/model.js` is unchanged byte-for-byte from 1.0.0. Previously saved probabilities and snapshots are not rewritten on updates, reports or imports. Historical scores can change with updated data, which is intentional. Archive schema remains backward compatible with v1.
 
-Android 1.3.0 uses versionCode 5, same package and signing certificate as 1.0.0. Install as an update without uninstalling to retain local data. APK compilation/signature verification and browser tests were performed; no physical Android device or emulator test was performed.
+Android 1.3.1 uses versionCode 6, same package and signing certificate as 1.0.0. Install as an update without uninstalling to retain local data. APK compilation/signature verification and browser tests were performed; no physical Android device or emulator test was performed.
 
 ## Version 1.1.1 connection diagnostics
 
@@ -128,7 +128,7 @@ The default **Accueil** shows the device-local date, today's known fixtures (or 
 
 ### Optional OpenRouter explanation
 
-In **Menu → Analyse IA**, enter a personal key and press **Activer et vérifier**. GET `/key` verifies access for this session without generating text. A key entered or a cached model list does not establish authentication. First successful verification loads the public model catalog; **Charger les modèles / Actualiser le catalogue** can also load it independently. Pick a concrete text model advertising structured outputs and a response-token limit. Endpoints with unknown/negative token-price placeholders, automatic routers, and models marked for expiration are omitted. Provider routing requires support for the requested parameters. Token prices shown are catalog rates, not an inferred bill. Models with zero token rates may still have provider quotas or other pricing conditions.
+In **Menu → Connexions et clés**, enter a personal key and press **Activer et vérifier**. GET `/key` verifies access for this session without generating text. A key entered or a cached model list does not establish authentication. First successful verification loads the public model catalog; **Charger les modèles / Actualiser le catalogue** can also load it independently. Pick a concrete text model advertising structured outputs and a response-token limit. Endpoints with unknown/negative token-price placeholders, automatic routers, and models marked for expiration are omitted. Provider routing requires support for the requested parameters. Token prices shown are catalog rates, not an inferred bill. Models with zero token rates may still have provider quotas or other pricing conditions.
 
 Press **Analyser avec l’IA** on a match, the home summary, tracking summary, or a completed laboratory comparison. No generation occurs during opening, refreshing, model selection or parameter tuning. The dossier has a maximum of 14,000 JSON characters and contains sources, data revision/coverage, statistical probabilities or aggregate metrics, and the distinction between an archived forecast and a retrospective simulation. It never contains the API key, the full archive, or raw training-history rows. The user can inspect the identified sources. No Internet-search plugin, external news, injuries, lineups or odds are added by the analyst.
 
@@ -156,3 +156,49 @@ Additional tests:
 - `CHROME_EXECUTABLE=/path/to/chromium NODE_PATH=/path/to/node_modules node football-lab/tests/dashboard-ui.cjs` — 390/1280 px home/drawer, preserved old and adjusted forecasts, synthetic final scores and corrections, cumulative charts and filters, cancelled-record exclusion, invalid-reference rejection, generated explanation metadata, cache across reopening, daily limit, AI export, native HTTP error callbacks and escaped stored prose. This test creates explicit synthetic future records/results in an isolated browser; they are never included in the release data.
 
 The existing interface/calendar/connection/experiment tests were updated only for the new drawer/navigation paths and retained their previous assertions. The old forecast fixture remains unchanged.
+
+
+## Version 1.3.1 browser connection, unified keys and credits
+
+**Menu → Connexions et clés** exposes both session-only keys on the same screen.
+Activating the football key leaves the dialog open so the OpenRouter key can be
+entered immediately. Provider status and errors appear inside the dialog. Catalog
+loading updates controls in place and never clears an unfinished football key.
+**Modèle et analyses IA** in the drawer opens the same screen with the model section
+expanded. Diagnostics/import/export remain available through **Diagnostic et données**.
+
+Verified OpenRouter keys now retrieve `/key` metadata and attempt a read-only
+`/credits` query. The header and connection screen show **Solde du compte** only
+from validated numeric `total_credits - total_usage`. If that endpoint is unavailable,
+**Budget clé** shows a numeric `limit_remaining`, distinctly labeled. Null/unlimited
+key caps never become a fictitious account balance or zero. `/credits` currently
+requires a management key according to official documentation; a 403 does not
+invalidate an otherwise working ordinary key. The account page remains linked.
+Credit information is session-only, refreshed on activation, manually, and after a
+new analysis attempt; it is not persisted/exported and does not consume generation
+attempts. A failed/forgotten/replaced/revoked key cannot keep displaying another
+key's balance; late responses are ignored.
+
+Official references checked on 2026-10-09:
+
+- https://openrouter.ai/docs/api/api-reference/credits/get-credits
+- https://openrouter.ai/docs/api/api-reference/api-keys/get-current-api-key
+- https://openrouter.ai/docs/api_reference/limits
+
+The new private browser Site hosts this exact application with a same-origin
+football relay. See `web/README.md` and `web/prepare.py`. The API route requires
+ChatGPT identity and same-origin JSON requests, accepts only FL1/PL/PD seasonal
+match queries, forwards the user's session key only in `X-Auth-Token`, disables
+redirects/caching and bounds bodies. No key, data, or user record is stored server-side.
+The APK still uses direct native HTTPS. The download/GitHub Pages version links to
+the connected Site; its cross-origin API limitation has not been silently disabled.
+Site, local HTML and Android stores are independent: forecast/data exports can be
+imported into the Site; AI analysis export remains export-only.
+
+Additional checks: `credits.cjs`, `relay.cjs` and `connections-ui.cjs`. They cover
+account vs key limits, absent/unlimited/negative balances, refresh and revocation,
+late responses, no paid calls, identity/origin restrictions, fixed API routes,
+size/error handling, preserved unfinished input and mobile/desktop layout.
+The hosted Worker build and Android signature are verified. Hosted browser QA was
+not available in this environment. Authenticated Football-data.org/OpenRouter calls
+with the user's own keys and physical Android installation are still unverified.

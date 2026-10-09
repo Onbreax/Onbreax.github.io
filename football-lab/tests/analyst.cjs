@@ -8,7 +8,7 @@ const reply=(result=valid,extra={})=>({model:'test/analyst',choices:[{finish_rea
 function storage(){const entries=new Map();return {getItem:k=>entries.get(k)||null,setItem:(k,v)=>entries.set(k,v),entries};}
 async function setup({response=()=>reply(),clock=()=>new Date('2026-10-09T12:00:00Z'),store=storage()}={}){
  const calls=[];
- const transport=async (op,key,body)=>{calls.push({op,key,body});if(op==='models'){assert.equal(key,'');return models}if(op==='key')return {data:{label:'private'}};return response(body)};
+ const transport=async (op,key,body)=>{calls.push({op,key,body});if(op==='models'){assert.equal(key,'');return models}if(op==='key')return {data:{label:'private'}};if(op==='credits')throw Object.assign(Error('Management key required'),{status:403});return response(body)};
  const app=A.create({storage:store,transport,hash:digest,now:clock});await app.loadCatalog();app.configure({model:'test/analyst'});await app.verify(KEY);
  return {app,calls,store,transport};
 }

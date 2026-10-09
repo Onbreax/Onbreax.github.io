@@ -51,7 +51,7 @@ async function transport(operation,key,body){
  });
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),ms);
  try{
-  const path={models:'/models',key:'/key',chat:'/chat/completions'}[operation];if(!path)throw Error('Opération non reconnue.');
+  const path={models:'/models',key:'/key',credits:'/credits',chat:'/chat/completions'}[operation];if(!path)throw Error('Opération non reconnue.');
   const r=await fetch('https://openrouter.ai/api/v1'+path,{method:operation==='chat'?'POST':'GET',headers:{...(operation!=='models'?{Authorization:'Bearer '+key}:{}),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),signal:controller.signal,credentials:'omit',redirect:'error',cache:'no-store'});
   if(!r.ok)throw Object.assign(Error(errorMessage(r.status)),{status:r.status});
   const text=await r.text();if(text.length>2500000)throw Error('Réponse OpenRouter trop volumineuse.');return JSON.parse(text);
@@ -59,7 +59,9 @@ async function transport(operation,key,body){
 }
 function create(options={}){
  const storage=options.storage||null,request=options.transport||transport,now=options.now||(()=>new Date()),digest=options.hash||hash;
- let key='',keyState='none',keyError='',busy=false,loading=false;
+ let key='',keyState='none',keyError='',busy=false,loading=false,keyVersion=0;
+ const emptyCredits=()=>({state:'none',accountBalance:null,keyRemaining:null,keyLimit:null,keyUsage:null,at:null,error:'',accountNote:''});
+ let credits=emptyCredits();
  let state={version:1,settings:{model:'',maxTokens:1000,dailyCalls:10},catalog:[],catalogAt:null,records:[],ledger:[]};
  const listeners=new Set(),emit=()=>listeners.forEach(fn=>fn());
  try{
@@ -80,7 +82,7 @@ function create(options={}){
  function persist(){if(storage)storage.setItem(STORE,JSON.stringify(state));}
  function model(){return state.catalog.find(m=>m.id===state.settings.model)||null;}
  function counts(){const today=day(now()),rows=state.ledger.filter(r=>r.day===today);return {calls:rows.length,knownCost:rows.reduce((s,r)=>s+(money(r.usage.cost)?r.usage.cost:0),0),unknownCost:rows.filter(r=>r.usage.cost===null).length};}
- function status(){return {...state.settings,keyState,keyError,busy,loading,catalogAt:state.catalogAt,model:model(),...counts()};}
+ function status(){return {...state.settings,keyState,keyError,busy,loading,credits:{...credits},catalogAt:state.catalogAt,model:model(),...counts()};}
  async function loadCatalog(){
   if(loading)return;loading=true;emit();
   try{const list=catalog(await request('models','',''));if(!list.length)throw Error('Aucun modèle compatible dans le catalogue.');
@@ -98,17 +100,41 @@ function create(options={}){
  async function verify(candidate){
   if(busy||keyState==='checking')throw Error('Une requête IA est déjà en cours.');
   if(typeof candidate!=='string'||!/^[A-Za-z0-9_-]{10,256}$/.test(candidate))throw Error('Format de clé OpenRouter non valide.');
-  key=candidate;keyState='checking';keyError='';emit();
-  try{const raw=await request('key',key);if(!raw?.data||typeof raw.data!=='object')throw Error('Réponse de vérification non reconnue.');keyState='ok';emit();return true}
-  catch(e){keyState='error';keyError=redact(e.message,candidate).slice(0,240);emit();throw Error(keyError)}
+  key=candidate;keyVersion++;keyState='checking';keyError='';credits=emptyCredits();emit();
+  const version=keyVersion;
+  try{const raw=await request('key',key);if(!raw?.data||typeof raw.data!=='object'||Array.isArray(raw.data))throw Error('Réponse de vérification non reconnue.');keyState='ok';emit();await readCredits(raw.data,version,candidate);return true}
+  catch(e){keyState='error';keyError=redact(e.message,candidate).slice(0,240);credits=emptyCredits();emit();throw Error(keyError)}
  }
- function forget(){if(busy||keyState==='checking')throw Error('Attends la fin de la requête IA.');key='';keyState='none';keyError='';emit()}
+ async function readCredits(info,version,callKey){
+  if(version!==keyVersion)return;
+  const number=n=>typeof n==='number'&&Number.isFinite(n)?n:null;
+  credits={state:'checking',accountBalance:null,keyRemaining:number(info.limit_remaining),keyLimit:number(info.limit),keyUsage:number(info.usage),at:now().toISOString(),error:'',accountNote:info.limit===null?'Cette clé n’a pas de plafond propre.':''};emit();
+  try{
+   const raw=await request('credits',callKey),data=raw?.data;
+   if(!data||!money(data.total_credits)||!money(data.total_usage))throw Error('Réponse de solde non reconnue.');
+   if(version!==keyVersion)return;
+   credits={...credits,state:'ok',accountBalance:data.total_credits-data.total_usage,at:now().toISOString()};
+  }catch(e){
+   if(version!==keyVersion)return;
+   credits={...credits,state:'unavailable',accountNote:e.status===403?'OpenRouter ne communique pas le solde du compte avec cette clé. Le budget de la clé est distinct du solde.':'Solde du compte non communiqué : '+redact(e.message,callKey).slice(0,180)};
+  }finally{if(version===keyVersion)emit()}
+ }
+ async function refreshCredits(){
+  if(keyState!=='ok')throw Error('Vérifie ta clé OpenRouter dans Connexions et clés.');
+  if(credits.state==='checking')return;
+  const version=keyVersion,callKey=key;credits={...credits,state:'checking',error:''};emit();
+  try{
+   const raw=await request('key',callKey);if(!raw?.data||typeof raw.data!=='object'||Array.isArray(raw.data))throw Error('Réponse de vérification non reconnue.');
+   if(version===keyVersion)await readCredits(raw.data,version,callKey);
+  }catch(e){if(version===keyVersion){credits={...credits,state:'error',error:redact(e.message,callKey).slice(0,240)};if(e.status===401){keyState='error';keyError=credits.error;credits={...emptyCredits(),state:'error',error:keyError}}emit()}}
+ }
+ function forget(){if(busy||keyState==='checking')throw Error('Attends la fin de la requête IA.');keyVersion++;key='';keyState='none';keyError='';credits=emptyCredits();emit()}
  async function cacheKey(context,modelId=state.settings.model){return digest(JSON.stringify({protocol:PROTOCOL,model:modelId,context:JSON.parse(validateContext(context))}));}
  async function cached(context){const id=await cacheKey(context),record=state.records.find(r=>r.cacheKey===id);return record&&await cacheKey(record.context,record.requestedModel)===id?record:null;}
  async function analyse(context){
   const modelId=state.settings.model,id=await cacheKey(context),hit=await cached(context);if(hit)return {...hit,cached:true};
   if(busy)throw Error('Une analyse est déjà en cours. Aucun second appel envoyé.');
-  if(keyState!=='ok')throw Error('Vérifie ta clé OpenRouter dans Menu → Analyse IA.');
+  if(keyState!=='ok')throw Error('Vérifie ta clé OpenRouter dans Menu → Connexions et clés.');
   const selected=model();if(!selected)throw Error('Choisis un modèle dans Menu → Analyse IA.');if(selected.id!==modelId)throw Error('Le modèle a changé pendant la préparation. Relance l’analyse.');
   if(counts().calls>=state.settings.dailyCalls)throw Error('Limite quotidienne d’appels atteinte. Les analyses déjà enregistrées restent lisibles.');
   const callKey=key,maxTokens=state.settings.maxTokens,at=now().toISOString();
@@ -128,10 +154,10 @@ function create(options={}){
    const served=redact(raw.model||'',callKey),result=validateResult(parsed,context.sources.map(s=>s.id)),record={id:job.id,cacheKey:id,protocol:PROTOCOL,requestedModel:modelId,servedModel:validModel(served)?served:modelId,createdAt:at,context:JSON.parse(validateContext(context)),result,usage:job.usage};
    state.records.push(record);state.records=state.records.slice(-40);job.state='ok';persist();return {...record,cached:false};
   }catch(e){job.state='error';job.status=Number.isInteger(e.status)?e.status:null;try{persist()}catch{}throw Error(redact(e.message,callKey).slice(0,240))}
-  finally{busy=false;emit()}
+  finally{busy=false;emit();if(keyState==='ok')void refreshCredits()}
  }
  function clearRecords(){if(busy)throw Error('Attends la fin de l’analyse.');const prev=state;state={...state,records:[]};try{persist()}catch{state=prev;throw Error('Analyses non effacées : stockage indisponible.');}emit()}
- return {status,catalog:()=>state.catalog.slice(),records:()=>state.records.slice(),loadCatalog,configure,verify,forget,cached,analyse,clearRecords,export:()=>JSON.parse(JSON.stringify({format:'football-lab-ai-1',exportedAt:now().toISOString(),settings:state.settings,catalogAt:state.catalogAt,records:state.records,ledger:state.ledger})),subscribe(fn){listeners.add(fn);return ()=>listeners.delete(fn)}};
+ return {status,catalog:()=>state.catalog.slice(),records:()=>state.records.slice(),loadCatalog,configure,verify,refreshCredits,forget,cached,analyse,clearRecords,export:()=>JSON.parse(JSON.stringify({format:'football-lab-ai-1',exportedAt:now().toISOString(),settings:state.settings,catalogAt:state.catalogAt,records:state.records,ledger:state.ledger})),subscribe(fn){listeners.add(fn);return ()=>listeners.delete(fn)}};
 }
 const api={PROTOCOL,STORE,SCHEMA,SYSTEM,catalog,usage,validateContext,validateResult,create};
 if(typeof module!=='undefined')module.exports=api;root.FootAnalyst=api;
