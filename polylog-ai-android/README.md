@@ -47,3 +47,12 @@ Cette livraison met à jour les assets HTML et la version du paquet signé 1.0.2
 ## Cache — version 1.0.4
 
 Sessions OpenRouter stables, repères de cache GPT compatibles, durée Claude ajustée, audit enrichi et contrôle des ordres du jour tronqués. Mise à jour des assets et du numéro de version, code natif inchangé, même signature. Les économies réelles nécessitent un nouvel audit ; tests API simulés uniquement.
+
+
+## Lecture à son rythme — version 1.0.5
+
+Les messages, vérifications, indicateurs de réflexion et conclusions ne déclenchent plus de défilement automatique. Le bouton « Derniers messages » permet de rejoindre volontairement le bas du fil. La piste d’audit et les optimisations de cache de la version 1.0.4 sont conservées.
+
+Le comportement en arrière-plan reste inchangé : l’activité ne stoppe pas volontairement le débat au passage à l’accueil, mais aucun service Android ne garantit la poursuite. Le maintien de l’écran allumé ne protège pas le travail en arrière-plan. Un service au premier plan et une gestion du moteur indépendante de l’activité restent nécessaires pour prendre en charge ce cas de manière robuste.
+
+Test de lecture : `node tests/polylog-reading.cjs` (Chromium, 390 et 1280 pixels, réseau externe bloqué).
