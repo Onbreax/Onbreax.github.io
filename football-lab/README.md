@@ -1,4 +1,4 @@
-# Football Lab 1.1.0
+# Football Lab 1.1.1
 
 Personal, free football probability laboratory. Shared standalone HTML and Android app. OpenFootball mode needs no account or token. Optional Football-data.org connection uses a personal free API key. No paid AI, betting placement or staking calculation. App ID: `fr.onbreax.footballlab` (separate from Polylog AI).
 
@@ -71,4 +71,14 @@ Conflicting final scores are excluded from calculation and shown as data issues.
 
 The original `src/model.js` is unchanged byte-for-byte from 1.0.0. Previously saved probabilities and snapshots are not rewritten on updates, reports or imports. Historical scores can change with updated data, which is intentional. Archive schema remains backward compatible with v1.
 
-Android 1.1.0 uses versionCode 2, same package and signing certificate as 1.0.0. Install as an update without uninstalling to retain local data. APK compilation/signature verification and browser tests were performed; no physical Android device or emulator test was performed.
+Android 1.1.1 uses versionCode 3, same package and signing certificate as 1.0.0. Install as an update without uninstalling to retain local data. APK compilation/signature verification and browser tests were performed; no physical Android device or emulator test was performed.
+
+## Version 1.1.1 connection diagnostics
+
+Refresh now counts OpenFootball reads and successfully integrated Football-data.org responses separately. A successful OpenFootball request cannot be represented as successful key authentication. The current league/season connection status appears directly below navigation, before any match cards. It distinguishes a key entered but not verified, an in-progress request, network/HTTP failure, a response rejected during validation, and usable provider data with received-match/final-score counts and remaining missing results. Diagnostic details cover each of the three leagues. Checks apply only to the tested season and current key session; they are not retained as a claim of authentication after reopening the app.
+
+The notice is also above the cards. Browser network/CORS failures explain the native Android connection route; the code does not claim to distinguish CORS from an offline network when fetch exposes only a TypeError. Anonymous preflight inspected on 2026-10-09 returned Access-Control-Allow-Origin: http://localhost for an Origin: null request, which does not authorize locally opened HTML or GitHub Pages. No public proxy or API key in a public repository is used. This UI correction cannot supply a result absent from the provider or expand the key's season access. Actual authenticated API access still requires testing with the user's own key on their device.
+
+Both browser and native HTTP errors display their status code. Error text redacts the active key, and changing/forgetting a key is blocked only while an actual refresh is running. Failed OpenFootball validation no longer leaves a partially modified dataset candidate for the other provider. Archives and the mathematical model remain unchanged.
+
+Additional regression: `CHROME_EXECUTABLE=/path/to/chromium NODE_PATH=/path/to/node_modules node football-lab/tests/connection-errors.cjs`. It reproduces successful OpenFootball reads alongside browser API failure, native HTTP 403, and invalid provider data; verifies independent counts, visible mobile diagnostics, data preservation, season-specific status and no key in the UI/storage. The native-bridge connection test also checks a newly received final score while remaining gaps stay explicitly visible. These tests use synthetic responses; APK build/signature checks do not constitute on-device authenticated validation.

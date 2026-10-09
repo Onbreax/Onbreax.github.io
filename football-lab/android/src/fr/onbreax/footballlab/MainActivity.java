@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
    runOnUiThread(()->{if(!HOME.equals(web.getUrl())||isFinishing()||isDestroyed())return;
     network.execute(()->{JSONObject result=new JSONObject();HttpsURLConnection conn=null;
      try{conn=(HttpsURLConnection)new URL("https://api.football-data.org/v4/competitions/"+competition+"/matches?season="+year).openConnection();conn.setInstanceFollowRedirects(false);conn.setConnectTimeout(12000);conn.setReadTimeout(15000);conn.setRequestProperty("X-Auth-Token",key);conn.setRequestProperty("Accept","application/json");int code=conn.getResponseCode();
-      if(code!=200)throw new IOException(code==401?"Clé refusée":code==403?"Accès non inclus ou clé refusée":code==429?"Quota atteint : réessayer plus tard":"HTTP "+code);
+      if(code!=200)throw new IOException(code==401?"HTTP 401 : clé refusée":code==403?"HTTP 403 : accès non inclus ou clé refusée":code==429?"HTTP 429 : quota atteint, réessayer plus tard":"HTTP "+code);
       ByteArrayOutputStream bytes=new ByteArrayOutputStream();try(InputStream input=conn.getInputStream()){byte[] buf=new byte[8192];int n;while((n=input.read(buf))!=-1){if(bytes.size()+n>2000000)throw new IOException("Réponse trop volumineuse");bytes.write(buf,0,n);}}
       result.put("ok",true);result.put("data",new JSONObject(new String(bytes.toByteArray(),StandardCharsets.UTF_8)));
      }catch(Exception e){try{result.put("ok",false);result.put("error",e instanceof IOException?e.getMessage():"Réponse invalide");}catch(Exception ignored){}}
