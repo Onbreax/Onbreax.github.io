@@ -38,7 +38,10 @@ function apiSports(raw,league,season,reg){
   const full=x.score?.fulltime;let score=null;
   // Only FT is settled: extra-time, penalties and awards cannot enter a 90-minute archive.
   if(f.status.short==='FT'&&full&&[full.home,full.away].every(n=>Number.isInteger(n)&&n>=0&&n<100))score=[full.home,full.away];
-  const m={league,season,date,home:h.name,away:a.name,homeId:h.id,awayId:a.id,round:typeof l.round==='string'?l.round.slice(0,80):'',score,provider:'api-sports',providerId:f.id,providerHomeId:hp.id,providerAwayId:ap.id,status:status[f.status.short],providerStatus:f.status.short,kickoff:f.status.short==='TBD'?null:time,sourceUpdated:null};m.id=M.id(m);m.stableId=key(m);rows.push(m);
+  const started=['1H','HT','2H','ET','BT','P','LIVE','FT','AET','PEN','SUSP','INT','ABD'].includes(f.status.short),goals=x.goals;
+  const liveScore=started&&goals&&[goals.home,goals.away].every(n=>Number.isInteger(n)&&n>=0&&n<100)?[goals.home,goals.away]:null;
+  const observed=x._footballObservedAt||raw._consultedAt;
+  const m={league,season,date,home:h.name,away:a.name,homeId:h.id,awayId:a.id,round:typeof l.round==='string'?l.round.slice(0,80):'',score,liveScore,liveMinute:started&&Number.isInteger(f.status.elapsed)&&f.status.elapsed>=0&&f.status.elapsed<=200?f.status.elapsed:null,liveExtra:Number.isInteger(f.status.extra)&&f.status.extra>0&&f.status.extra<=120?f.status.extra:null,provider:'api-sports',providerId:f.id,providerHomeId:hp.id,providerAwayId:ap.id,status:status[f.status.short],providerStatus:f.status.short,kickoff:f.status.short==='TBD'?null:time,sourceUpdated:typeof observed==='string'&&Number.isFinite(Date.parse(observed))?new Date(observed).toISOString():null};m.id=M.id(m);m.stableId=key(m);rows.push(m);
  }if(!rows.length)throw Error('Aucune équipe rapprochée : données conservées');validateUnique(rows);return {rows,ignored,provider:'api-sports'};
 }
 function merge(base,official,previous=[]){const map=new Map(base.map(m=>[key(m),{...m}])),issues=[];const prev=new Map(previous.map(m=>[key(m),m])),providerIds=new Map(previous.filter(m=>m.providerId).map(m=>[m.provider+'|'+m.providerId,m])),observed=new Set((official?.rows||[]).map(key));

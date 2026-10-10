@@ -1,0 +1,22 @@
+const assert=require('node:assert/strict'),C=require('../src/choices.js'),{app,waitFor,initialChoice,archiveRaw}=require('./sports-dom.cjs');
+(async()=>{for(const native of [false,true])for(const width of [390,1200]){
+ const a=app(native,width),{q,click,change,calls,storage}=a;
+ assert.ok(q('nav [data-tab="confidence"]'));assert.equal(q('#homeLeague').value,'all');assert.ok(q('#homeDay'));assert.equal(calls.length,0);
+ click('#menuToggle');click('#sources');q('#fdKey').value='SYNTHETIC_FOOTBALL_KEY_123';click('#useKey');await waitFor(()=>q('#fdKeyStatus').textContent.includes('7500'));click('#closeDialog');
+ a.setClock(a.fixture.fixture.date);a.advance(67*60000);a.live({score:[2,1],minute:67,extra:3});click('#homeToday');
+ await a.timers.find(t=>t.ms===30000).fn();assert.match(q('#content').textContent,/67 \+ 3e/);assert.match(q('#content').textContent,/2 – 1/);assert.ok(q('#liveStatus').textContent.includes('Dernière lecture'));
+ assert.equal(storage.get(C.STORE),JSON.stringify(initialChoice));assert.equal(storage.get('football-lab-archive'),archiveRaw);assert.ok(!q('#content').textContent.includes('Réussi'));
+ click('nav [data-tab="choices"]');click('[data-choice-view="live"]');assert.match(q('#content').textContent,/En cours · 67 \+ 3e · 2 – 1/);assert.equal(a.scroll(),180);
+ a.advance(60000);a.live({score:[2,2],minute:70});await a.timers.find(t=>t.ms===30000).fn();assert.match(q('#content').textContent,/2 – 2/);assert.equal(storage.get(C.STORE),JSON.stringify(initialChoice));
+ click('#refresh');await waitFor(()=>q('#refresh').textContent==='Actualiser');assert.match(q('#content').textContent,/2 – 2/);assert.match(q('#content').textContent,/En cours/);
+ a.advance(60000);a.final();await a.timers.find(t=>t.ms===30000).fn();click('[data-choice-view="finished"]');assert.match(q('#content').textContent,/Réussi/);assert.match(q('#content').textContent,/1 – 0/);assert.equal(storage.get(C.STORE),JSON.stringify(initialChoice));assert.equal(storage.get('football-lab-archive'),archiveRaw);
+ const count=calls.length;Object.defineProperty(a.document,'visibilityState',{configurable:true,value:'hidden'});a.advance(60000);await a.timers.find(t=>t.ms===30000).fn();assert.equal(calls.length,count);Object.defineProperty(a.document,'visibilityState',{configurable:true,value:'visible'});
+ const foregroundCount=calls.length;a.foreground(false);a.advance(60000);await a.timers.find(t=>t.ms===30000).fn();assert.equal(calls.length,foregroundCount);a.foreground(true);
+ click('nav [data-tab="confidence"]');change('#confidenceMin','90');let cards=[...a.document.querySelectorAll('[data-probability]')];assert.ok(cards.every(e=>Number(e.dataset.probability)>=.9));const high=cards.length;
+ change('#confidenceMin','50');cards=[...a.document.querySelectorAll('[data-probability]')];assert.ok(cards.length>0);assert.ok(cards.length>=high);assert.ok(cards.every(e=>Number(e.dataset.probability)>=.5));change('#confidenceOutcome','1N');assert.ok([...a.document.querySelectorAll('[data-outcome]')].every(e=>e.dataset.outcome==='1N'));
+ q('#confidenceWithOdds').checked=true;change('#confidenceWithOdds');assert.equal(a.document.querySelectorAll('[data-probability]').length,0);assert.ok(storage.get('football-lab-probability-filters').includes('"min":50'));assert.equal(calls.filter(c=>c.operation==='AI'||c.operation==='odds').length,0);
+ click('nav [data-tab="home"]');click('[data-home-state="finished"]');assert.ok(q('#content .match-score'));assert.match(q('#content').textContent,/Terminé/);
+ click('#menuToggle');const checkbox=q('[data-favorite-league="es"]');checkbox.checked=false;change(checkbox);assert.deepEqual(JSON.parse(storage.get('football-lab-favorite-leagues')),['fr','en']);click('#closeSettings');assert.equal(q('#homeLeague option[value="all"]').textContent,'Mes championnats (2)');
+ for(const value of storage.values())assert.ok(!value.includes('SYNTHETIC_FOOTBALL_KEY'));
+ console.log('Daily UI '+(native?'Android route':'browser relay')+' '+width+'px: all-league home, live/final scores, frozen choices, no hidden calls, threshold/market filters, navigation and favorites passed');
+}})().catch(e=>{console.error(e);process.exitCode=1});

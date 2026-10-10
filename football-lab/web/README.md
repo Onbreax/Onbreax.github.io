@@ -41,3 +41,8 @@ n’est appelé. Le fournisseur communique les crédits utilisés/restants.
 ### API-Football / API-Sports 1.7
 
 `prepare.py` also adds `app/api/sports/route.ts` and `lib/sports-relay.mjs`. The private relay preserves ChatGPT authentication, exact origin checks, POST-only JSON, strict operation/parameter allowlists, fixed `v3.football.api-sports.io` upstream URLs, header-only keys, no redirects/storage/logging, bounded bodies, quota metadata and sanitized errors. `/status` strips account identity. It supports status, fixtures/full-season or grouped IDs, lineups, injuries, fixture statistics, team statistics, and paged pre-match odds. Legacy football and odds routes remain for backward compatibility. No runtime environment secret needs configuring: the owner's key is session-only and supplied in the authenticated request.
+
+
+### Daily dashboard 1.8
+
+The existing `/api/sports` fixture-ID operation also serves the daily live score monitor. No new endpoint, stored credential or public relay is introduced. Scores are fetched once per minute while visible and permitted by the session quota, with a paid-account automatic cap. Final FT scores remain separate from observed live goals and elapsed minutes. The home displays all selected favorites, and the Probability tab and grid history use the same standalone sources as Android. Publication preserves owner-private access.

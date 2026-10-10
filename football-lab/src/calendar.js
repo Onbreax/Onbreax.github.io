@@ -2,6 +2,7 @@
 (function(root){
 'use strict';
 const STORE='football-lab-calendar-view',VIEWS=['list','details','cards'];
+const Live=typeof module!=='undefined'?require('./live.js'):root.FootLive;
 function nextDay(day,n){return new Date(Date.parse(day+'T12:00:00Z')+n*86400000).toISOString().slice(0,10)}
 function range(preset,today){return preset==='today'?[today,today]:preset==='tomorrow'?[nextDay(today,1),nextDay(today,1)]:preset==='week'?[today,nextDay(today,6)]:preset==='all'?['','']:null}
 function initialView(storage,width){try{const saved=storage?.getItem(STORE);if(VIEWS.includes(saved))return saved}catch{}return width<=760?'list':'details'}
@@ -11,7 +12,7 @@ function create(h){
  function begin(){cache=new Map()}
  function pred(m){if(!cache.has(m.id))cache.set(m.id,existing(m)?.pred||prediction(m));return cache.get(m.id)}
  function hour(m){return m.kickoff?new Date(m.kickoff).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:tz}):null}
- function status(m){return m.conflict?'À vérifier':m.score?'Terminé':labels[m.status]||(calendarDay(m)<h.today()?'Score manquant':'Au calendrier')}
+ function status(m){return m.conflict?'À vérifier':m.score?'Terminé':m.providerStatus==='AET'?'Terminé après prolongation':m.providerStatus==='PEN'?'Terminé aux tirs au but':m.status==='FINISHED'?'Terminé · score à vérifier':Live.ACTIVE.includes(m.status)?Live.minute(m)+(Live.stale(m)?' · observation ancienne':''):labels[m.status]||(calendarDay(m)<h.today()?'Score manquant':'Au calendrier')}
  function note(m){const p=pred(m);return existing(m)?'Prévision enregistrée':!p?'Probabilités indisponibles':m.score||h.historical(m)?'Simulation rétrospective':p.homeN<10||p.awayN<10?'Historique limité':'Estimation du modèle'}
  function order(rows,key='time',direction='asc',dayDirection='asc'){
   const sign=direction==='desc'?-1:1,daySign=(key==='time'?direction:dayDirection)==='desc'?-1:1;
@@ -24,10 +25,10 @@ function create(h){
   });
  }
  function controls(view){return '<div class="calendar-views" role="group" aria-label="Affichage des matchs">'+[['list','Liste','M3 5h14M3 10h14M3 15h14'],['details','Détails','M3 4h14v12H3zM3 8h14M8 4v12M13 4v12'],['cards','Cartes','M3 3h6v6H3zM12 3h6v6h-6zM3 12h6v6H3zM12 12h6v6h-6z']].map(([id,label,path])=>'<button data-calendar-view="'+id+'" class="'+(view===id?'active':'')+'" aria-pressed="'+(view===id)+'"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="'+path+'"/></svg><span>'+label+'</span></button>').join('')+'</div>'}
- function timeCell(m){const time=hour(m);return '<span class="match-time">'+(time?'<time datetime="'+esc(m.kickoff)+'" title="'+esc(date(calendarDay(m))+' · '+tz)+'">'+time+'</time>':'<span class="match-time-unknown">À confirmer</span>')+(m.score?'<strong class="match-score">'+m.score.join(' – ')+'</strong>':'<small class="match-status'+(m.conflict||['POSTPONED','SUSPENDED','CANCELLED'].includes(m.status)?' warn':'')+'">'+esc(status(m))+'</small>')+'</span>'}
+ function timeCell(m){const time=hour(m),live=!m.conflict&&Live.ACTIVE.includes(m.status),score=m.score||(live?m.liveScore:null);return '<span class="match-time">'+(live?'<strong class="match-minute">'+esc(Live.minute(m))+'</strong>':time?'<time datetime="'+esc(m.kickoff)+'" title="'+esc(date(calendarDay(m))+' · '+tz)+'">'+time+'</time>':'<span class="match-time-unknown">À confirmer</span>')+(score?'<strong class="match-score">'+score.join(' – ')+'</strong>':'')+'<small class="match-status'+(m.conflict||['POSTPONED','SUSPENDED','CANCELLED'].includes(m.status)?' warn':'')+'">'+esc(live?(Live.stale(m)?'Dernier score connu':'En direct'):status(m))+'</small></span>'}
  function outcomes(m){const p=pred(m);return '<span class="match-probabilities" aria-label="Probabilités estimées">'+['1','N','2'].map((label,i)=>'<span><small>'+label+'</small><b>'+ (p?pct(p.probs[i]):'—')+'</b></span>').join('')+'</span>'}
- function pair(m){return '<span class="match-pair"><strong>'+esc(short(m.home))+'</strong><span>'+esc(short(m.away))+'</span><small>'+esc(note(m))+'</small></span>'}
- function line(m){return '<button class="match-line" data-match="'+esc(m.id)+'" aria-label="'+esc(short(m.home)+' contre '+short(m.away)+', '+date(calendarDay(m))+', '+(hour(m)||'horaire à confirmer')+', ouvrir l’analyse')+'">'+timeCell(m)+pair(m)+outcomes(m)+'<span class="match-chevron" aria-hidden="true">›</span></button>'}
+ function pair(m){return '<span class="match-pair">'+(h.names?'<small class="match-league">'+esc(h.names[m.league])+'</small>':'')+'<strong>'+esc(short(m.home))+'</strong><span>'+esc(short(m.away))+'</span><small>'+esc(note(m))+'</small></span>'}
+ function line(m){return '<button class="match-line '+(Live.ACTIVE.includes(m.status)?'is-live':'')+'" data-match="'+esc(m.id)+'" aria-label="'+esc(short(m.home)+' contre '+short(m.away)+', '+date(calendarDay(m))+', '+status(m)+(m.score||m.liveScore?', score '+(m.score||m.liveScore).join(' à '):'')+', ouvrir l’analyse')+'">'+timeCell(m)+pair(m)+outcomes(m)+'<span class="match-chevron" aria-hidden="true">›</span></button>'}
  function groups(rows){const map=new Map();for(const m of rows){const day=calendarDay(m);if(!map.has(day))map.set(day,[]);map.get(day).push(m)}return [...map]}
  function dayTitle(day,count){const label=new Date(day+'T12:00:00Z').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});return '<time datetime="'+esc(day)+'">'+esc(label)+'</time><span>'+count+' match'+(count>1?'s':'')+'</span>'}
  function odds(m){return '<span class="calendar-odds">'+['1','N','2'].map(id=>{const q=quote(m,id);return '<span title="'+esc(q?q.books.length+' source(s) · '+new Date(q.fetchedAt).toLocaleString('fr-FR'):'Cote non fournie')+'"><small>'+id+'</small><b>'+ (q?q.mean.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—')+'</b>'+(q?.stale?'<em>Ancienne</em>':'')+'</span>'}).join('')+'</span>'}

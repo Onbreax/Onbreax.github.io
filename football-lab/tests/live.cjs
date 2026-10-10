@@ -1,0 +1,21 @@
+const assert=require('node:assert/strict'),L=require('../src/live.js'),D=require('../src/data.js'),S=require('../src/api-sports.js');
+const reg=D.registry(require('../data/openfootball-snapshot.json').datasets);
+const raw={errors:[],results:1,_consultedAt:'2026-10-10T18:10:00Z',response:[{fixture:{id:101,date:'2026-10-10T18:00:00Z',status:{short:'2H',elapsed:67,extra:3}},league:{id:61,season:2026},teams:{home:{id:1,name:'Lyon'},away:{id:2,name:'Rennes'}},goals:{home:2,away:1},score:{fulltime:{home:null,away:null}}}]};
+const m=D.apiSports(raw,'fr','2026-27',reg).rows[0];assert.deepEqual(m.liveScore,[2,1]);assert.equal(m.score,null);assert.equal(m.liveMinute,67);assert.equal(L.minute(m),'67 + 3e');assert.equal(D.eligible(m),false);assert.equal(L.stale(m,Date.parse('2026-10-10T18:11:00Z')),false);assert.equal(L.stale(m,Date.parse('2026-10-10T18:13:00Z')),true);
+const old={...raw,response:[{...raw.response[0],_footballObservedAt:'2026-10-10T18:00:00Z'}]};assert.equal(D.apiSports(old,'fr','2026-27',reg).rows[0].sourceUpdated,'2026-10-10T18:00:00.000Z');
+const final=structuredClone(raw);final.response[0].fixture.status.short='FT';final.response[0].score.fulltime={home:3,away:1};assert.deepEqual(D.apiSports(final,'fr','2026-27',reg).rows[0].score,[3,1]);
+(async()=>{
+ let clock=Date.parse('2026-10-10T18:10:00Z'),day='2026-10-10',visible=true,key=true,ensure=0,updated=0,applied=[],calls=[],fail=null,wrong=false;
+ const rows=Array.from({length:41},(_,i)=>({...m,providerId:i+1,date:day}));
+ const client={hasKey:()=>key,cost:()=>1,budget:()=>{if(fail)throw fail},request:async(op,p)=>{calls.push(p);return {response:p.ids.split('-').map(id=>({fixture:{id:wrong?999:Number(id)}})),_consultedAt:new Date(clock).toISOString()}}};
+ const live=L.create({client,now:()=>clock,day:()=>day,visible:()=>visible,rows:()=>rows,matchDay:x=>x.date,ensure:async()=>{ensure++;return true},apply:async r=>applied.push(r),updated:()=>updated++});
+ key=false;await live.tick();assert.equal(calls.length,0);key=true;visible=false;await live.tick();assert.equal(calls.length,0);visible=true;
+ await live.tick();assert.equal(ensure,1);assert.equal(calls.length,3);assert.deepEqual(calls.map(p=>p.ids.split('-').length),[20,20,1]);assert.equal(applied.length,3);assert.equal(updated,1);
+ await live.tick();assert.equal(calls.length,3);clock+=60000;await live.tick();assert.equal(calls.length,6);assert.equal(ensure,1);
+ live.setEnabled(false);clock+=60000;await live.tick();assert.equal(calls.length,6);await live.tick({force:true});assert.equal(calls.length,9);
+ live.setEnabled(true);const prev=live.status().updatedAt;fail=Object.assign(Error('quota atteint'),{code:'QUOTA'});await live.tick();assert.equal(live.status().paused,true);assert.equal(live.status().updatedAt,prev);clock+=60000;await live.tick();assert.equal(calls.length,9);
+ fail=null;day='2026-10-11';clock+=86400000;await live.tick();assert.equal(live.status().paused,false);assert.equal(ensure,4);
+ day='2026-10-10';live.reset();wrong=true;await live.tick();assert.match(live.status().error,/autre match/);assert.equal(applied.length,9);
+ const paid=S.create({transport:async()=>({data:{errors:[],response:{subscription:{plan:'Pro',active:true},requests:{current:0,limit_day:7500}}},quota:{minuteLimit:300}})});await paid.activate('SYNTHETIC_PAID_KEY');assert.equal(paid.status().automaticLimit,1500);paid.budget(21,true);assert.throws(()=>paid.budget(1501,true),e=>e.code==='BUDGET');
+ console.log('Live scores: minute/extra-time, stale observations, FT-only settlement, missing key/hidden pause, batching, timer throttle, manual refresh, quota pause/day recovery, wrong-ID rejection and paid/free budgets passed');
+})().catch(e=>{console.error(e);process.exitCode=1});

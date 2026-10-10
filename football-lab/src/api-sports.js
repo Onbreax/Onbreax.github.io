@@ -48,11 +48,12 @@ function create({storage=null,hasRelay=false,onChange=()=>{},transport:injected=
  function saveUsage(){try{storage?.setItem(USAGE,JSON.stringify(usage))}catch{}}
  function updateQuota(q){if(!q||typeof q!=='object')return;const values={};for(const n of ['limit','remaining','minuteLimit','minuteRemaining'])values[n]=Number.isInteger(q[n])&&q[n]>=0&&q[n]<1000000000?q[n]:null;
   quota={...(quota||{}),...Object.fromEntries(Object.entries(values).filter(([,v])=>v!==null))};quotaDay=today();minuteAt=now();}
- function status(){today();return {keyState,plan,quota:quotaDay===today()?quota:null,usage:{...usage},busy:busy>0,error,hasKey:!!key}}
+ function automaticLimit(){return quota?.limit>100?Math.min(1500,Math.floor(quota.limit*.25)):20}
+ function status(){today();return {keyState,plan,quota:quotaDay===today()?quota:null,usage:{...usage},automaticLimit:automaticLimit(),busy:busy>0,error,hasKey:!!key}}
  function budget(n=1,automatic=false){today();if(!key||keyState!=='ok'&&keyState!=='checking')throw Error('Active une clé API-Football dans Connexions et clés.');
   if(quota?.remaining!==undefined&&quota.remaining<n){const e=Error('API-Football : quota journalier atteint.');e.code='QUOTA';throw e}
   const daily=quota?.limit||100;
-  if(automatic&&(usage.automatic+n>20||quota?.remaining!==undefined&&quota.remaining-n<Math.min(20,Math.floor(daily*.2)))){const e=Error('API-Football : budget automatique atteint, réserve conservée pour tes demandes.');e.code='BUDGET';throw e}
+  if(automatic&&(usage.automatic+n>automaticLimit()||quota?.remaining!==undefined&&quota.remaining-n<Math.min(250,Math.floor(daily*.2)))){const e=Error('API-Football : budget automatique atteint, réserve conservée pour tes demandes.');e.code='BUDGET';throw e}
   requests=requests.filter(t=>now()-t<60000);const limit=quota?.minuteLimit||10;
   if(requests.length+n>limit||now()-minuteAt<60000&&quota?.minuteRemaining!==undefined&&quota.minuteRemaining<n){const e=Error('API-Football : limite par minute atteinte. Réessaie dans une minute.');e.code='RATE';throw e}
  }

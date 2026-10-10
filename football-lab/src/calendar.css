@@ -14,25 +14,25 @@
 .workspace-shortcuts span{font-size:11px;line-height:1.5}
 .home-matches-title{margin:25px 0 12px;flex-wrap:wrap}
 .home-matches-title h2{font-size:18px}
-.home-secondary{margin-top:20px;border:1px solid var(--line);border-radius:12px;background:#fafbf7;padding:14px 16px}
+.home-secondary{margin-top:20px;border:1px solid var(--line);border-radius:12px;background:#f8fafd;padding:14px 16px}
 .home-secondary>summary{font-size:13px;font-weight:600;min-height:25px}
 .home-secondary[open]>summary{margin-bottom:13px}
-.home-secondary .calendar-day-heading{background:#fafbf7}
+.home-secondary .calendar-day-heading{background:#f8fafd}
 .home-bilan-link{font-size:12px;margin:20px 0;color:var(--muted)}
 .home-bilan-link button{font-size:12px;border:0;padding:0 3px;min-height:34px;background:transparent;text-decoration:underline}
 .calendar-filters{display:block;margin:16px 0 10px}
 .calendar-ranges{display:flex;gap:6px;flex-wrap:wrap}
 .calendar-ranges button{font-size:12px;min-height:43px;padding:8px 12px;background:transparent}
-.calendar-ranges button.active{background:#e0e9d7;border-color:#b6c8a3}
+.calendar-ranges button.active{background:#e8effa;border-color:#b7c9e4}
 .calendar-date-fields{margin:13px 0;gap:14px}
 .calendar-date-fields label{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
 .calendar-date-fields input{width:155px;min-height:44px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px;color:var(--ink)}
 .calendar-modes{margin:16px 0 12px}
 .calendar-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0}
 .calendar-count{font-size:13px;font-weight:600;margin-right:auto}
-.calendar-views{display:flex;gap:3px;padding:3px;background:#e9ede3;border:1px solid var(--line);border-radius:10px;max-width:100%}
+.calendar-views{display:flex;gap:3px;padding:3px;background:#edf1f6;border:1px solid var(--line);border-radius:10px;max-width:100%}
 .calendar-views button{display:flex;gap:6px;align-items:center;justify-content:center;min-height:38px;padding:7px 10px;border:1px solid transparent;border-radius:7px;background:transparent;font-size:12px}
-.calendar-views button.active{background:#fff;border-color:#c8d4bf;box-shadow:0 1px 3px #172a1810;font-weight:650}
+.calendar-views button.active{background:#fff;border-color:#c3cfde;box-shadow:0 1px 3px #15253b10;font-weight:650}
 .calendar-views svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .calendar-sort-label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
 .calendar-sort-label select{font-size:12px;padding:7px;min-height:42px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--ink);max-width:155px}
@@ -46,10 +46,10 @@
 .match-list-head,.match-line{display:grid;grid-template-columns:90px minmax(0,1fr) 205px 18px;gap:18px;align-items:center}
 .match-list-head{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);padding:6px 16px}
 .match-lines{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.match-line{width:100%;border:0;border-radius:0;border-bottom:1px solid #e8ede1;padding:13px 16px;text-align:left;background:#fff;min-height:83px}
-.match-line:nth-child(even){background:#f8faf5}
+.match-line{width:100%;border:0;border-radius:0;border-bottom:1px solid #e9eef5;padding:13px 16px;text-align:left;background:#fff;min-height:83px}
+.match-line:nth-child(even){background:#f8fafd}
 .match-line:last-child{border-bottom:0}
-.match-line:hover{background:#edf3e5}
+.match-line:hover{background:#edf3fa}
 .match-line:focus-visible{outline-offset:-3px}
 .match-time{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
 .match-time time{font-size:19px;font-weight:680;line-height:1.3;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -64,20 +64,20 @@
 .match-probabilities>span{display:flex;flex-direction:column;gap:2px}
 .match-probabilities small{font-size:10px;color:var(--muted);font-weight:450}
 .match-probabilities b{font-size:15px;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
-.match-chevron{font-size:24px;font-weight:400;color:#718367;text-align:right}
+.match-chevron{font-size:24px;font-weight:400;color:#647187;text-align:right}
 .calendar-tablewrap{border:1px solid var(--line);border-radius:12px;background:#fff;max-width:100%;overflow-x:auto}
 .calendar-table{min-width:860px;font-size:12px}
-.calendar-table th{font-size:11px;text-transform:none;letter-spacing:0;background:#f8faf5;padding:0;font-weight:600;white-space:nowrap}
+.calendar-table th{font-size:11px;text-transform:none;letter-spacing:0;background:#f8fafd;padding:0;font-weight:600;white-space:nowrap}
 .calendar-table thead th button{display:flex;align-items:center;gap:5px;width:100%;min-height:44px;background:transparent;border:0;border-radius:0;font-size:11px;padding:10px 12px}
-.calendar-table thead th button:hover{background:#eaf0e2}
+.calendar-table thead th button:hover{background:#e8effa}
 .calendar-table thead th:not(:has(button)){padding:10px 12px}
 .calendar-table td{padding:9px 12px;vertical-align:middle}
-.calendar-table .calendar-day-row th{background:#edf1e7;padding:9px 12px;text-align:left;white-space:normal;font-size:12px}
+.calendar-table .calendar-day-row th{background:#e9eef5;padding:9px 12px;text-align:left;white-space:normal;font-size:12px}
 .calendar-day-row th div{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .calendar-day-row time{text-transform:capitalize}
 .calendar-detail-row{cursor:pointer}
-.calendar-detail-row:nth-child(even) td{background:#fafbf7}
-.calendar-detail-row:hover td{background:#edf3e5}
+.calendar-detail-row:nth-child(even) td{background:#f8fafd}
+.calendar-detail-row:hover td{background:#edf3fa}
 .calendar-match-button{display:block;width:100%;border:0;border-radius:6px;background:transparent;text-align:left;padding:2px 3px;min-height:48px}
 .calendar-match-button .match-pair strong,.calendar-match-button .match-pair>span{font-size:13px}
 .calendar-match-button .match-pair small{font-size:10px}
@@ -117,3 +117,47 @@
  .home-secondary{padding:12px}
 }
 @media(max-width:380px){header{gap:8px}.brand{gap:7px;font-size:19px}.brand svg{width:30px;height:30px}.brand small{font-size:6px;letter-spacing:1px}.header-actions{gap:5px}.refresh{font-size:10px;padding:7px}.header-actions #menuToggle{gap:4px;font-size:11px;padding:8px}.match-line{grid-template-columns:57px minmax(0,1fr) 10px;gap:7px 8px;padding:12px 10px}.match-line>.match-probabilities{gap:10px}.calendar-views button{gap:4px;padding:7px}.calendar-ranges button{padding:8px 10px}}
+
+/* 1.8: daily match desk, quiet blue navigation and dense probability rows. */
+:root{--accent:#2d5fa8;--soft:#edf3fa}
+body{font-size:15px;line-height:1.55}
+header{padding:24px 0 20px}
+nav{border-bottom:1px solid var(--line);padding-bottom:12px;gap:5px}
+nav button.active,nav button[aria-current="page"]{background:var(--dark);color:white;border-color:var(--dark)}
+.primary{background:var(--accent);color:white;border-color:var(--accent)}
+.primary:hover{background:#234978;color:white}
+.segments button.active,.calendar-ranges button.active{color:#234978;background:var(--soft);border-color:#b7c9e4}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #7598cb}
+.home-overview{margin-top:24px}.home-overview h1{letter-spacing:-.8px;font-size:30px;margin:6px 0}
+.home-filters{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin:20px 0 15px}
+.home-filters>label{display:flex;gap:9px;align-items:center;font-size:12px;color:var(--muted)}
+.home-filters select,.home-date-picker input,.threshold-number input,.workspace-filters select{border:1px solid var(--line);border-radius:8px;background:#fff;padding:10px;color:var(--ink);min-height:44px;font:inherit;max-width:100%}
+.home-date-picker{display:flex;align-items:center;gap:5px}.home-date-picker>button{min-height:44px;font-size:12px;padding:8px 11px}.home-date-picker>button[data-home-day]{min-width:40px;font-size:21px;line-height:1}.home-date-picker input{width:150px;font-size:13px}
+.live-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 15px}
+.live-toolbar>button{margin-left:auto;font-size:12px;min-height:40px}.live-toolbar>p{margin:0;width:100%;color:var(--muted)}
+.auto-switch input,input[type=range]{accent-color:var(--accent)}
+.home-states{margin:17px 0 10px;gap:5px}.home-states button{min-height:42px}.home-states button span{background:#e9eef5;border-radius:5px;padding:1px 5px;margin-left:5px;font-size:11px}
+.home-states button.active span{background:white}.home-matches-title{margin-top:15px}
+.match-pair>.match-league{color:var(--accent);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin:0 0 3px}
+.match-line{min-height:88px;padding:12px 16px}.match-line.is-live{border-left:3px solid #247a5a;padding-left:13px}
+.match-minute{color:#16624a;font-size:17px;font-variant-numeric:tabular-nums}.is-live .match-score{font-size:20px;color:var(--ink)}
+.match-line.is-live .match-status{color:#16624a}.match-pair small{font-size:11px}.match-chevron{color:#8897ab}
+.home-secondary,.home-secondary .calendar-day-heading{background:#fff}.workspace-shortcuts{margin-top:22px}
+.favorite-settings{margin:15px 0;padding:12px;border:1px solid var(--line);border-radius:9px;background:white}.favorite-settings summary{font-size:13px}.favorite-settings label{display:flex;align-items:center;gap:9px;font-size:13px;margin-top:10px}.favorite-settings input{width:20px;height:20px;accent-color:var(--accent)}
+.probability-threshold{display:grid;grid-template-columns:150px minmax(100px,1fr) 90px;align-items:center;gap:16px;margin:22px 0}.probability-threshold>label{font-size:13px;font-weight:600}.probability-threshold input[type=range]{width:100%;height:32px;margin:0}.threshold-number{display:flex;align-items:center;gap:5px}.threshold-number input{width:72px;padding:8px;font-variant-numeric:tabular-nums}
+.probability-filters .workspace-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.workspace-filters label{min-width:0}.workspace-filters select{width:100%;min-width:0;font-size:13px}.probability-filters details{border-top:1px solid var(--line);padding-top:12px;margin-top:14px}.probability-filters details summary{font-size:12px;color:var(--muted)}
+.confidence-grid{display:block;margin:18px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:white}
+.confidence-card{display:grid;grid-template-columns:minmax(0,1fr) 240px 145px;align-items:center;gap:12px 22px;border:0;border-radius:0;border-bottom:1px solid var(--line);padding:15px 18px;background:white}.confidence-card:last-child{border-bottom:0}.confidence-card:nth-child(even){background:#f8fafd}
+.confidence-match{min-width:0}.confidence-match .choice-title{display:block;font-size:14px;margin:5px 0 2px;line-height:1.5}.confidence-match>p{margin:0;font-size:12px;color:var(--muted)}
+.confidence-values{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:0}.confidence-values span{font-size:11px;color:var(--muted)}.confidence-values strong{font-size:20px;font-variant-numeric:tabular-nums}.confidence-card>button[data-add-market]{margin:0;min-height:44px;font-size:12px;background:#edf3fa;color:#234978}
+.confidence-provenance{grid-column:1/-1;min-width:0}.confidence-provenance>p{margin:0;font-size:10px}.confidence-provenance>.quote-sources{margin:5px 0}.confidence-provenance>p:last-child{margin-top:4px}
+.choice-grid{display:block;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:white}.choice-grid .choice-row{border:0;border-radius:0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) 330px;align-items:center;gap:12px 25px;padding:15px 18px}.choice-grid .choice-row:last-child{border-bottom:0}.choice-grid .choice-note{grid-column:1/-1;font-size:11px}.choice-boxes{margin:0}.choice-title{font-size:15px}.choice-row .choice-cell{min-height:74px}.choice-row .choice-match .choice-title{margin:4px 0}
+.live-match-detail{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;background:#edf1f6;padding:12px 15px;margin:0 0 20px}.live-match-detail>b{font-size:25px;font-variant-numeric:tabular-nums}.live-match-detail>span{font-size:12px}.live-match-detail>small{width:100%;font-size:11px;color:var(--muted)}.live-match-detail.is-live{background:#edf6f2;border-color:#b3d2c3}.live-match-detail.is-live>strong{color:#16624a}
+@media(max-width:760px){
+ .home-overview h1{font-size:27px}.home-overview{gap:10px}.home-filters{gap:12px}.home-filters>label{width:100%;justify-content:space-between}.home-filters select{flex:1;max-width:220px}.live-toolbar{padding:12px}.live-toolbar>button{margin-left:0}.home-states{flex-wrap:nowrap;overflow-x:auto;padding-bottom:5px}.home-states button{white-space:nowrap;flex-shrink:0}
+ .probability-filters .workspace-filters{grid-template-columns:1fr 1fr}.probability-threshold{grid-template-columns:minmax(0,1fr) 90px;gap:8px 12px}.probability-threshold>label:first-child{grid-column:1/-1}.probability-threshold input[type=range]{grid-column:1;grid-row:2}.threshold-number{grid-column:2;grid-row:2}
+ .confidence-card{grid-template-columns:minmax(0,1fr) 140px;gap:10px;padding:14px}.confidence-match{grid-column:1/-1}.confidence-card>.confidence-add{grid-column:2;grid-row:2}.confidence-values{grid-column:1;grid-row:2;gap:10px}.confidence-values strong{font-size:18px}.confidence-values span{font-size:10px}.confidence-provenance{grid-column:1/-1}
+ .choice-grid .choice-row{display:block;padding:14px}.choice-row .choice-boxes{margin:10px 0}.choice-row .choice-note{margin-top:10px}.choice-row .choice-cell{min-height:74px}.match-line.is-live{padding-left:10px}
+ nav{overflow-x:auto;flex-wrap:nowrap;padding-bottom:10px}nav button{flex:0 0 auto;min-width:56px;font-size:12px;padding:9px 8px;min-height:44px}
+}
+@media(max-width:380px){.home-date-picker{gap:4px}.home-date-picker input{width:133px}.home-date-picker>button{padding:8px}.home-date-picker>button[data-home-day]{min-width:33px}.probability-filters .workspace-filters{grid-template-columns:1fr}.confidence-card{grid-template-columns:minmax(0,1fr) 130px}.confidence-values strong{font-size:17px}}

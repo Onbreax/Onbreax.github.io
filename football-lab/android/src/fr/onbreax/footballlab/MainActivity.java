@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.content.Intent;
 import android.net.Uri;
 import android.webkit.*;
-import android.view.View;
 import android.widget.Toast;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -17,10 +16,11 @@ import org.json.JSONArray;
 
 public class MainActivity extends Activity {
  private final ExecutorService network=Executors.newFixedThreadPool(2);
+ private volatile boolean foreground=false;
  private WebView web; private String pendingExport; private ValueCallback<Uri[]> chooser;
  private static final String HOME="https://appassets.androidplatform.net/index.html";
  @Override public void onCreate(Bundle state){super.onCreate(state);
-  web=new WebView(this); web.setBackgroundColor(0xfff5f6f0);setContentView(web);
+  web=new WebView(this); web.setBackgroundColor(0xfff3f5f8);setContentView(web);
   web.setOnApplyWindowInsetsListener((v,insets)->{v.setPadding(insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom());return insets;});
   WebSettings s=web.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setAllowFileAccess(false);s.setAllowContentAccess(true);s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);s.setJavaScriptCanOpenWindowsAutomatically(false);
   web.addJavascriptInterface(new Bridge(),"FootballNative");
@@ -32,8 +32,11 @@ public class MainActivity extends Activity {
   web.setWebChromeClient(new WebChromeClient(){@Override public boolean onShowFileChooser(WebView v,ValueCallback<Uri[]> cb,FileChooserParams params){if(chooser!=null)chooser.onReceiveValue(null);chooser=cb;Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("application/json").addCategory(Intent.CATEGORY_OPENABLE);try{startActivityForResult(i,2);}catch(Exception e){chooser.onReceiveValue(null);chooser=null;}return true;}});
   web.loadUrl(HOME);
  }
+ @Override protected void onResume(){super.onResume();foreground=true;if(web!=null){web.onResume();web.resumeTimers();}}
+ @Override protected void onPause(){foreground=false;if(web!=null){web.onPause();web.pauseTimers();}super.onPause();}
  private boolean external(Uri u){if(HOME.equals(u.toString()))return false;if("https".equals(u.getScheme())){try{startActivity(new Intent(Intent.ACTION_VIEW,u));}catch(Exception e){Toast.makeText(this,"Aucun navigateur disponible",Toast.LENGTH_SHORT).show();}}return true;}
  public class Bridge {
+  @JavascriptInterface public boolean isForeground(){return foreground;}
   @JavascriptInterface public void openRouter(int requestId,String operation,String key,String body){
    runOnUiThread(()->{
     if(!HOME.equals(web.getUrl())||isFinishing()||isDestroyed())return;
