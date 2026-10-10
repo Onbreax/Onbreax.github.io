@@ -20,7 +20,7 @@ public class MainActivity extends Activity {
  private WebView web; private String pendingExport; private ValueCallback<Uri[]> chooser;
  private static final String HOME="https://appassets.androidplatform.net/index.html";
  @Override public void onCreate(Bundle state){super.onCreate(state);
-  web=new WebView(this); web.setBackgroundColor(0xfff3f5f8);setContentView(web);
+  web=new WebView(this); web.setBackgroundColor(0xffe7ebf1);setContentView(web);
   web.setOnApplyWindowInsetsListener((v,insets)->{v.setPadding(insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom());return insets;});
   WebSettings s=web.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setAllowFileAccess(false);s.setAllowContentAccess(true);s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);s.setJavaScriptCanOpenWindowsAutomatically(false);
   web.addJavascriptInterface(new Bridge(),"FootballNative");
