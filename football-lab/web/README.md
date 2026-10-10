@@ -28,3 +28,11 @@ python3 football-lab/web/prepare.py /chemin/du/checkout-sites
 Le manifeste Sites et ses identifiants sont conservés dans son dépôt dédié ; aucune
 information d’authentification Sites ne doit être ajoutée au dépôt public GitHub.
 L’APK conserve son accès HTTPS natif et n’utilise pas le relais.
+
+Version 1.4 ajoute un relais privé `/api/odds` vers The Odds API. La clé
+est transmise par POST depuis la session du propriétaire, ne reste qu’en
+mémoire de requête et n’est ni enregistrée ni journalisée. Le serveur fixe
+les trois championnats, la région Europe, les marchés autorisés et les bornes
+des requêtes/réponses ; il refuse les origines tierces et les redirections.
+Les requêtes de cotes restent manuelles ; aucun endpoint historique payant
+n’est appelé. Le fournisseur communique les crédits utilisés/restants.

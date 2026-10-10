@@ -13,6 +13,7 @@ import javax.net.ssl.HttpsURLConnection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 public class MainActivity extends Activity {
  private final ExecutorService network=Executors.newFixedThreadPool(2);
@@ -89,6 +90,26 @@ public class MainActivity extends Activity {
      }catch(Exception e){try{result.put("ok",false);result.put("error",e instanceof IOException?e.getMessage():"Réponse invalide");}catch(Exception ignored){}}
      finally{if(conn!=null)conn.disconnect();}
      String script="window.footballApiResult && window.footballApiResult("+requestId+","+result.toString()+")";
+     runOnUiThread(()->{if(!isFinishing()&&!isDestroyed()&&HOME.equals(web.getUrl()))web.evaluateJavascript(script,null);});
+    });
+   });
+  }
+  @JavascriptInterface public void fetchOdds(int requestId,String sport,String eventId,String key){
+   if(!("soccer_france_ligue_one".equals(sport)||"soccer_epl".equals(sport)||"soccer_spain_la_liga".equals(sport))||eventId==null||!eventId.isEmpty()&&!eventId.matches("[a-f0-9]{32}")||key==null||!key.matches("[A-Za-z0-9_-]{10,128}"))return;
+   runOnUiThread(()->{if(!HOME.equals(web.getUrl())||isFinishing()||isDestroyed())return;
+    network.execute(()->{JSONObject result=new JSONObject();HttpsURLConnection conn=null;int status=0;
+     try{
+      String path=eventId.isEmpty()?"/odds":"/events/"+eventId+"/odds";
+      String markets=eventId.isEmpty()?"h2h,totals":"h2h,totals,alternate_totals,btts,double_chance";
+      conn=(HttpsURLConnection)new URL("https://api.the-odds-api.com/v4/sports/"+sport+path+"?apiKey="+key+"&regions=eu&markets="+markets+"&oddsFormat=decimal&dateFormat=iso").openConnection();
+      conn.setInstanceFollowRedirects(false);conn.setConnectTimeout(12000);conn.setReadTimeout(18000);conn.setRequestProperty("Accept","application/json");status=conn.getResponseCode();if(status!=200)throw new IOException();
+      ByteArrayOutputStream bytes=new ByteArrayOutputStream();try(InputStream input=conn.getInputStream()){byte[] buf=new byte[8192];int n;while((n=input.read(buf))!=-1){if(bytes.size()+n>2500000)throw new IOException();bytes.write(buf,0,n);}}
+      String text=new String(bytes.toByteArray(),StandardCharsets.UTF_8);result.put("data",eventId.isEmpty()?new JSONArray(text):new JSONObject(text));
+      JSONObject quota=new JSONObject();String[] fields={"remaining","used","last"};for(String field:fields){String value=conn.getHeaderField("x-requests-"+field);quota.put(field,value!=null&&value.matches("[0-9]{1,10}")?Long.parseLong(value):JSONObject.NULL);}
+      result.put("quota",quota);result.put("ok",true);
+     }catch(Exception e){try{result.put("ok",false);result.put("status",status>=400?status:0);}catch(Exception ignored){}}
+     finally{if(conn!=null)conn.disconnect();}
+     String script="window.footballOddsResult && window.footballOddsResult("+requestId+","+result.toString()+")";
      runOnUiThread(()->{if(!isFinishing()&&!isDestroyed()&&HOME.equals(web.getUrl()))web.evaluateJavascript(script,null);});
     });
    });

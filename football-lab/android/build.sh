@@ -21,5 +21,5 @@ with zipfile.ZipFile('build/base.apk') as src, zipfile.ZipFile('build/unsigned.a
  dst.write('build/dex/classes.dex','classes.dex')
 PY
 "$BT/zipalign" -f 4 build/unsigned.apk build/aligned.apk
-"$BT/apksigner" sign --ks "$FOOTBALL_KEYSTORE" --ks-pass "file:$FOOTBALL_KEY_PASSWORD_FILE" --out build/Football-Lab-1.3.1.apk build/aligned.apk
-"$BT/apksigner" verify --verbose build/Football-Lab-1.3.1.apk
+"$BT/apksigner" sign --ks "$FOOTBALL_KEYSTORE" --ks-pass "file:$FOOTBALL_KEY_PASSWORD_FILE" --out build/Football-Lab-1.4.0.apk build/aligned.apk
+"$BT/apksigner" verify --verbose build/Football-Lab-1.4.0.apk
