@@ -167,6 +167,22 @@
 .confidence-card{display:flex;flex-direction:column}.confidence-card>p{font-size:13px}.confidence-values{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}.confidence-values span{display:block;color:var(--muted);font-size:11px}.confidence-values strong{font-size:25px;font-variant-numeric:tabular-nums}
 .confidence-card>button[data-add-market]{margin-top:8px}.quote-sources{font-size:11px;color:var(--muted);margin:7px 0 12px}.quote-sources summary{font-weight:500;line-height:1.65}.quote-sources ul{padding-left:20px}.quote-sources li{font-size:11px;overflow-wrap:anywhere;margin:6px 0}
 .market-group{margin:16px 0;border:1px solid var(--line);border-radius:10px;background:#fff;padding:12px}
+.quote-range{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}
+.quote-range>div{padding:9px;background:var(--bg);border-radius:8px;min-width:0}
+.quote-range dt{font-size:10px}.quote-range dd{margin:4px 0 0;font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums}
+.quote-sort{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;margin:12px 0}
+.quote-sort select{max-width:100%;border:1px solid var(--line);border-radius:7px;padding:8px;background:white;color:var(--ink)}
+.bookmaker-table{min-width:390px}.bookmaker-table caption,.normalization-details caption{text-align:left;font-size:11px;color:var(--muted);padding:8px 0}
+.bookmaker-table time{font-size:10px}.quote-old{display:block;color:var(--warn);font-size:10px}
+.odds-analysis{margin:22px 0;padding:15px;border:1px solid var(--line);background:#eef3e7;border-radius:12px}
+.odds-analysis>h3{margin:0 0 8px;font-size:16px}.odds-comparison-group{margin:12px 0;background:white;border:1px solid var(--line);border-radius:9px;padding:12px}
+.odds-comparison-group>summary{font-size:12px;line-height:1.6;min-height:32px}
+.probability-comparison{padding:12px 0;border-bottom:1px solid var(--line)}
+.probability-comparison>strong{font-size:12px}.probability-comparison dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:9px 0 0}
+.probability-comparison dt{font-size:10px;line-height:1.5;color:var(--muted)}
+.probability-comparison dd{margin:5px 0;font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.normalization-details{margin:12px 0 0}.normalization-details>summary{font-size:11px;font-weight:500}.normalization-details p,.normalization-details li{font-size:11px}
+@media(max-width:540px){.quote-range{grid-template-columns:repeat(2,minmax(0,1fr))}.odds-analysis{padding:11px}.odds-comparison-group{padding:10px}.probability-comparison dd{font-size:16px}.probability-comparison dl{gap:5px}.normalization-details table{min-width:370px}}
 .market-group>summary{font-size:13px;min-height:32px;line-height:1.5}.market-row,.market-header{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(65px,.9fr) minmax(65px,.9fr) 66px;gap:9px;align-items:center}
 .market-header{font-size:10px;color:var(--muted);padding:12px 0 8px;border-bottom:1px solid var(--line)}
 .market-row{font-size:12px;padding:13px 0;border-bottom:1px solid #eef1e8;overflow-wrap:anywhere}.market-row strong,.market-odd{font-variant-numeric:tabular-nums}.market-row button{padding:6px 8px;min-height:39px;font-size:11px}.market-odd small{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:3px}

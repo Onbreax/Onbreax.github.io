@@ -15,7 +15,8 @@ ET.register_namespace('android','http://schemas.android.com/apk/res/android')
 tree=ET.parse('AndroidManifest.xml')
 if os.environ.get('FOOTBALL_PARALLEL_INSTALL')=='1':
  root=tree.getroot(); root.set('package','fr.onbreax.footballlab.mobile')
- app=root.find('application'); app.set('{http://schemas.android.com/apk/res/android}label','Football Lab 1.4')
+ app=root.find('application'); version=root.get('{http://schemas.android.com/apk/res/android}versionName')
+ app.set('{http://schemas.android.com/apk/res/android}label','Football Lab '+'.'.join(version.split('.')[:2]))
  app.find('activity').set('{http://schemas.android.com/apk/res/android}name','fr.onbreax.footballlab.MainActivity')
 tree.write('build/AndroidManifest.xml',encoding='utf-8')
 PY
@@ -41,5 +42,12 @@ with zipfile.ZipFile('build/base.apk') as src, zipfile.ZipFile('build/unsigned.a
  dst.write('build/dex/classes.dex','classes.dex')
 PY
 "$BT/zipalign" -f 4 build/unsigned.apk build/aligned.apk
-"$BT/apksigner" sign --ks "$FOOTBALL_KEYSTORE" --ks-pass "file:$FOOTBALL_KEY_PASSWORD_FILE" --out build/Football-Lab-1.4.0.apk build/aligned.apk
-"$BT/apksigner" verify --verbose build/Football-Lab-1.4.0.apk
+VERSION=$(python3 - <<'PY'
+import re, xml.etree.ElementTree as ET
+version=ET.parse('build/AndroidManifest.xml').getroot().get('{http://schemas.android.com/apk/res/android}versionName')
+assert re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+',version)
+print(version)
+PY
+)
+"$BT/apksigner" sign --ks "$FOOTBALL_KEYSTORE" --ks-pass "file:$FOOTBALL_KEY_PASSWORD_FILE" --out "build/Football-Lab-$VERSION.apk" build/aligned.apk
+"$BT/apksigner" verify --verbose "build/Football-Lab-$VERSION.apk"
