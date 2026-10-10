@@ -42,15 +42,15 @@ async function transport(op,p,key,relay){
  }catch(e){if(e.name==='TypeError')throw Error('Connexion API-Football impossible : réseau ou CORS. Utilise la version navigateur connectée.');if(e.name==='AbortError')throw Error('Délai de connexion dépassé');throw e}finally{clearTimeout(timer)}
 }
 function create({storage=null,hasRelay=false,onChange=()=>{},transport:injected=null,now=()=>Date.now()}={}){
- let key='',generation=0,keyState='missing',plan=null,quota=null,quotaDay='',minuteAt=0,error='',busy=0,requests=[];const cache=new Map(),pending=new Map();
+ let key='',generation=0,keyState='missing',verifiedAt=null,plan=null,quota=null,quotaDay='',minuteAt=0,error='',busy=0,requests=[];const cache=new Map(),pending=new Map(),sessionUsage={manual:0,automatic:0,checks:0};
  let usage={day:new Date(now()).toISOString().slice(0,10),manual:0,automatic:0};try{const u=JSON.parse(storage?.getItem(USAGE)||'null');if(u&&/^\d{4}-\d{2}-\d{2}$/.test(u.day)&&[u.manual,u.automatic].every(n=>Number.isInteger(n)&&n>=0&&n<=100000))usage=u}catch{}
  function today(){const day=new Date(now()).toISOString().slice(0,10);if(usage.day!==day){usage={day,manual:0,automatic:0};quota=null;quotaDay='';requests=[]}return day}
  function saveUsage(){try{storage?.setItem(USAGE,JSON.stringify(usage))}catch{}}
  function updateQuota(q){if(!q||typeof q!=='object')return;const values={};for(const n of ['limit','remaining','minuteLimit','minuteRemaining'])values[n]=Number.isInteger(q[n])&&q[n]>=0&&q[n]<1000000000?q[n]:null;
   quota={...(quota||{}),...Object.fromEntries(Object.entries(values).filter(([,v])=>v!==null))};quotaDay=today();minuteAt=now();}
  function automaticLimit(){return quota?.limit>100?Math.min(1500,Math.floor(quota.limit*.25)):20}
- function status(){today();return {keyState,plan,quota:quotaDay===today()?quota:null,usage:{...usage},automaticLimit:automaticLimit(),busy:busy>0,error,hasKey:!!key}}
- function budget(n=1,automatic=false){today();if(!key||keyState!=='ok'&&keyState!=='checking')throw Error('Active une clé API-Football dans Connexions et clés.');
+ function status(){today();return {keyState,verifiedAt,plan,quota:quotaDay===today()?quota:null,usage:{...usage},sessionUsage:{...sessionUsage},automaticLimit:automaticLimit(),busy:busy>0,error,hasKey:!!key}}
+ function budget(n=1,automatic=false){today();if(!key||keyState!=='ok'&&keyState!=='checking')throw Error('Active une clé API-Football dans Connexions et clés.');if(n===0)return;
   if(quota?.remaining!==undefined&&quota.remaining<n){const e=Error('API-Football : quota journalier atteint.');e.code='QUOTA';throw e}
   const daily=quota?.limit||100;
   if(automatic&&(usage.automatic+n>automaticLimit()||quota?.remaining!==undefined&&quota.remaining-n<Math.min(250,Math.floor(daily*.2)))){const e=Error('API-Football : budget automatique atteint, réserve conservée pour tes demandes.');e.code='BUDGET';throw e}
@@ -60,22 +60,23 @@ function create({storage=null,hasRelay=false,onChange=()=>{},transport:injected=
  async function request(op,params={},options={}){const p=parameters(op,params),id=op+'|'+JSON.stringify(p),ttl=options.ttl||0,at=now(),old=cache.get(id);
   if(old&&at-old.at<ttl)return old.data;if(pending.has(id))return pending.get(id);budget(op==='status'?0:1,!!options.automatic);
   const usedKey=key,gen=generation;
-  const task=(async()=>{busy++;onChange(status());try{if(op!=='status'){requests.push(now());usage[options.automatic?'automatic':'manual']++;saveUsage();if(quota?.remaining!==undefined)quota.remaining=Math.max(0,quota.remaining-1);if(quota?.minuteRemaining!==undefined)quota.minuteRemaining=Math.max(0,quota.minuteRemaining-1)}
+  const task=(async()=>{busy++;onChange(status());try{if(op!=='status'){requests.push(now());usage[options.automatic?'automatic':'manual']++;sessionUsage[options.automatic?'automatic':'manual']++;saveUsage();if(quota?.remaining!==undefined)quota.remaining=Math.max(0,quota.remaining-1);if(quota?.minuteRemaining!==undefined)quota.minuteRemaining=Math.max(0,quota.minuteRemaining-1)}else sessionUsage.checks++;
    const r=await (injected||((a,b,c)=>transport(a,b,c,hasRelay)))(op,p,usedKey);
    if(gen!==generation)throw Error('Connexion modifiée pendant la requête.');updateQuota(r.quota);const data={...envelope(r.data,op),_consultedAt:new Date(now()).toISOString()};
-   if(op==='status'){const s=data.response;if(typeof s.subscription?.plan!=='string'||typeof s.subscription.active!=='boolean'||!Number.isInteger(s.requests?.current)||s.requests.current<0||!Number.isInteger(s.requests.limit_day)||s.requests.limit_day<1)throw Error('État du compte API-Football invalide');if(!s.subscription.active){const e=Error('API-Football : abonnement inactif.');e.code='AUTH';throw e}plan=s.subscription.plan.slice(0,80);updateQuota({limit:s.requests.limit_day,remaining:Math.max(0,s.requests.limit_day-s.requests.current)});keyState='ok'}
+   if(op==='status'){const s=data.response;if(typeof s.subscription?.plan!=='string'||typeof s.subscription.active!=='boolean'||!Number.isInteger(s.requests?.current)||s.requests.current<0||!Number.isInteger(s.requests.limit_day)||s.requests.limit_day<1)throw Error('État du compte API-Football invalide');if(!s.subscription.active){const e=Error('API-Football : abonnement inactif.');e.code='AUTH';throw e}plan=s.subscription.plan.slice(0,80);updateQuota({limit:s.requests.limit_day,remaining:Math.max(0,s.requests.limit_day-s.requests.current)});keyState='ok';verifiedAt=new Date(now()).toISOString()}
    cache.set(id,{at:now(),data});if(cache.size>120)cache.delete(cache.keys().next().value);error='';return data;
-  }catch(e){error=String(e.message||'Connexion impossible').split(usedKey||'\0').join('[clé masquée]').slice(0,220);if(/HTTP (401|403)/.test(error)||e.code==='AUTH')keyState='error';const clean=Error(error);clean.code=e.code||(/HTTP 429/.test(error)?'QUOTA':null);throw clean}
+  }catch(e){error=String(e.message||'Connexion impossible').split(usedKey||'\0').join('[clé masquée]').slice(0,220);if(op==='status'||/HTTP (401|403)/.test(error)||e.code==='AUTH')keyState='error';const clean=Error(error);clean.code=e.code||(/HTTP 429/.test(error)?'QUOTA':null);throw clean}
   finally{busy--;onChange(status())}})();pending.set(id,task);try{return await task}finally{pending.delete(id)}
  }
- async function activate(value){if(busy)throw Error('Attends la fin des requêtes avant de changer la clé.');if(typeof value!=='string'||! /^[A-Za-z0-9_-]{10,128}$/.test(value))throw Error('Format de clé API-Football invalide.');key=value;generation++;keyState='checking';plan=null;quota=null;cache.clear();error='';onChange(status());return request('status')}
- function forget(){if(busy)throw Error('Attends la fin des requêtes avant d’oublier la clé.');key='';generation++;keyState='missing';quota=null;plan=null;error='';cache.clear();onChange(status())}
+ async function verify(){if(busy)throw Error('Attends la fin des requêtes avant de vérifier la clé.');if(!key)throw Error('Saisis une clé API-Football.');keyState='checking';verifiedAt=null;plan=null;quota=null;error='';onChange(status());try{return await request('status')}catch(e){keyState='error';error=String(e.message||'Vérification impossible').split(key).join('[clé masquée]').slice(0,220);onChange(status());throw Error(error)}}
+ async function activate(value){if(busy)throw Error('Attends la fin des requêtes avant de changer la clé.');if(typeof value!=='string'||! /^[A-Za-z0-9_-]{10,128}$/.test(value)){key='';generation++;keyState='error';verifiedAt=null;plan=null;quota=null;cache.clear();error='Format de clé API-Football invalide.';onChange(status());throw Error(error)}key=value;generation++;plan=null;quota=null;cache.clear();return verify()}
+ function forget(){if(busy)throw Error('Attends la fin des requêtes avant d’oublier la clé.');key='';generation++;keyState='missing';verifiedAt=null;quota=null;plan=null;error='';cache.clear();onChange(status())}
  function cost(op,p,ttl){const id=op+'|'+JSON.stringify(parameters(op,p)),old=cache.get(id);return old&&now()-old.at<ttl||pending.has(id)?0:1}
  async function pages(params){const first=await request('odds',{...params,page:1},{ttl:15*60000});const total=first.paging.total;if(first.paging.current!==1)throw Error('Première page de cotes incorrecte');if(total>20)throw Error('Trop de pages de cotes : sélectionne un match pour limiter les requêtes.');budget(Array.from({length:total-1},(_,n)=>cost('odds',{...params,page:n+2},15*60000)).reduce((a,b)=>a+b,0));const response=first.response.slice(),times=[first._consultedAt];
   for(let page=2;page<=total;page++){const r=await request('odds',{...params,page},{ttl:15*60000});if(r.paging.current!==page||r.paging.total!==total)throw Error('Pagination de cotes modifiée : dernier relevé conservé.');response.push(...r.response);times.push(r._consultedAt)}
   return {...first,_consultedAt:times.sort()[0],results:response.length,response,paging:{current:1,total:1}};
  }
- return {activate,forget,status,budget,cost,request,pages,hasKey:()=>keyState==='ok'&&!!key};
+ return {activate,verify,forget,status,budget,cost,request,pages,hasKey:()=>keyState==='ok'&&!!key};
 }
 const api={LEAGUES,BASE,PATHS,USAGE,parameters,envelope,quotaHeaders,boundedJSON,create};if(typeof module!=='undefined')module.exports=api;root.FootSports=api;
 })(typeof window!=='undefined'?window:globalThis);

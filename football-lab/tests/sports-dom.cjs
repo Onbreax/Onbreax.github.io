@@ -10,9 +10,9 @@ const archiveRaw=fs.readFileSync(path.join(__dirname,'fixtures/legacy-forecast.j
 const envelope=(response,get,page=1,total=1)=>({get,errors:[],results:Array.isArray(response)?response.length:1,paging:{current:page,total},response});
 const next=()=>new Promise(r=>setImmediate(r));
 async function waitFor(f){for(let i=0;i<200;i++){if(f())return;await new Promise(r=>setTimeout(r,10))}assert.ok(f(),'Timed out waiting for UI state')}
-function app(native=false,width=1024){
+function app(native=false,width=1024,options={}){
  let clock=Date.parse('2026-10-10T12:00:00Z'),y=180,remaining=7500,oddsFailure=false,quotaFailure=false,providerFailure=false,final=false,liveState=null,foreground=true,exports=[];
- const storage=new Map([['football-lab-archive',archiveRaw],[C.STORE,JSON.stringify(initialChoice)]]),localStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k)},calls=[],timers=[];
+ const storage=options.storage||new Map([['football-lab-archive',archiveRaw],[C.STORE,JSON.stringify(initialChoice)]]),localStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k)},calls=[],timers=[];
  class Clock extends Date{constructor(...a){super(...(a.length?a:[clock]))}static now(){return clock}}
  const {window,document}=parseHTML(html);window.innerWidth=width;const {HTMLSelectElement,HTMLInputElement,HTMLElement}=window;
  Object.defineProperty(HTMLSelectElement.prototype,'value',{configurable:true,get(){const o=this.querySelector('option[selected]')||this.querySelector('option');return o?.getAttribute('value')||o?.textContent||''},set(v){for(const o of this.querySelectorAll('option'))String(v)===(o.getAttribute('value')||o.textContent)?o.setAttribute('selected',''):o.removeAttribute('selected')}});
@@ -23,7 +23,7 @@ function app(native=false,width=1024){
  const fixtures=new Map();for(const league of ['fr','en','es']){const ds=bundle.datasets.find(d=>d.league===league&&d.season==='2026-27'),names=[...new Set(ds.data.matches.flatMap(m=>[m.team1,m.team2]))];fixtures.set(league,ds.data.matches.map((m,i)=>({fixture:{id:({fr:10000,en:20000,es:30000})[league]+i,date:m.date+'T18:00:00+00:00',status:{short:m.score?'FT':'NS'}},league:{id:D.sportsCodes[league],season:2026,round:'Regular Season - 8'},teams:{home:{id:names.indexOf(m.team1)+1,name:m.team1},away:{id:names.indexOf(m.team2)+1,name:m.team2}},score:{fulltime:{home:m.score?.ft?.[0]??null,away:m.score?.ft?.[1]??null}}}))) }
  const targetFixture=fixtures.get('fr').find(f=>f.teams.home.name===target.home&&f.teams.away.name===target.away),h=targetFixture.teams.home.id,a=targetFixture.teams.away.id;
  function quote(f){return {fixture:{id:f.fixture.id,date:f.fixture.date},league:f.league,update:new Clock(clock-3600000).toISOString(),bookmakers:[{id:8,name:'Source One',bets:[{id:1,name:'Match Winner',values:[{value:'Home',odd:'2.0'},{value:'Draw',odd:'3.0'},{value:'Away',odd:'4.0'}]},{id:5,name:'Goals Over/Under',values:[{value:'Over 2.5',odd:'1.9'},{value:'Under 2.5',odd:'2.1'}]}]},{id:16,name:'Source Two',bets:[{id:1,name:'Match Winner',values:[{value:'Home',odd:'2.4'},{value:'Draw',odd:'3.0'},{value:'Away',odd:'4.0'}]}]}]}}
- function provider(operation,params){calls.push({operation,params});if(operation==='status')return {data:{errors:[],response:{subscription:{plan:'Pro',active:true},requests:{current:7500-remaining,limit_day:7500}}},quota:{minuteLimit:300}};remaining--;
+ function provider(operation,params){calls.push({operation,params});if(operation==='status'&&options.footballStatus)return options.footballStatus();if(operation==='status')return {data:{errors:[],response:{subscription:{plan:'Pro',active:true},requests:{current:7500-remaining,limit_day:7500}}},quota:{minuteLimit:300}};remaining--;
   if(quotaFailure)return {data:{errors:{requests:'Quota exhausted'},results:0,response:[]},quota:{remaining:0,limit:7500,minuteLimit:300}};
   if(providerFailure)return {data:{errors:{plan:'This season is not in your subscription'},results:0,response:[]},quota:{remaining,limit:7500,minuteLimit:300}};
   let data;
@@ -38,6 +38,7 @@ function app(native=false,width=1024){
  const fakeFetch=async(url,opt={})=>{const u=String(url),body=opt.body?JSON.parse(opt.body):null;
   if(u==='/api/sports')return new Response(JSON.stringify(provider(body.operation,body.params)));
   if(u.startsWith('https://raw.githubusercontent.com/')){const [,season,league]=u.match(/master\/([^/]+)\/(fr|en|es)\.1.json/);return new Response(JSON.stringify(bundle.datasets.find(d=>d.league===league&&d.season===season).data))}
+  if(options.openRouter&&u.startsWith('https://openrouter.ai/api/v1/')){const url=new URL(u),op=url.pathname.endsWith('/chat/completions')?'chat':url.pathname.split('/').at(-1),result=await options.openRouter(op,op==='generation'?{id:url.searchParams.get('id')}:body,opt.headers?.Authorization?.slice(7)||'');return new Response(JSON.stringify(result.data??result),{status:result.status||200})}
   if(u.endsWith('/key'))return new Response(JSON.stringify({data:{usage:0,limit:null,limit_remaining:null}}));
   if(u.endsWith('/credits'))return new Response(JSON.stringify({data:{total_credits:10,total_usage:0}}));
   if(u.endsWith('/models'))return new Response(JSON.stringify({data:[{id:'test/reader',name:'Test reader',architecture:{output_modalities:['text']},supported_parameters:['structured_outputs','max_completion_tokens'],pricing:{prompt:'0',completion:'0'}}]}));
@@ -45,6 +46,7 @@ function app(native=false,width=1024){
   throw Error('Unexpected fetch '+u);
  };
  window.FootballNative={isForeground:()=>foreground,exportNamed:(data,name)=>exports.push({data,name})};
+ if(native&&options.openRouter)window.FootballNative.openRouter=(id,op,key,body)=>Promise.resolve().then(()=>options.openRouter(op,body?JSON.parse(body):null,key)).then(r=>window.footballAIResult(id,{ok:!r.status||r.status===200,status:r.status||200,data:r.data??r}),()=>window.footballAIResult(id,{ok:false,status:0}));
  if(native)window.FootballNative.apiSports=(id,op,params,key)=>{assert.equal(key,'SYNTHETIC_FOOTBALL_KEY_123');Promise.resolve().then(()=>{let result;try{result={ok:true,...provider(op,JSON.parse(params))}}catch{result={ok:false,status:429}}window.footballSportsResult(id,result)})};
  const location={protocol:'https:',origin:'https://football.example',href:'https://football.example/'},context={window,document,location,localStorage,console,Date:Clock,Intl,crypto:webcrypto,TextEncoder,TextDecoder,URL,URLSearchParams,Response,Blob,AbortController,fetch:fakeFetch,setTimeout,clearTimeout,setInterval:(fn,ms)=>{timers.push({fn,ms});return timers.length},clearInterval:()=>{}};
  window.location=location;window.localStorage=localStorage;window.Date=Clock;vm.createContext(context);

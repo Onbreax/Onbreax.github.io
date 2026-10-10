@@ -47,6 +47,12 @@ public class MainActivity extends Activity {
       if("models".equals(operation))path="/models";
       else if("key".equals(operation))path="/key";
       else if("credits".equals(operation))path="/credits";
+      else if("generation".equals(operation)){
+       if(body==null||body.length()>220)throw new IllegalArgumentException();
+       String generationId=new JSONObject(body).getString("id");
+       if(generationId.length()>128||!generationId.matches("gen-[0-9A-Za-z-]+"))throw new IllegalArgumentException();
+       path="/generation?id="+generationId;
+      }
       else if("chat".equals(operation))path="/chat/completions";
       else throw new IllegalArgumentException();
       if(!"models".equals(operation)&&(key==null||!key.matches("[A-Za-z0-9_-]{10,256}")))throw new IllegalArgumentException();
@@ -68,13 +74,13 @@ public class MainActivity extends Activity {
        try(OutputStream output=conn.getOutputStream()){output.write(payload);}
       }
       status=conn.getResponseCode();
-      if(status!=200)throw new IOException();
       ByteArrayOutputStream bytes=new ByteArrayOutputStream();
-      try(InputStream input=conn.getInputStream()){
+      try(InputStream input=status==200?conn.getInputStream():conn.getErrorStream()){
+       if(input==null)throw new IOException();
        byte[] buf=new byte[8192];int n;
        while((n=input.read(buf))!=-1){if(bytes.size()+n>2500000)throw new IOException();bytes.write(buf,0,n);}
       }
-      result.put("ok",true);result.put("data",new JSONObject(new String(bytes.toByteArray(),StandardCharsets.UTF_8)));
+      result.put("ok",status==200);result.put("status",status);result.put("data",new JSONObject(new String(bytes.toByteArray(),StandardCharsets.UTF_8)));
      }catch(Exception e){try{result.put("ok",false);result.put("status",e instanceof IllegalArgumentException?400:status>=400?status:0);}catch(Exception ignored){}}
      finally{if(conn!=null)conn.disconnect();}
      String script="window.footballAIResult && window.footballAIResult("+requestId+","+result.toString()+")";
