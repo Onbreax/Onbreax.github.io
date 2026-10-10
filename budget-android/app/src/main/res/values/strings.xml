@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Mon budget</string>
+    <string name="service_notifications">Lecture des paiements bancaires</string>
+</resources>

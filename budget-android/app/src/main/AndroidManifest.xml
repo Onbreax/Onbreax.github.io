@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Pour savoir quelles applis bancaires sont installées (Android 11 et plus). -->
+    <queries>
+        <package android:name="fr.labanquepostale.android" />
+        <package android:name="com.fullsix.android.labanquepostale.accountaccess" />
+        <package android:name="com.boursorama.android.clients" />
+        <package android:name="com.revolut.revolut" />
+        <package android:name="com.google.android.apps.walletnfcrel" />
+        <package android:name="com.paypal.android.p2pmobile" />
+    </queries>
+
+    <!-- Aucune permission Internet : les données ne quittent jamais le téléphone. -->
+    <application
+        android:allowBackup="false"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.NoActionBar">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".EcouteurPaiements"
+            android:exported="false"
+            android:label="@string/service_notifications"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>
