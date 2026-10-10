@@ -5,13 +5,14 @@ const D=typeof module!=='undefined'?require('./data.js'):root.FootData,K=typeof 
 const FORMAT='football-lab-choices-1',STORE='football-lab-choices-v1',MAX=5000;
 const instant=x=>typeof x==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(x)&&Number.isFinite(Date.parse(x));
 const probability=x=>typeof x==='number'&&Number.isFinite(x)&&x>=0&&x<=1;
-function matchSnapshot(m){return {league:m.league,season:m.season,date:m.date,home:m.home,away:m.away,kickoff:m.kickoff||null,status:m.status||'UNKNOWN',...(m.providerId?{providerId:m.providerId,provider:'football-data'}:{provider:m.provider||'openfootball'})}}
+function matchSnapshot(m){return {league:m.league,season:m.season,date:m.date,home:m.home,away:m.away,kickoff:m.kickoff||null,status:m.status||'UNKNOWN',...(m.providerId?{providerId:m.providerId,provider:m.provider||'football-data'}:{provider:m.provider||'openfootball'})}}
 function cleanOdds(q){
  if(!q)return null;
  if(!Number.isFinite(q.mean)||q.mean<=1||q.mean>10000||!instant(q.fetchedAt)||!Array.isArray(q.books)||!q.books.length||q.books.length>80)throw Error('Cote archivée invalide');
  const books=q.books.map(b=>{if(typeof b.key!=='string'||!/^[a-zA-Z0-9_-]{1,60}$/.test(b.key)||typeof b.title!=='string'||!b.title.length||b.title.length>100||!Number.isFinite(b.price)||b.price<=1||b.price>10000||!instant(b.at))throw Error('Source de cote invalide');return {key:b.key,title:b.title,price:b.price,at:b.at}});
  if(new Set(books.map(b=>b.key)).size!==books.length||Math.abs(books.reduce((s,b)=>s+b.price,0)/books.length-q.mean)>1e-8)throw Error('Moyenne de cotes invalide');
- return {mean:q.mean,books,fetchedAt:q.fetchedAt,source:'The Odds API',stale:!!q.stale};
+ if(q.source!==undefined&&!['The Odds API','API-Football / API-Sports'].includes(q.source))throw Error('Fournisseur de cotes inconnu');
+ return {mean:q.mean,books,fetchedAt:q.fetchedAt,source:q.source||'The Odds API',stale:!!q.stale};
 }
 function validate(value){
  if(value?.format!==FORMAT||value.version!==1||!Array.isArray(value.picks)||value.picks.length>MAX)throw Error('Sauvegarde de choix non reconnue');
@@ -19,6 +20,7 @@ function validate(value){
  const m=r.match;
  if(!m||!['fr','en','es'].includes(m.league)||!/^20\d{2}-\d{2}$/.test(m.season)||typeof m.date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(m.date)||!Number.isFinite(Date.parse(m.date))||new Date(m.date+'T00:00:00Z').toISOString().slice(0,10)!==m.date||![m.home,m.away].every(t=>typeof t==='string'&&t.length>0&&t.length<=120)||m.home===m.away||m.kickoff!==null&&(!instant(m.kickoff)||new Date(m.kickoff).toISOString().slice(0,10)!==m.date))throw Error('Match de choix invalide');
  if(m.providerId!==undefined&&(!Number.isInteger(m.providerId)||m.providerId<=0))throw Error('Identifiant invalide');
+ if(m.provider!==undefined&&!['openfootball','football-data','api-sports'].includes(m.provider))throw Error('Fournisseur de match inconnu');
  if(!instant(r.savedAt)||!instant(r.createdAt)||Date.parse(r.createdAt)>Date.parse(r.savedAt)||!(m.kickoff?Date.parse(r.savedAt)<Date.parse(m.kickoff):r.savedAt.slice(0,10)<m.date))throw Error('Le choix doit précéder le coup d’envoi');
  if(!Array.isArray(r.choices)||!r.choices.length||new Set(r.choices).size!==r.choices.length||(r.market==='1x2'?r.choices.length>3||r.choices.some(x=>!['1','N','2'].includes(x)):!K.IDS.includes(r.market)||r.choices.length!==1||r.choices[0]!==r.market))throw Error('Marché de choix invalide');
  const id=D.key(m)+'|'+r.market;if(r.id!==id||seen.has(id))throw Error('Choix en double ou identifiant invalide');seen.add(id);

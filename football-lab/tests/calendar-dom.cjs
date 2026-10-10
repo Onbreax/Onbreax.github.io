@@ -22,7 +22,7 @@ function app(width=390,blockedStorage=false){
  const localStorage={getItem(k){if(blockedStorage)throw Error('Storage disabled');return storage.get(k)||null},setItem(k,v){if(blockedStorage)throw Error('Storage disabled');storage.set(k,String(v))},removeItem(k){storage.delete(k)}};
  const location={protocol:'file:',href:'file:///football-lab.html',origin:'null'},context={window,document,localStorage,location,console,Date:Clock,Intl,crypto:webcrypto,TextEncoder,TextDecoder,URL,URLSearchParams,Blob,Response,AbortController,innerWidth:width,fetch:async url=>{calls.push(String(url));throw Error('Unexpected request')},setTimeout,clearTimeout,setInterval:()=>1,clearInterval:()=>{}};
  window.Date=Clock;window.location=location;window.localStorage=localStorage;vm.createContext(context);
- for(const script of scripts){vm.runInContext(script,context);for(const key of ['FootModel','FootExperiment','FootData','FootInsights','FootAnalyst','FootMarkets','FootChoices','FootOdds','FootOddsAnalysis','FootCalendar','FootWorkspace'])if(window[key])context[key]=window[key]}
+ for(const script of scripts){vm.runInContext(script,context);for(const key of ['FootModel','FootExperiment','FootData','FootSports','FootFacts','FootInsights','FootAnalyst','FootMarkets','FootChoices','FootOdds','FootOddsAnalysis','FootCalendar','FootWorkspace'])if(window[key])context[key]=window[key]}
  const q=s=>document.querySelector(s),click=s=>{const el=typeof s==='string'?q(s):s;assert.ok(el,'Missing '+s);el.focus();el.dispatchEvent(new window.Event('click',{bubbles:true}))},change=(s,value)=>{const el=q(s);el.value=value;el.focus();el.dispatchEvent(new window.Event('change',{bubbles:true}))};
  return {window,document,q,click,change,scroll:()=>y};
 }

@@ -190,3 +190,5 @@
 .odds-connection{grid-column:1 / -1}.odds-connection #oddsKey{max-width:100%}.connections-grid{align-items:start}
 @media(max-width:700px){.choice-grid,.confidence-grid{grid-template-columns:1fr}.workspace-shortcuts{grid-template-columns:1fr}.choice-history>button{width:100%}}
 @media(max-width:540px){nav button{font-size:11px;padding:8px 4px;min-width:0}#savedCount{display:none}.market-row,.market-header{grid-template-columns:minmax(0,1fr) 60px 54px 57px;gap:6px}.market-row{font-size:11px}.market-row button{font-size:10px;padding:5px 3px}.market-header{font-size:9px}.market-group{padding:10px}.choice-row,.confidence-card{padding:16px}.workspace-filters label{min-width:128px}.workspace-shortcuts strong{font-size:14px}.choice-intro button{font-size:12px}.confidence-values strong{font-size:23px}}
+
+.facts-panel details{border-top:1px solid var(--line);padding:12px 0}.facts-panel summary{font-weight:600;cursor:pointer}.facts-panel h4{margin:16px 0 8px}.facts-panel .section-title{align-items:center;flex-wrap:wrap;gap:10px}.facts-panel li{margin-bottom:10px}.facts-panel td,.facts-panel th{white-space:normal}.facts-panel .tablewrap{max-width:100%;overflow:auto}

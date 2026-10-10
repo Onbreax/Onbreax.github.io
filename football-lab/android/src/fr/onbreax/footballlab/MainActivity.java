@@ -94,6 +94,48 @@ public class MainActivity extends Activity {
     });
    });
   }
+  @JavascriptInterface public void apiSports(int requestId,String operation,String parameters,String key){
+   runOnUiThread(()->{if(!HOME.equals(web.getUrl())||isFinishing()||isDestroyed())return;
+    network.execute(()->{JSONObject result=new JSONObject();HttpsURLConnection conn=null;int status=0;
+     try{
+      if(key==null||!key.matches("[A-Za-z0-9_-]{10,128}")||parameters==null||parameters.length()>1024)throw new IllegalArgumentException();
+      JSONObject p=new JSONObject(parameters);String path;
+      if("status".equals(operation))path="status";
+      else if("fixtures".equals(operation))path="fixtures";
+      else if("lineups".equals(operation))path="fixtures/lineups";
+      else if("statistics".equals(operation))path="fixtures/statistics";
+      else if("injuries".equals(operation))path="injuries";
+      else if("team".equals(operation))path="teams/statistics";
+      else if("odds".equals(operation))path="odds";
+      else throw new IllegalArgumentException();
+      JSONObject allowed=new JSONObject();
+      if("status".equals(operation)){}
+      else if("fixtures".equals(operation)&&p.has("ids")){
+       String ids=p.getString("ids");if(!ids.matches("[1-9][0-9]{0,7}(?:-[1-9][0-9]{0,7}){0,19}"))throw new IllegalArgumentException();
+       java.util.HashSet<String> unique=new java.util.HashSet<>();for(String id:ids.split("-"))if(!unique.add(id))throw new IllegalArgumentException();allowed.put("ids",ids);
+      }else if("lineups".equals(operation)||"statistics".equals(operation)||"injuries".equals(operation)||"odds".equals(operation)&&p.has("fixture")){
+       if(!p.optString("fixture").matches("[1-9][0-9]{0,7}"))throw new IllegalArgumentException();allowed.put("fixture",p.getInt("fixture"));
+      }else{
+       if(!p.optString("league").matches("(?:61|39|140)")||!p.optString("season").matches("[0-9]{4}"))throw new IllegalArgumentException();
+       int year=p.getInt("season");if(year<2023||year>2100)throw new IllegalArgumentException();allowed.put("league",p.getInt("league"));allowed.put("season",year);
+       if("team".equals(operation)){if(!p.optString("team").matches("[1-9][0-9]{0,7}"))throw new IllegalArgumentException();allowed.put("team",p.getInt("team"));}
+      }
+      if("odds".equals(operation)){if(!p.optString("page").matches("[1-9][0-9]?"))throw new IllegalArgumentException();int page=p.getInt("page");if(page>50)throw new IllegalArgumentException();allowed.put("page",page);}
+      if(p.length()!=allowed.length())throw new IllegalArgumentException();
+      Uri.Builder uri=Uri.parse("https://v3.football.api-sports.io/"+path).buildUpon();java.util.Iterator<String> fields=allowed.keys();while(fields.hasNext()){String field=fields.next();uri.appendQueryParameter(field,allowed.getString(field));}
+      conn=(HttpsURLConnection)new URL(uri.build().toString()).openConnection();conn.setInstanceFollowRedirects(false);conn.setConnectTimeout(12000);conn.setReadTimeout(18000);conn.setRequestProperty("x-apisports-key",key);conn.setRequestProperty("Accept","application/json");
+      status=conn.getResponseCode();if(status!=200)throw new IOException();
+      ByteArrayOutputStream bytes=new ByteArrayOutputStream();try(InputStream input=conn.getInputStream()){byte[] buffer=new byte[8192];int n;while((n=input.read(buffer))!=-1){if(bytes.size()+n>2500000)throw new IOException();bytes.write(buffer,0,n);}}
+      JSONObject data=new JSONObject(new String(bytes.toByteArray(),StandardCharsets.UTF_8));if("status".equals(operation)){JSONObject response=data.optJSONObject("response");if(response!=null)response.remove("account");}data.remove("parameters");
+      result.put("data",data);JSONObject quota=new JSONObject();String[] names={"limit","remaining","minuteLimit","minuteRemaining"},headers={"x-ratelimit-requests-limit","x-ratelimit-requests-remaining","X-RateLimit-Limit","X-RateLimit-Remaining"};
+      for(int i=0;i<names.length;i++){String value=conn.getHeaderField(headers[i]);quota.put(names[i],value!=null&&value.matches("[0-9]{1,9}")?Long.parseLong(value):JSONObject.NULL);}result.put("quota",quota);result.put("ok",true);
+     }catch(Exception e){try{result.put("ok",false);result.put("status",e instanceof IllegalArgumentException?400:status>=400?status:0);}catch(Exception ignored){}}
+     finally{if(conn!=null)conn.disconnect();}
+     String script="window.footballSportsResult && window.footballSportsResult("+requestId+","+result.toString()+")";
+     runOnUiThread(()->{if(!isFinishing()&&!isDestroyed()&&HOME.equals(web.getUrl()))web.evaluateJavascript(script,null);});
+    });
+   });
+  }
   @JavascriptInterface public void fetchOdds(int requestId,String sport,String eventId,String key){
    if(!("soccer_france_ligue_one".equals(sport)||"soccer_epl".equals(sport)||"soccer_spain_la_liga".equals(sport))||eventId==null||!eventId.isEmpty()&&!eventId.matches("[a-f0-9]{32}")||key==null||!key.matches("[A-Za-z0-9_-]{10,128}"))return;
    runOnUiThread(()->{if(!HOME.equals(web.getUrl())||isFinishing()||isDestroyed())return;

@@ -3,6 +3,9 @@
 'use strict';
 const D=typeof module!=='undefined'?require('./data.js'):root.FootData,K=typeof module!=='undefined'?require('./markets.js'):root.FootMarkets;
 const SPORTS={fr:'soccer_france_ligue_one',en:'soccer_epl',es:'soccer_spain_la_liga'},TTL=15*60000,STORE='football-lab-odds-v1';
+const SPORTS_SOURCE='API-Football / API-Sports';
+const ttl=source=>source===SPORTS_SOURCE?4*3600000:TTL;
+const eventId=id=>typeof id==='string'&&(/^[a-f0-9]{32}$/.test(id)||/^api-sports:[1-9]\d{0,7}$/.test(id));
 const ALIASES={
  fr:{'auxerre':'AJ Auxerre','monaco':'AS Monaco FC','angers':'Angers SCO','troyes':'ES Troyes AC','le havre':'Le Havre AC','lille':'Lille OSC','nice':'OGC Nice','lyon':'Olympique Lyonnais','marseille':'Olympique de Marseille','paris saint germain':'Paris Saint-Germain FC','strasbourg':'RC Strasbourg Alsace','lens':'Racing Club de Lens','brest':'Stade Brestois 29','rennes':'Stade Rennais FC 1901'},
  en:{'brighton and hove albion':'Brighton & Hove Albion FC','brighton':'Brighton & Hove Albion FC','tottenham':'Tottenham Hotspur FC','nottingham':'Nottingham Forest FC','wolves':'Wolverhampton Wanderers FC','wolverhampton wanderers':'Wolverhampton Wanderers FC'},
@@ -10,7 +13,7 @@ const ALIASES={
 };
 const iso=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}T.*Z$/.test(s)&&Number.isFinite(Date.parse(s));
 const price=x=>typeof x==='number'&&Number.isFinite(x)&&x>1&&x<=10000;
-function canonical(name,league){const n=D.norm(name),alias=ALIASES[league]?.[n];return D.norm(alias||name)}
+function canonical(name,league){const n=D.norm(name),alias=ALIASES[league]?.[n];return D.canonical(alias||name,league)}
 function outcome(market,o,event){
  if(typeof o.name!=='string'||o.description)return null;
  const n=D.norm(o.name),h=D.norm(event.home_team),a=D.norm(event.away_team);
@@ -45,7 +48,7 @@ function sanitize(raw,league,fetchedAt=new Date().toISOString()){
  }return events;
 }
 function match(event,rows){
- const h=canonical(event.home,event.league),a=canonical(event.away,event.league),candidates=rows.filter(m=>m.league===event.league&&canonical(m.home,m.league)===h&&canonical(m.away,m.league)===a&&(m.kickoff?Math.abs(Date.parse(m.kickoff)-Date.parse(event.kickoff))<=3*3600000:m.date===event.kickoff.slice(0,10)));
+ const h=canonical(event.home,event.league),a=canonical(event.away,event.league),candidates=rows.filter(m=>m.league===event.league&&canonical(m.home,m.league)===h&&canonical(m.away,m.league)===a&&(!event.id.startsWith('api-sports:')||m.provider==='api-sports'&&m.providerId===Number(event.id.split(':')[1]))&&(m.kickoff?Math.abs(Date.parse(m.kickoff)-Date.parse(event.kickoff))<=3*3600000:m.date===event.kickoff.slice(0,10)));
  return candidates.length===1?candidates[0]:null;
 }
 function find(m,events,rows){const candidates=events.filter(e=>D.key(match(e,rows)||{})===D.key(m));return candidates.length===1?candidates[0]:null}
@@ -53,19 +56,42 @@ function average(event,market,now=Date.now()){
  if(!event||!K.IDS.includes(market))return null;
  const books=event.quotes.filter(q=>q.market===market).map(({key,title,price,at})=>({key,title,price,at}));if(!books.length)return null;
  const values=books.map(b=>b.price),lastUpdate=books.map(b=>b.at).sort()[0];
- return {mean:values.reduce((s,x)=>s+x,0)/values.length,min:Math.min(...values),max:Math.max(...values),books,source:'The Odds API',fetchedAt:event.fetchedAt,lastUpdate,stale:now-Date.parse(event.fetchedAt)>TTL||now-Date.parse(lastUpdate)>TTL||Date.parse(event.kickoff)<=now};
+ return {mean:values.reduce((s,x)=>s+x,0)/values.length,min:Math.min(...values),max:Math.max(...values),books,source:event.source||'The Odds API',fetchedAt:event.fetchedAt,lastUpdate,stale:now-Date.parse(event.fetchedAt)>ttl(event.source)||now-Date.parse(lastUpdate)>ttl(event.source)||Date.parse(event.kickoff)<=now};
 }
 function validateCache(value){
  if(value?.version!==1||!Array.isArray(value.events)||value.events.length>500)throw Error('Cache de cotes invalide');
  const ids=new Set(),events=value.events.map(e=>{
-  if(!SPORTS[e?.league]||typeof e.id!=='string'||!/^[a-f0-9]{32}$/.test(e.id)||ids.has(e.id)||!iso(e.kickoff)||!iso(e.fetchedAt)||![e.home,e.away].every(n=>typeof n==='string'&&n.length>0&&n.length<=120)||!Array.isArray(e.quotes)||e.quotes.length>1500)throw Error('Cache de cotes invalide');ids.add(e.id);
+  if(!SPORTS[e?.league]||!eventId(e.id)||ids.has(e.id)||!iso(e.kickoff)||!iso(e.fetchedAt)||![e.home,e.away].every(n=>typeof n==='string'&&n.length>0&&n.length<=120)||!Array.isArray(e.quotes)||e.quotes.length>1500||e.source!==undefined&&!['The Odds API',SPORTS_SOURCE].includes(e.source)||e.id.startsWith('api-sports:')&&e.source!==SPORTS_SOURCE)throw Error('Cache de cotes invalide');ids.add(e.id);
   const keys=new Set(),quotes=e.quotes.map(q=>{const id=q.key+'|'+q.market;if(!K.IDS.includes(q.market)||typeof q.key!=='string'||!/^[a-zA-Z0-9_-]{1,60}$/.test(q.key)||typeof q.title!=='string'||!q.title.length||q.title.length>100||!price(q.price)||!iso(q.at)||Date.parse(q.at)>Date.parse(e.fetchedAt)+60000||keys.has(id))throw Error('Cote invalide');keys.add(id);return {market:q.market,key:q.key,title:q.title,price:q.price,at:q.at}});
-  return {id:e.id,league:e.league,home:e.home,away:e.away,kickoff:e.kickoff,fetchedAt:e.fetchedAt,quotes};
+  return {id:e.id,league:e.league,home:e.home,away:e.away,kickoff:e.kickoff,fetchedAt:e.fetchedAt,quotes,...(e.source?{source:e.source}:{})};
  });return {version:1,events};
 }
 function merge(old,events,{league=null,eventId=null,now=Date.now()}={}){
- const cutoff=now-7*86400000,keep=old.filter(e=>Date.parse(e.kickoff)>=cutoff&&!(eventId?e.id===eventId:league?e.league===league:false)),map=new Map(keep.map(e=>[e.id,e]));
+ const cutoff=now-7*86400000,keep=old.filter(e=>Date.parse(e.kickoff)>=cutoff&&!(eventId?e.id===eventId:league?e.league===league:false)&&!events.some(n=>n.league===e.league&&canonical(n.home,n.league)===canonical(e.home,e.league)&&canonical(n.away,n.league)===canonical(e.away,e.league)&&n.kickoff.slice(0,10)===e.kickoff.slice(0,10))),map=new Map(keep.map(e=>[e.id,e]));
  for(const e of events)map.set(e.id,e);return validateCache({version:1,events:[...map.values()].slice(-500)}).events;
 }
-const api={SPORTS,TTL,STORE,canonical,sanitize,match,find,average,validateCache,merge};if(typeof module!=='undefined')module.exports=api;root.FootOdds=api;
+function apiSports(raw,league,rows,fetchedAt=new Date().toISOString()){
+ if(!D.sportsCodes[league]||!iso(fetchedAt)||!Array.isArray(raw?.response)||Object.keys(raw.errors||{}).length||raw.response.length>500)throw Error('Réponse de cotes API-Football invalide');
+ const seen=new Set(),events=[];
+ for(const x of raw.response){const id=x.fixture?.id;if(x.league?.id!==D.sportsCodes[league]||!Number.isInteger(id)||id<=0||seen.has(id)||!Array.isArray(x.bookmakers)||x.bookmakers.length>80)throw Error('Événement de cotes API-Football invalide');seen.add(id);
+  const m=rows.find(m=>m.provider==='api-sports'&&m.providerId===id&&m.league===league);if(!m)continue;
+  if(!Number.isFinite(Date.parse(x.fixture.date))||new Date(x.fixture.date).toISOString()!==m.kickoff||x.league.season!==Number(m.season.slice(0,4)))throw Error('Cotes : horaire ou saison contradictoire');
+  if(typeof x.update!=='string'||!Number.isFinite(Date.parse(x.update)))continue;const at=new Date(x.update).toISOString();if(Date.parse(at)>Date.parse(fetchedAt)+60000)continue;
+  const quotes=new Map();
+  for(const b of x.bookmakers){if(!Number.isInteger(b.id)||b.id<=0||typeof b.name!=='string'||!b.name.length||b.name.length>100||!Array.isArray(b.bets)||b.bets.length>150)continue;
+   for(const bet of b.bets){if(!Array.isArray(bet.values)||bet.values.length>100)continue;const name=String(bet.name).toLowerCase(),supported=bet.id===1&&name==='match winner'?'h2h':bet.id===5&&name==='goals over/under'?'total':bet.id===8&&name==='both teams score'?'btts':name==='double chance'?'double':null;if(!supported)continue;
+    const mapped=[];for(const value of bet.values){let market=null;const v=String(value.value),odd=typeof value.odd==='string'&&/^\d+(?:\.\d+)?$/.test(value.odd)?Number(value.odd):null;
+     if(supported==='h2h')market={Home:'1',Draw:'N',Away:'2'}[v];
+     if(supported==='btts')market={Yes:'btts:yes',No:'btts:no'}[v];
+     if(supported==='double')market={'Home/Draw':'1N','Home/Away':'12','Draw/Away':'N2'}[v];
+     if(supported==='total'){const result=/^(Over|Under) (1\.5|2\.5|3\.5|4\.5)$/.exec(v);if(result)market=result[1].toLowerCase()+':'+result[2]}
+     if(market&&price(odd))mapped.push({market,price:odd});
+    }
+    if(supported==='h2h'&&['1','N','2'].some(id=>mapped.filter(q=>q.market===id).length!==1))continue;
+    for(const q of mapped){const key='as_'+b.id+'|'+q.market;if(quotes.has(key))throw Error('Cote en double pour un bookmaker');quotes.set(key,{...q,key:'as_'+b.id,title:b.name,at})}
+   }
+  }events.push({id:'api-sports:'+id,league,home:m.home,away:m.away,kickoff:m.kickoff,fetchedAt,source:SPORTS_SOURCE,quotes:[...quotes.values()]});
+ }return validateCache({version:1,events}).events;
+}
+const api={SPORTS,TTL,STORE,SPORTS_SOURCE,ttl,canonical,sanitize,apiSports,match,find,average,validateCache,merge};if(typeof module!=='undefined')module.exports=api;root.FootOdds=api;
 })(typeof window!=='undefined'?window:globalThis);
