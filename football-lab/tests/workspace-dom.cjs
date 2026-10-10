@@ -44,7 +44,7 @@ function app(){
  };
  const context={window,document,location,localStorage,console,Date:Clock,Intl,crypto:webcrypto,TextEncoder,TextDecoder,URL,URLSearchParams,Blob,Response,AbortController,fetch:fakeFetch,setTimeout:realSetTimeout,clearTimeout,setInterval:(fn,ms)=>{timers.push({fn,ms});return timers.length},clearInterval:()=>{}};
  window.Date=Clock;window.location=location;window.localStorage=localStorage;vm.createContext(context);
- for(const script of scripts){vm.runInContext(script,context);for(const name of ['FootModel','FootExperiment','FootData','FootInsights','FootAnalyst','FootMarkets','FootChoices','FootOdds','FootWorkspace'])if(window[name])context[name]=window[name]}
+ for(const script of scripts){vm.runInContext(script,context);for(const name of ['FootModel','FootExperiment','FootData','FootInsights','FootAnalyst','FootMarkets','FootChoices','FootOdds','FootCalendar','FootWorkspace'])if(window[name])context[name]=window[name]}
  const q=s=>document.querySelector(s),click=s=>{const b=typeof s==='string'?q(s):s;assert.ok(b,'Missing control '+s);assert.ok(!b.hasAttribute('disabled'),'Disabled control');b.dispatchEvent(new window.Event('click',{bubbles:true}))},change=(el,value)=>{if(typeof el==='string')el=q(el);if(value!==undefined)el.value=value;el.dispatchEvent(new window.Event('change',{bubbles:true}))};
  return {window,document,context,q,click,change,timers,scroll:()=>y};
 }

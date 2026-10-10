@@ -12,7 +12,7 @@ const {chromium}=require('playwright'),fs=require('fs'),http=require('http'),ass
   const before=JSON.stringify(legacy),original=legacy,oldId=legacy.forecasts[0].match.id;
   await page.addInitScript(archive=>{if(!localStorage.getItem('football-lab-archive'))localStorage.setItem('football-lab-archive',archive)},before);
   await page.goto(root);assert.equal(await page.evaluate(()=>localStorage.getItem('football-lab-archive')),before);
-  await page.locator('nav [data-tab="lab"]').click();await page.locator('#runComparison').click();await page.waitForSelector('#comparisonTable');
+  await page.locator('#menuToggle').click();await page.locator('#settings [data-tab="lab"]').click();await page.locator('#runComparison').click();await page.waitForSelector('#comparisonTable');
   assert.equal(await page.locator('#comparisonTable tbody tr').count(),2);assert((await page.locator('#content').textContent()).includes('2025-26'));
   await page.selectOption('#season','2025-26');await page.locator('#runComparison').click();await page.waitForSelector('#comparisonTable');
   assert((await page.locator('#content').textContent()).includes('2024-25'));assert((await page.locator('#content').textContent()).includes('0.5888'));
@@ -39,7 +39,7 @@ const {chromium}=require('playwright'),fs=require('fs'),http=require('http'),ass
   const dlPromise=page.waitForEvent('download');await page.locator('#export').click();const dl=await dlPromise,backup=JSON.parse(fs.readFileSync(await dl.path(),'utf8'));assert.equal(backup.forecasts.length,2);
   const bad=JSON.parse(JSON.stringify(backup));bad.forecasts[1].pred.selection.before='2027-07-01';const stable=await page.evaluate(()=>localStorage.getItem('football-lab-archive'));
   await page.locator('#import').setInputFiles({name:'bad-audit.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(bad))});await page.waitForFunction(()=>document.querySelector('#notice').textContent.includes('Import impossible'));assert.equal(await page.evaluate(()=>localStorage.getItem('football-lab-archive')),stable);
-  await page.locator('nav [data-tab="lab"]').click();await page.selectOption('#season','2023-24');await page.locator('#runComparison').click();await page.waitForSelector('#comparisonTable');
+  await page.locator('#menuToggle').click();await page.locator('#settings [data-tab="lab"]').click();await page.selectOption('#season','2023-24');await page.locator('#runComparison').click();await page.waitForSelector('#comparisonTable');
   assert.equal(await page.locator('#comparisonTable tbody tr').count(),1);assert(await page.locator('[data-forecast-mode="adjusted"]').isDisabled());
   assert((await page.locator('#content').textContent()).includes('Seul le modèle initial'));assert.equal(await page.evaluate(()=>localStorage.getItem('football-lab-archive')),stable);
   assert.deepEqual(errors,[]);console.log('Legacy archive, model comparison, all outcomes, adjusted forecast/audit replay, reload/export and invalid future audit rejection PASS '+width);

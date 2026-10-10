@@ -1,0 +1,49 @@
+// New calendar interactions with synthetic data only; never changes release data.
+process.env.TZ='Europe/Berlin';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),{webcrypto}=require('node:crypto');
+const {parseHTML}=require(process.env.FOOTBALL_DOM_MODULE||'linkedom');
+const F=require('../src/calendar.js'),html=fs.readFileSync(path.join(__dirname,'../../football-lab.html'),'utf8');
+const bundle=JSON.parse(html.match(/<script id="bundle" type="application\/json">([\s\S]*?)<\/script>/)[1]);
+const d=bundle.datasets.find(d=>d.league==='fr'&&d.season==='2026-27'),pairs=d.data.matches.slice(0,4).map(m=>[m.team1,m.team2]);
+const starts=['2026-10-09T23:30:00Z','2026-10-10T18:30:00Z','2026-10-10T23:30:00Z'];
+d.data={name:d.data.name,matches:pairs.map(([team1,team2],i)=>({date:i===0?'2026-10-09':'2026-10-10',team1,team2}))};
+d.fdData={competition:{code:'FL1'},matches:starts.map((utcDate,i)=>({id:101+i,utcDate,competition:{code:'FL1'},season:{startDate:'2026-07-01'},homeTeam:{id:10+i*2,name:pairs[i][0]},awayTeam:{id:11+i*2,name:pairs[i][1]},lastUpdated:'2026-10-10T12:00:00Z',status:i===0?'FINISHED':'TIMED',score:{duration:'REGULAR',fullTime:{home:i===0?2:null,away:i===0?1:null}}}))};
+const testHTML=html.replace(/(<script id="bundle" type="application\/json">)[\s\S]*?(<\/script>)/,(_,before,after)=>before+JSON.stringify(bundle).replace(/<\//g,'<\\/')+after);
+const scripts=[...testHTML.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(x=>x[1]),storage=new Map(),calls=[];
+const legacy=JSON.stringify(require('./fixtures/legacy-forecast.json').archive);storage.set('football-lab-archive',legacy);
+let clock=Date.parse('2026-10-10T12:00:00Z');class Clock extends Date{constructor(...args){super(...(args.length?args:[clock]))}static now(){return clock}}
+function app(width=390,blockedStorage=false){
+ const {window,document}=parseHTML(testHTML);let active=document.body,y=150;
+ Object.defineProperty(window.HTMLSelectElement.prototype,'value',{configurable:true,get(){const o=this.querySelector('option[selected]')||this.querySelector('option');return o?.getAttribute('value')||o?.textContent||''},set(v){for(const o of this.querySelectorAll('option'))(o.getAttribute('value')||o.textContent)===String(v)?o.setAttribute('selected',''):o.removeAttribute('selected')}});
+ Object.defineProperty(window.HTMLElement.prototype,'open',{configurable:true,get(){return this.hasAttribute('open')},set(v){v?this.setAttribute('open',''):this.removeAttribute('open')}});
+ window.HTMLElement.prototype.showModal=function(){this.open=true};window.HTMLElement.prototype.close=function(){this.open=false};window.HTMLElement.prototype.focus=function(){active=this};
+ Object.defineProperty(document,'activeElement',{configurable:true,get:()=>active});
+ Object.defineProperty(window,'innerWidth',{configurable:true,value:width});Object.defineProperty(window,'scrollY',{configurable:true,get:()=>y});window.scrollTo=(_x,top)=>y=top;
+ const localStorage={getItem(k){if(blockedStorage)throw Error('Storage disabled');return storage.get(k)||null},setItem(k,v){if(blockedStorage)throw Error('Storage disabled');storage.set(k,String(v))},removeItem(k){storage.delete(k)}};
+ const location={protocol:'file:',href:'file:///football-lab.html',origin:'null'},context={window,document,localStorage,location,console,Date:Clock,Intl,crypto:webcrypto,TextEncoder,TextDecoder,URL,URLSearchParams,Blob,Response,AbortController,innerWidth:width,fetch:async url=>{calls.push(String(url));throw Error('Unexpected request')},setTimeout,clearTimeout,setInterval:()=>1,clearInterval:()=>{}};
+ window.Date=Clock;window.location=location;window.localStorage=localStorage;vm.createContext(context);
+ for(const script of scripts){vm.runInContext(script,context);for(const key of ['FootModel','FootExperiment','FootData','FootInsights','FootAnalyst','FootMarkets','FootChoices','FootOdds','FootOddsAnalysis','FootCalendar','FootWorkspace'])if(window[key])context[key]=window[key]}
+ const q=s=>document.querySelector(s),click=s=>{const el=typeof s==='string'?q(s):s;assert.ok(el,'Missing '+s);el.focus();el.dispatchEvent(new window.Event('click',{bubbles:true}))},change=(s,value)=>{const el=q(s);el.value=value;el.focus();el.dispatchEvent(new window.Event('change',{bubbles:true}))};
+ return {window,document,q,click,change,scroll:()=>y};
+}
+const text=s=>s.textContent.replace(/\s+/g,' ');
+let a=app();assert.equal(a.q('[data-calendar-view].active').dataset.calendarView,'list');assert.equal(a.q('#homeEvolution'),null);assert.equal(a.q('.dashboard-stats'),null);assert.equal(a.document.querySelectorAll('nav [data-tab]').length,4);assert.match(a.q('nav [data-tab="tracking"]').textContent,/Bilan/);
+assert.ok(a.q('#settings [data-tab="lab"]'));assert.ok(a.q('#homeAI'));assert.ok(!a.q('#homeAI').closest('details').open);assert.match(a.q('#content').textContent,/01:30/);assert.match(a.q('#content').textContent,/À confirmer/);
+a.click('nav [data-tab="matches"]');assert.equal(a.q('#fromDate').value,'2026-10-10');assert.equal(a.q('#toDate').value,'2026-10-16');assert.equal(a.document.querySelectorAll('.match-line').length,4);
+let groups=[...a.document.querySelectorAll('.calendar-day-heading time')].map(t=>t.getAttribute('datetime'));assert.deepEqual(groups,['2026-10-10','2026-10-11']);
+a.click('[data-calendar-range="today"]');let lines=[...a.document.querySelectorAll('.match-line')];assert.equal(lines.length,3);assert.equal(lines[0].querySelector('time').textContent,'01:30');assert.equal(lines[1].querySelector('time').textContent,'20:30');assert.ok(lines[2].querySelector('.match-time-unknown'));assert.match(text(lines[0]),/2 – 1/);assert.match(text(lines[0]),/Simulation rétrospective/);
+a.click('[data-calendar-view="details"]');assert.equal(storage.get(F.STORE),'details');assert.equal(a.scroll(),150);assert.equal(a.document.querySelectorAll('.calendar-detail-row').length,3);
+let row=a.q('.calendar-detail-row'),id=row.dataset.matchRow;const percentages=[...row.querySelectorAll('.calendar-prob')].map(td=>td.textContent);assert.ok(percentages.every(p=>p.includes('%')));assert.deepEqual([...row.querySelectorAll('.calendar-odds b')].map(b=>b.textContent),['—','—','—']);
+a.click(row.querySelector('td'));assert.ok(a.q('#details').open);assert.match(a.q('#dialogBody').textContent,/Analyse|Scores les plus probables/);assert.ok(a.q('#matchMarkets'));assert.ok(a.q('#matchOddsAnalysis'));assert.ok(a.q('#detailAI'));assert.equal(calls.length,0);a.click('#closeDialog');
+a.click('[data-calendar-sort="time"]');assert.equal(a.q('[data-calendar-sort="time"]').closest('th').getAttribute('aria-sort'),'descending');assert.equal(a.document.activeElement.dataset.calendarSort,'time');let sorted=[...a.document.querySelectorAll('.calendar-detail-row')];assert.equal(sorted[0].querySelector('time').textContent,'20:30');assert.ok(sorted.at(-1).querySelector('.match-time-unknown'));
+a.click('[data-calendar-sort="p1"]');sorted=[...a.document.querySelectorAll('.calendar-detail-row')];let probabilities=sorted.map(r=>parseFloat(r.querySelector('.calendar-prob').textContent.replace(',','.')));assert.deepEqual(probabilities,probabilities.slice().sort((a,b)=>b-a));assert.equal(a.document.activeElement.dataset.calendarSort,'p1');assert.equal(storage.get('football-lab-archive'),legacy);
+a.click('[data-calendar-view="cards"]');assert.equal(a.document.querySelectorAll('.card').length,3);a.click('.card [data-match]');assert.ok(a.q('#details').open);a.click('#closeDialog');
+a.click('[data-calendar-view="list"]');lines=[...a.document.querySelectorAll('.match-line')];assert.ok(lines.some(b=>b.dataset.match===id));a.click(lines.find(b=>b.dataset.match===id));assert.ok(a.q('#details').open);a.click('#closeDialog');
+a.click('[data-calendar-range="tomorrow"]');assert.equal(a.q('#fromDate').value,'2026-10-11');assert.equal(a.q('#toDate').value,'2026-10-11');assert.equal(a.document.querySelectorAll('.match-line').length,1);assert.equal(a.q('.match-line time').textContent,'01:30');
+a.click('[data-calendar-range="custom"]');assert.ok(!a.q('#dateRangeFields').hidden);a.change('#fromDate','2026-10-12');a.change('#toDate','2026-10-10');assert.match(a.q('#content').textContent,/date de début doit précéder/);assert.equal(a.document.querySelectorAll('.match-line').length,0);
+a.click('[data-mode="results"]');assert.equal(a.document.querySelectorAll('.match-line').length,1);assert.equal(a.q('#fromDate').value,'');assert.match(a.q('.match-line').textContent,/2 – 1/);
+a.click('[data-calendar-view="details"]');a=app(390);assert.equal(a.q('[data-calendar-view].active').dataset.calendarView,'details');assert.equal(storage.get('football-lab-archive'),legacy);
+a.click('nav [data-tab="matches"]');a.click('[data-calendar-range="today"]');clock=Date.parse('2026-10-11T12:00:00Z');a.click('nav [data-tab="home"]');a.click('nav [data-tab="matches"]');assert.equal(a.q('#fromDate').value,'2026-10-11');assert.equal(a.q('#toDate').value,'2026-10-11');assert.equal(a.document.querySelectorAll('.calendar-detail-row').length,1);clock=Date.parse('2026-10-10T12:00:00Z');
+storage.delete(F.STORE);a=app(1280);assert.equal(a.q('[data-calendar-view].active').dataset.calendarView,'details');storage.set(F.STORE,'invalid');a=app(390);assert.equal(a.q('[data-calendar-view].active').dataset.calendarView,'list');a=app(390,true);a.click('[data-calendar-view="cards"]');assert.ok(a.q('.card'));assert.match(a.q('#notice').textContent,/session/);
+assert.deepEqual(F.range('week','2026-10-25'),['2026-10-25','2026-10-31']);assert.deepEqual(F.range('tomorrow','2026-12-31'),['2027-01-01','2027-01-01']);assert.equal(calls.length,0);assert.equal(storage.get('football-lab-archive'),legacy);
+console.log('Calendar DOM: compact home, list/details/cards, whole-row analysis, local midnight and DST dates, sorting/focus, unknown hours, view persistence, legacy archive preservation and no provider calls passed');
