@@ -1,8 +1,18 @@
-# Football Lab 1.9.1
+# Football Lab 1.9.2
 
 Personal football probability laboratory with free local calculation, a fixed original model and an optional, chronologically tuned variant. Shared standalone HTML and Android app. OpenFootball mode needs no account or token. API-Football / API-Sports v3 is the optional connected data provider; one direct API-Sports key covers fixtures, results, match context and pre-match odds, subject to the subscription and actual coverage. Legacy Football-data.org data remains readable offline. Version 1.3 adds an optional OpenRouter explanation on explicit request; its charges and quotas depend on the selected model and key. No betting placement or staking calculation. Mobile update package: `fr.onbreax.footballlab.mobile` (separate from Polylog AI).
 
 Version 1.8.1 slightly darkens grey backgrounds, alternate rows and separators while retaining white panels. League labels are bold in the calendar, filters, grid, history and match details.
+
+## Version 1.9.2: responsive odds lookup and match charts
+
+After bulk odds loading, each displayed market used to match every odds event against the entire calendar. Validated fixture arrays now have a canonical team-pair index, and event arrays have a per-calendar match index. Ambiguous fixtures/events, provider IDs and the original kickoff tolerance still govern reconciliation. Replacing fixture or quote arrays invalidates the index; freshness is evaluated at the current time on each quote read.
+
+The app reuses its flattened calendar until a dataset changes, fits each league/cutoff/parameter combination once and reuses predictions across views and match openings. Dataset changes invalidate fits, predictions and model evaluation caches; a new UTC day changes upcoming-match cutoffs. Saved forecasts remain immutable and are indexed separately. Match opening mounts the market tables once instead of generating them twice.
+
+Match details include three small native SVG views: model 1/N/2 probabilities versus complete, fresh normalized bookmaker probabilities when available; total-goal probabilities from the same normalized 0–24 Poisson grid, with a 6+ bucket; and observed shots/corners/possession when manually loaded in the match dossier. Missing market data or statistics are explicitly absent, never inferred as zero. No chart library, automatic AI analysis, extra odds polling or chart-specific provider calls were introduced. Existing Bilan and Laboratoire evaluation curves remain available.
+
+Validation: `tests/performance.cjs` compares results against the previous matching rules. In this runtime, 30 lookups across 4,264 fixture rows and 60 odds events took 4,162.83 ms before indexing, 22.99 ms on the first indexed pass and 0.09 ms on a reused pass. Canonicalization calls fell from 2,309,310 to 8,648, then zero. This measures this particular local computation, not whole-app speed or a physical phone. `tests/performance-dom.cjs` verifies reusable fits/predictions, new-day and refreshed-data invalidation, one market mount, all charts, missing stats and absence of AI calls in browser relay / Android callback flows. `tests/charts.cjs` checks probability normalization and consistency with the model's over-2.5 estimate. Calendar, grouped odds, source integration and cost-audit regression checks remain applicable. DOM tests do not validate rendered geometry or scrolling frame rate; no physical Android device was available. Android versionCode 15 / versionName 1.9.2 retains the mobile package and signing identity.
 
 ## Version 1.9.1: grouped bookmaker odds
 

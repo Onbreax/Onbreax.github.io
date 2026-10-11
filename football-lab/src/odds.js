@@ -47,11 +47,26 @@ function sanitize(raw,league,fetchedAt=new Date().toISOString()){
   events.push({id:e.id,league,home:e.home_team,away:e.away_team,kickoff:new Date(e.commence_time).toISOString(),fetchedAt:new Date(fetchedAt).toISOString(),quotes:[...quotes.values()]});
  }return events;
 }
+// Validated row/event arrays are replaced on updates; weak indexes release old calendars.
+const fixtureIndexes=new WeakMap(),eventIndexes=new WeakMap();
+const pair=(league,home,away)=>JSON.stringify([league,canonical(home,league),canonical(away,league)]);
+function fixtures(rows){
+ if(fixtureIndexes.has(rows))return fixtureIndexes.get(rows);
+ const result=new Map();for(const m of rows){const key=pair(m.league,m.home,m.away),list=result.get(key)||[];list.push(m);result.set(key,list)}
+ fixtureIndexes.set(rows,result);return result;
+}
 function match(event,rows){
- const h=canonical(event.home,event.league),a=canonical(event.away,event.league),candidates=rows.filter(m=>m.league===event.league&&canonical(m.home,m.league)===h&&canonical(m.away,m.league)===a&&(!event.id.startsWith('api-sports:')||m.provider==='api-sports'&&m.providerId===Number(event.id.split(':')[1]))&&(m.kickoff?Math.abs(Date.parse(m.kickoff)-Date.parse(event.kickoff))<=3*3600000:m.date===event.kickoff.slice(0,10)));
+ const pool=fixtures(rows).get(pair(event.league,event.home,event.away))||[],candidates=pool.filter(m=>(!event.id.startsWith('api-sports:')||m.provider==='api-sports'&&m.providerId===Number(event.id.split(':')[1]))&&(m.kickoff?Math.abs(Date.parse(m.kickoff)-Date.parse(event.kickoff))<=3*3600000:m.date===event.kickoff.slice(0,10)));
  return candidates.length===1?candidates[0]:null;
 }
-function find(m,events,rows){const candidates=events.filter(e=>D.key(match(e,rows)||{})===D.key(m));return candidates.length===1?candidates[0]:null}
+function index(events,rows){
+ let calendars=eventIndexes.get(events);if(!calendars){calendars=new WeakMap();eventIndexes.set(events,calendars)}
+ if(calendars.has(rows))return calendars.get(rows);
+ const byMatch=new Map();let matched=0;
+ for(const e of events){const m=match(e,rows);if(!m)continue;if(e.quotes.length)matched++;const key=D.key(m);byMatch.set(key,byMatch.has(key)?null:e)}
+ const result={byMatch,matched};calendars.set(rows,result);return result;
+}
+function find(m,events,rows){return index(events,rows).byMatch.get(D.key(m))||null}
 function average(event,market,now=Date.now()){
  if(!event||!K.IDS.includes(market))return null;
  const books=event.quotes.filter(q=>q.market===market).map(({key,title,price,at})=>({key,title,price,at}));if(!books.length)return null;
@@ -93,5 +108,5 @@ function apiSports(raw,league,rows,fetchedAt=new Date().toISOString()){
   }events.push({id:'api-sports:'+id,league,home:m.home,away:m.away,kickoff:m.kickoff,fetchedAt,source:SPORTS_SOURCE,quotes:[...quotes.values()]});
  }return validateCache({version:1,events}).events;
 }
-const api={SPORTS,TTL,STORE,SPORTS_SOURCE,ttl,canonical,sanitize,apiSports,match,find,average,validateCache,merge};if(typeof module!=='undefined')module.exports=api;root.FootOdds=api;
+const api={SPORTS,TTL,STORE,SPORTS_SOURCE,ttl,canonical,sanitize,apiSports,match,find,index,average,validateCache,merge};if(typeof module!=='undefined')module.exports=api;root.FootOdds=api;
 })(typeof window!=='undefined'?window:globalThis);

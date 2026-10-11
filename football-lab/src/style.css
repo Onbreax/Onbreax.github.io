@@ -192,3 +192,16 @@
 @media(max-width:540px){nav button{font-size:11px;padding:8px 4px;min-width:0}#savedCount{display:none}.market-row,.market-header{grid-template-columns:minmax(0,1fr) 60px 54px 57px;gap:6px}.market-row{font-size:11px}.market-row button{font-size:10px;padding:5px 3px}.market-header{font-size:9px}.market-group{padding:10px}.choice-row,.confidence-card{padding:16px}.workspace-filters label{min-width:128px}.workspace-shortcuts strong{font-size:14px}.choice-intro button{font-size:12px}.confidence-values strong{font-size:23px}}
 
 .facts-panel details{border-top:1px solid var(--line);padding:12px 0}.facts-panel summary{font-weight:600;cursor:pointer}.facts-panel h4{margin:16px 0 8px}.facts-panel .section-title{align-items:center;flex-wrap:wrap;gap:10px}.facts-panel li{margin-bottom:10px}.facts-panel td,.facts-panel th{white-space:normal}.facts-panel .tablewrap{max-width:100%;overflow:auto}
+
+/* Compact charts are native SVG: no chart runtime or additional requests. */
+.match-chart{margin:18px 0;padding:16px;background:#fff;border:1px solid var(--line);border-radius:10px;min-width:0}
+.match-chart figcaption{font-size:14px;font-weight:700;margin-bottom:8px}
+.match-chart svg{display:block;width:100%;height:auto;max-width:540px;margin:auto;overflow:visible}
+.match-chart svg text{fill:var(--muted);font:11px system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.match-chart-grid{stroke:#d8e0ea;stroke-width:1}
+.match-chart .chart-model{fill:#234978}.match-chart .chart-market{fill:#86a8cd}
+.match-chart-legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:11px;color:var(--muted);margin:8px 0;overflow-wrap:anywhere}
+.match-chart-legend span{display:flex;gap:7px;align-items:center;min-width:0}
+.match-chart-legend i{display:inline-block;flex-shrink:0;width:11px;height:11px;background:#234978;border-radius:3px}
+.match-chart-legend .chart-market i{background:#86a8cd}
+@media(max-width:540px){.match-chart{padding:10px}.match-chart svg text{font-size:12px}.match-chart figcaption{font-size:13px}}
