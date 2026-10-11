@@ -19,6 +19,8 @@ Identifiant : `fr.onbreax.lotterymetrics`. Source partagée : `../lottery-metric
 
 Les statistiques descriptives et les grilles ne prédisent pas les tirages. La validation du moteur sur les quatre archives n’est pas un audit exhaustif des hypothèses du modèle de marché.
 
+Le moteur partagé 1.1.0 (11 octobre 2026) corrige le backtest chronologique, normalise le bonus de paires, étend la recherche par échanges locaux et désactive la popularité au Keno. Les p-values du backtest utilisent une convolution hypergéométrique exacte et Holm. Les explications et limites figurent dans [`../lottery-metrics-statistics.md`](../lottery-metrics-statistics.md). Regénérer les assets et reconstruire l'APK pour intégrer ce moteur dans une installation Android ; le changement du fichier HTML ne met pas à jour un APK déjà installé.
+
 ## Construire
 
 Java 17, SDK Android 35 / Build Tools 35.0.0, Gradle 8.11.1 :
@@ -42,5 +44,7 @@ FDJ, pages consultées le 7 octobre 2026 :
 - https://www.fdj.fr/jeux-de-tirage/keno/historique
 
 Tests : `tests/lottery-metrics.cjs` (parsing, dates, analyse, grilles, fusion) et `tests/lottery-mobile.cjs` (réouverture, mise à jour sans doublons, panne réseau, quota, sauvegarde/restauration, dates Excel et largeur mobile). Les tests navigateur simulent le pont Android et ne remplacent pas un essai sur téléphone.
+
+`node tests/lottery-statistics.cjs` vérifie les corrections statistiques : absence de fuite depuis les tirages futurs, recherche locale sur tous les numéros, diversité, sept tailles Keno, p-values exactes et correction des comparaisons multiples.
 
 Pour les fixtures officielles : `python3 tests/lottery-download-fixtures.py`, puis préparer les assets et lancer les deux scripts avec Node.js. Playwright est nécessaire au test mobile ; définir `CHROME_EXECUTABLE` si Chromium n’est pas installé à son emplacement par défaut.
