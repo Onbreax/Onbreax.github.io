@@ -6,7 +6,9 @@ html=(root.parent/'matchwork.html').read_text()
 assets=root/'app/src/main/assets'
 assets.mkdir(parents=True,exist_ok=True)
 icon=re.search(r'<link rel="icon"[^>]+base64,([^" ]+)',html).group(1)
-(root/'app/src/main/res/drawable/icon.png').write_bytes(base64.b64decode(icon))
+icon_path=root/'app/src/main/res/drawable/icon.png'
+icon_path.parent.mkdir(parents=True,exist_ok=True)
+icon_path.write_bytes(base64.b64decode(icon))
 html=re.sub(r'<link href="https://fonts.googleapis.com/[^>]+>','',html)
 hashes={'pdf.min.js': '5b5799e6f8c680663207ac5b42ee14eed2a406fa7af48f50c154f0c0b1566946', 'pdf.worker.min.js': 'feabdf309770ed24bba31a5467836cdc8cf639c705af27d52b585b041bb8527b'}
 for name in hashes:
