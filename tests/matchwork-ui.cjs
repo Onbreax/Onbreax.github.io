@@ -4,7 +4,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { JSDOM, VirtualConsole } = require('jsdom');
-const html = fs.readFileSync(process.argv[2] || path.join(__dirname, '../matchwork.html'), 'utf8');
+// Shared UI checks run without Android. The native protocol has its own background suite.
+const html = fs.readFileSync(process.argv[2] || path.join(__dirname, '../matchwork.html'), 'utf8')
+ .replace(/<meta name="matchwork-native" content="background-v1">/g, '');
 const script = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].at(-1)[1];
 const now = new Date().toISOString();
 const offer = (n, extra = {}) => ({ id: 'test' + n, titre: 'Responsable conformité ' + n,

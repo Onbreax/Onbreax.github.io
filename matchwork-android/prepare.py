@@ -3,6 +3,7 @@ from pathlib import Path
 import re, base64, urllib.request, hashlib
 root=Path(__file__).resolve().parent
 html=(root.parent/'matchwork.html').read_text()
+html=html.replace('<head>', '<head>\n<meta name="matchwork-native" content="background-v1">', 1)
 assets=root/'app/src/main/assets'
 assets.mkdir(parents=True,exist_ok=True)
 icon=re.search(r'<link rel="icon"[^>]+base64,([^" ]+)',html).group(1)

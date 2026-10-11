@@ -191,7 +191,7 @@
         <button data-v="recherche">Nouvelle recherche</button><button data-v="profil">Profil et cible</button>
         <button data-v="reglages">Clés et réglages</button><button data-v="marche">Statistiques</button><button data-v="aide">Aide</button>
       </nav></div>
-      <div class="foot">Matchwork 1.1.2 · Données enregistrées sur cet appareil. Les analyses IA transmettent le CV et les annonces à OpenRouter. La lecture des annonces passe par Jina.</div>
+      <div class="foot">Matchwork 1.1.3 · Données enregistrées sur cet appareil. Les analyses IA transmettent le CV et les annonces à OpenRouter. La lecture des annonces passe par Jina.</div>
     </div>
   </aside>
 
@@ -346,6 +346,11 @@
 
     <!-- REGLAGES -->
     <section id="v-reglages" class="hidden">
+      <div class="panel"><h2>Exécution des recherches</h2>
+        <p id="background-status" class="connection-state" role="status">Vérification du mode de recherche…</p>
+        <p id="background-detail" class="subtext"></p>
+        <button id="btn-battery-settings" class="btn ghost sm" data-read-ui hidden>Réglages batterie Android</button>
+      </div>
       <h1>Réglages</h1>
       <div class="panel">
         <h2>OpenRouter</h2>
@@ -545,7 +550,7 @@ function renderCosts(){["#c-session","#h-session"].forEach(s=>{const e=$(s);if(e
 function addCost(usage){const known=usage&&typeof usage.cost==="number"&&Number.isFinite(usage.cost)&&usage.cost>=0;const c=known?usage.cost:0;if(!known)costs.unpriced=(costs.unpriced||0)+1;costs.session+=c;costs.total+=c;costs.calls++;save(LS.costs,costs);renderCosts();const pr=$("#prog-right");if(pr&&!$("#prog").classList.contains("hidden"))pr.textContent=`${prog.total?Math.min(100,Math.round(100*prog.done/prog.total)):0} % · ${fmt$(costs.session)}`;return c}
 /* appel OpenRouter générique, avec comptage du coût */
 async function orChat(body){const r=await timedFetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+settings.orKey,"HTTP-Referer":"http://localhost","X-Title":"Matchwork"},body:JSON.stringify({...body,usage:{include:true}})});
- if(!r.ok)throw new Error("HTTP "+r.status+" "+(await r.text()).slice(0,160));const j=await r.json();const cost=addCost(j.usage);return {text:(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content||"").trim(),cost}}
+ if(!r.ok)throw new Error("HTTP "+r.status+" "+(await r.text()).slice(0,160));const j=await r.json();const cost=r.nativeReceipt?accountNativeReceipt(r.nativeReceipt,j.usage):addCost(j.usage);return {text:(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content||"").trim(),cost}}
 /* solde */
 let balanceRequest=0,orConnection={state:"missing",message:"Clé OpenRouter non enregistrée."};
 function connectionState(id,state,text){const e=$(id);e.dataset.state=state;e.textContent=text}
@@ -891,7 +896,7 @@ function addOffers(list,source){let added=0;const excl=$("#s-excl").value.split(
  save(LS.offers,offers);return added}
 
 /* ---------- Adzuna ---------- */
-function log(el,msg){const b=$(el);b.textContent+=(b.textContent?"\n":"")+msg;b.scrollTop=b.scrollHeight}
+function log(el,msg){const b=$(el);b.textContent+=(b.textContent?"\n":"")+msg;b.scrollTop=b.scrollHeight;if(el==="#log-search")checkpointRun()}
 function setBusy(b){["#btn-all","#btn-adzuna","#btn-web"].forEach(s=>$(s).disabled=b)}
 async function runAdzuna(){if(!settings.adId||!settings.adKey){log("#log-search","Adzuna : pas de clé renseignée, source ignorée.");return 0}
  let total=0;progSet("Adzuna",kw.length);
@@ -900,7 +905,7 @@ async function runAdzuna(){if(!settings.adId||!settings.adKey){log("#log-search"
    const list=(j.results||[]).map(x=>({id:"adz-"+x.id,titre:x.title,employeur:x.company&&x.company.display_name||"",lieu:x.location&&x.location.display_name||"",date:(x.created||"").slice(0,10),source:"Adzuna",url:x.redirect_url,description:x.description||"",salaire:x.salary_min?Math.round(x.salary_min)+" à "+Math.round(x.salary_max)+" €":""}));
    const n=addOffers(list,"Adzuna");total+=n;log("#log-search",`${k} : ${list.length} résultats, ${n} nouvelles`)}
   catch(e){recordRunError();log("#log-search",`${k} : erreur ${e.message}${/Failed to fetch|NetworkError/i.test(e.message)?" (probablement CORS : le navigateur bloque l'appel direct)":""}`)}
-  progStep(k);await new Promise(r=>setTimeout(r,400))}
+  progStep(k);await operationWait(400)}
  log("#log-search",`Adzuna : ${total} offres nouvelles.`);render();return total}
 
 /* ---------- recherche web par l'IA ---------- */
@@ -920,14 +925,15 @@ async function runWeb(){if(!settings.orKey){log("#log-search","Recherche web : c
 async function scoreNew(){persistProfileForm();const todo=offers.filter(o=>(!o.ia||o.ia.error)&&!["Écartée","Expirée"].includes(o.statut));if(!todo.length){log("#log-search","Scoring : rien de nouveau.");return}if(!settings.orKey||!profile.cv){log("#log-search","Scoring ignoré : clé OpenRouter ou CV manquant.");return}
  log("#log-search",`Scoring de ${todo.length} offres…`);progSet("Scoring",todo.length);let i=0;for(const o of todo){checkCancelled();await scoreOffer(o);i++;progStep(o.titre.slice(0,40));if(i%5===0)log("#log-search",`  ${i}/${todo.length}`)}log("#log-search",`Scoring terminé : ${todo.filter(o=>o.ia&&Number.isFinite(o.ia.score)).length} réussie(s), ${todo.filter(o=>o.ia&&o.ia.error).length} en erreur. Les erreurs sont consultables dans les fiches.`)}
 let activeRun=null;
-function checkCancelled(){if(activeRun?.stopRequested){const e=new Error("Arrêt demandé ; résultats déjà obtenus conservés.");e.name="AbortError";throw e}}
+function checkCancelled(){if(activeRun?.stopRequested||backgroundRun?.stopping){const e=new Error("Arrêt demandé ; résultats déjà obtenus conservés.");e.name="AbortError";throw e}}
 function recordRunError(){if(activeRun)activeRun.errors++}
-$("#btn-stop").onclick=()=>{if(!activeRun)return;activeRun.stopRequested=true;$("#btn-stop").disabled=true;$("#operation-hint").textContent="Arrêt demandé. L’étape en cours se termine ; les résultats obtenus seront conservés."};
+function requestRunStop(){if(!activeRun&&!backgroundRun)return;if(activeRun)activeRun.stopRequested=true;if(backgroundRun)backgroundRun.stopping=true;$("#btn-stop").disabled=true;$("#operation-hint").textContent="Arrêt demandé. L’étape en cours se termine ; les résultats obtenus seront conservés.";checkpointRun()}
+$("#btn-stop").onclick=requestRunStop;
 $("#btn-progress-dismiss").onclick=()=>{if(!operationDepth)$("#operation-status").classList.add("hidden")};
 const prog={total:0,done:0,phase:""};
 function progSet(phase,total){checkCancelled();prog.phase=phase;prog.total=total;prog.done=0;progDraw()}
 function progStep(txt){prog.done++;progDraw(txt)}
-function progDraw(txt){const el=$("#prog");el.classList.remove("hidden","done");const pct=prog.total?Math.min(100,Math.round(100*prog.done/prog.total)):0;$("#prog-bar").style.width=pct+"%";$("#prog-txt").textContent=`${prog.phase} : ${prog.done}/${prog.total}${txt?" · "+txt:""}`;$("#prog-right").textContent=`${pct} % · ${fmt$(costs.session)}`;$("#prog .bar").setAttribute("aria-valuenow",String(pct))}
+function progDraw(txt){const el=$("#prog");el.classList.remove("hidden","done");const pct=prog.total?Math.min(100,Math.round(100*prog.done/prog.total)):0;$("#prog-bar").style.width=pct+"%";$("#prog-txt").textContent=`${prog.phase} : ${prog.done}/${prog.total}${txt?" · "+txt:""}`;$("#prog-right").textContent=`${pct} % · ${fmt$(costs.session)}`;$("#prog .bar").setAttribute("aria-valuenow",String(pct));checkpointRun()}
 function progEnd(){
  const stopped=activeRun?.stopRequested,errors=activeRun?.errors||0;
  $("#prog").classList.add("done");$("#prog").classList.toggle("cancelled",!!stopped);
@@ -935,15 +941,18 @@ function progEnd(){
  $("#prog-txt").textContent=stopped?"Arrêtée · résultats conservés":errors?`Terminée avec ${errors} erreur(s) · consulte le journal`:"Terminée · résultats enregistrés";$("#prog-right").textContent=fmt$(costs.session);
  $("#operation-title").textContent=stopped?"Recherche arrêtée":"Bilan de l’opération";$("#operation-hint").textContent="Les résultats obtenus sont disponibles dans Offres. Le détail des étapes est dans le journal de recherche.";
  $("#btn-stop").hidden=true;$("#btn-progress-dismiss").hidden=false;
+ if(backgroundRun?.interrupted){$("#operation-title").textContent="Recherche interrompue par Android";$("#prog-txt").textContent="Interrompue · résultats enregistrés conservés";$("#operation-hint").textContent="Aucun appel IA n’est relancé automatiquement. Les résultats reçus restent disponibles dans Offres."}
 }
 function startRun(kind="search"){
+ runCheckpoint=null;
  persistProfileForm();activeRun={profileId:pid,kind,startedAt:new Date().toISOString(),initialIds:new Set(offers.map(o=>o.id)),errors:0,stopRequested:false};
  $("#log-search").textContent="";costs.session=0;save(LS.costs,costs);renderCosts();setBusy(true);
- $("#btn-stop").hidden=false;$("#btn-stop").disabled=false;$("#btn-progress-dismiss").hidden=true;$("#operation-status").classList.remove("hidden");$("#operation-title").textContent="Recherche en cours";$("#operation-hint").textContent="Tu peux consulter les offres. L’arrêt termine l’étape en cours et conserve les résultats.";progSet("Démarrage",1);
+ $("#btn-stop").hidden=false;$("#btn-stop").disabled=false;$("#btn-progress-dismiss").hidden=true;$("#operation-status").classList.remove("hidden");$("#operation-title").textContent="Recherche en cours";$("#operation-hint").textContent="Tu peux consulter les offres. L’arrêt termine l’étape en cours et conserve les résultats.";progSet("Démarrage",1);if(backgroundRun?.active)$("#operation-hint").textContent="Tu peux changer d’application ou éteindre l’écran. Les résultats sont enregistrés progressivement.";
 }
 function endRun(){
- progEnd();if(activeRun?.kind==="search"&&activeRun.profileId===pid){profile.lastSearch={at:activeRun.startedAt,added:offers.filter(o=>!activeRun.initialIds.has(o.id)).length,stopped:activeRun.stopRequested,errors:activeRun.errors,cost:costs.session};save(LS.profile,profile)}
- log("#log-search",`Coût communiqué de ce tour : ${fmt$(costs.session)} (total ${fmt$(costs.total)})`);activeRun=null;setBusy(false);render();refreshBalance();
+ try{
+ checkpointRun(backgroundRun?.interrupted?"interrupted":activeRun?.stopRequested?"stopped":activeRun?.errors?"error":"complete");progEnd();if(activeRun?.kind==="search"&&activeRun.profileId===pid){profile.lastSearch={at:activeRun.startedAt,added:offers.filter(o=>!activeRun.initialIds.has(o.id)).length,stopped:activeRun.stopRequested,errors:activeRun.errors,cost:costs.session};save(LS.profile,profile)}
+ log("#log-search",`Coût communiqué de ce tour : ${fmt$(costs.session)} (total ${fmt$(costs.total)})`);}finally{activeRun=null;setBusy(false);render();refreshBalance()}
 }
 $("#btn-all").onclick=async()=>{if(!prepareSearchRun())return;startRun();try{await runWeb();await runAdzuna();{const nd=dedupeAll();if(nd)log("#log-search",`${nd} doublon(s) fusionné(s).`)}if($("#s-autoverify").checked){const nv=offers.filter(o=>(!o.verif||!o.verif.etat)&&o.url&&!["Écartée","Expirée"].includes(o.statut));log("#log-search",`Vérification de ${nv.length} offres…`);progSet("Vérification",nv.length);for(const o of nv){checkCancelled();await verifyOffer(o,true);progStep(o.titre.slice(0,40))}}if($("#s-autoscore").checked)await scoreNew();log("#log-search",activeRun?.stopRequested?"Arrêt demandé. Les offres obtenues sont conservées.":"Parcours terminé. Les résultats sont disponibles dans Offres.")}finally{endRun()}};
 $("#btn-adzuna").onclick=async()=>{if(!prepareSearchRun("adzuna"))return;startRun();try{await runAdzuna();await verifyNewOffers();if($("#s-autoscore").checked)await scoreNew()}finally{endRun()}};
@@ -1265,6 +1274,8 @@ $("#btn-export").onclick=()=>download("matchwork_"+new Date().toISOString().slic
 $("#btn-export-csv").onclick=()=>{const h=["score","verdict","titre","employeur","lieu","date","source","type_entite","statut","url","notes"];const rows=offers.map(o=>h.map(k=>{let v=k==="score"?(o.ia&&o.ia.score!=null?o.ia.score:""):k==="verdict"?(o.ia&&o.ia.verdict||""):o[k]||"";return '"'+String(v).replace(/"/g,'""')+'"'}).join(";"));download("matchwork.csv","﻿"+h.join(";")+"\n"+rows.join("\n"),"text/csv")};
 
 async function timedFetch(url,options={},timeoutMs=90000){
+ checkCancelled();
+ if(backgroundRun?.active)return nativeFetch(url,options,timeoutMs);
  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),timeoutMs);
  try{return await fetch(url,{...options,signal:controller.signal})}finally{clearTimeout(timeout)}
 }
@@ -1532,6 +1543,127 @@ $("#est-delete").onclick=()=>{
 };
 renderEstSettings();
 
+/* Android bridge, progressive checkpoints, and recovery without replaying paid calls. */
+const BACKGROUND_NATIVE=!!document.querySelector('meta[name="matchwork-native"][content="background-v1"]');
+const RUN_KEY="vlcb_operation";
+let nativePort=null,nativeReady=false,nativeBatteryExempt=false,backgroundRun=null,nativeSequence=0;
+let runCheckpoint=load(RUN_KEY,null);
+const nativePending=new Map();
+function nativeSend(data){if(!nativePort)throw new Error("Le service Android n’est pas encore connecté.");nativePort.postMessage(JSON.stringify(data))}
+function nativeRequest(action,data={},timeout=15000){
+ const id="request-"+(++nativeSequence)+"-"+Date.now();
+ return new Promise((resolve,reject)=>{
+  const timer=setTimeout(()=>{nativePending.delete(id);reject(new Error("Le service Android ne répond pas. L’appel n’a pas été relancé."))},timeout);
+  nativePending.set(id,{resolve,reject,timer});
+  try{nativeSend({action,id,...data})}catch(error){clearTimeout(timer);nativePending.delete(id);reject(error)}
+ });
+}
+function renderBackgroundState(error=""){
+ const status=$("#background-status"),detail=$("#background-detail");
+ $("#btn-battery-settings").hidden=!nativeReady;
+ if(error){connectionState("#background-status","error",error);return}
+ if(!BACKGROUND_NATIVE){connectionState("#background-status","saved","Navigateur · sauvegarde progressive active");detail.textContent="L’onglet doit rester ouvert. Le navigateur peut suspendre une recherche en arrière-plan. La poursuite avec notification est disponible dans l’application Android.";return}
+ if(!nativeReady){connectionState("#background-status","pending","Connexion au service Android…");detail.textContent="La recherche démarrera après la connexion au service.";return}
+ connectionState("#background-status","ok",backgroundRun?.active?"Android · recherche active en arrière-plan":"Android · recherche en arrière-plan disponible");
+ detail.textContent="Tu peux utiliser une autre application ou éteindre l’écran pendant une recherche. Une notification permet de suivre l’avancement et d’arrêter après l’étape en cours."+(nativeBatteryExempt?"":" L’économie de batterie Android peut retarder le réseau lorsque le téléphone reste longtemps au repos.");
+}
+function accountNativeReceipt(id,usage){
+ if(!id)return addCost(usage);
+ const known=usage&&typeof usage.cost==="number"&&Number.isFinite(usage.cost)&&usage.cost>=0;
+ const amount=known?usage.cost:0;
+ if(!(costs.nativeReceipts||[]).includes(id)){
+  const next={...costs,session:costs.session+amount,total:costs.total+amount,calls:costs.calls+1,nativeReceipts:[...(costs.nativeReceipts||[]),id]};
+  if(!known)next.unpriced=(next.unpriced||0)+1;
+  save(LS.costs,next);costs=next;renderCosts();
+ }
+ nativeSend({action:"cost-ack",receipt:id});
+ return amount;
+}
+function receiveNativeMessage(data){
+ if(!data||typeof data!=="object")return;
+ if(data.type==="reply"){
+  const pending=nativePending.get(data.id);if(!pending)return;
+  clearTimeout(pending.timer);nativePending.delete(data.id);
+  if(data.ok)pending.resolve(data.value);else pending.reject(new Error(data.error||"Échec du service Android."));return;
+ }
+ if(data.type==="ready"){
+  nativeReady=true;nativeBatteryExempt=data.batteryExempt===true;
+  try{for(const receipt of data.receipts||[])if(receipt&&typeof receipt.id==="string")accountNativeReceipt(receipt.id,receipt.usage)}catch(error){nativeReady=false;renderBackgroundState("Journal des coûts : "+error.message);return}
+  if(runCheckpoint?.status==="interrupted"&&runCheckpoint.profileId===pid){runCheckpoint={...runCheckpoint,cost:costs.session};save(RUN_KEY,runCheckpoint);$("#prog-right").textContent=fmt$(costs.session)}
+  renderBackgroundState();return;
+ }
+ if(!backgroundRun||data.token!==backgroundRun.token)return;
+ if(data.type==="stop")requestRunStop();
+ if(data.type==="interrupted"){
+  backgroundRun.interrupted=true;requestRunStop();
+  $("#operation-hint").textContent=data.message||"Recherche interrompue par Android ; résultats enregistrés conservés.";
+  renderBackgroundState("Recherche interrompue par Android");
+  checkpointRun("interrupted");
+ }
+}
+window.addEventListener("message",event=>{
+ if(!BACKGROUND_NATIVE||nativePort||window!==window.top||event.data!=="matchwork:bridge:1"||!event.ports?.[0])return;
+ if(event.source&&event.source!==window)return;
+ if(event.origin&&event.origin!=="null"&&event.origin!=="https://appassets.androidplatform.net")return;
+ nativePort=event.ports[0];nativePort.onmessage=message=>{try{receiveNativeMessage(JSON.parse(message.data))}catch(error){renderBackgroundState("Connexion Android : réponse invalide.")}};
+ nativePort.start();
+ window.MatchworkNative={postMessage:text=>nativePort.postMessage(text)};
+ nativeSend({action:"ready"});
+});
+async function nativeFetch(url,options,timeout){
+ const response=await nativeRequest("fetch",{token:backgroundRun.token,url:String(url),method:options.method||"GET",headers:options.headers||{},body:options.body||"",timeout},Math.min(180000,timeout)+30000);
+ return {ok:response.status>=200&&response.status<300,status:response.status,nativeReceipt:response.receipt||"",text:async()=>response.body,json:async()=>JSON.parse(response.body)};
+}
+async function operationWait(delay){
+ if(backgroundRun?.active)return nativeRequest("wait",{token:backgroundRun.token,delay});
+ return new Promise(resolve=>setTimeout(resolve,delay));
+}
+function checkpointRun(status){
+ if(!activeRun&&!backgroundRun)return;
+ const previous=runCheckpoint;
+ runCheckpoint={version:1,id:backgroundRun?.token||previous?.id||"web-"+Date.now(),profileId:activeRun?.profileId||pid,kind:activeRun?.kind||previous?.kind||"operation",startedAt:activeRun?.startedAt||previous?.startedAt||new Date().toISOString(),updatedAt:new Date().toISOString(),status:status||(backgroundRun?.interrupted?"interrupted":previous?.status||"running"),phase:prog.phase,done:prog.done,total:prog.total,stopping:!!(activeRun?.stopRequested||backgroundRun?.stopping),errors:activeRun?.errors??previous?.errors??0,added:activeRun?offers.filter(o=>!activeRun.initialIds.has(o.id)).length:previous?.added||0,cost:costs.session,log:$("#log-search").textContent.slice(-16000)};
+ try{save(RUN_KEY,runCheckpoint)}catch(error){if(activeRun)activeRun.stopRequested=true;if(backgroundRun)backgroundRun.stopping=true;throw error}
+ if(backgroundRun?.active&&!status)nativeSend({action:"progress",token:backgroundRun.token,phase:prog.phase,done:prog.done,total:prog.total});
+}
+function restoreInterruptedRun(){
+ if(!runCheckpoint||runCheckpoint.profileId!==pid)return;
+ if(runCheckpoint.status!=="running"&&runCheckpoint.status!=="interrupted")return;
+ runCheckpoint={...runCheckpoint,status:"interrupted",updatedAt:new Date().toISOString()};save(RUN_KEY,runCheckpoint);
+ const cleaned=offers.some(o=>o.ia?.loading||o.verif?.loading);
+ offers.forEach(o=>{if(o.ia?.loading)o.ia={error:"Analyse interrompue ; aucun nouvel appel lancé."};if(o.verif?.loading)o.verif={error:"Vérification interrompue ; aucun nouvel appel lancé."}});
+ if(cleaned)save(LS.offers,offers);
+ $("#operation-status").classList.remove("hidden");$("#operation-title").textContent="Recherche précédente interrompue";
+ $("#operation-hint").textContent="Les offres et coûts reçus ont été conservés. Aucun appel IA n’est relancé automatiquement. Le coût d’une étape sans réponse reste inconnu.";
+ $("#log-search").textContent=(runCheckpoint.log||"")+"\nRecherche interrompue avant sa fin ; aucun appel relancé automatiquement.";
+ $("#prog").classList.remove("hidden");$("#prog").classList.add("done","cancelled");$("#prog-txt").textContent=(runCheckpoint.phase||"Recherche")+" : "+(runCheckpoint.done||0)+"/"+(runCheckpoint.total||0)+" · interrompue";
+ const percent=runCheckpoint.total?Math.min(100,Math.round(100*runCheckpoint.done/runCheckpoint.total)):0;
+ $("#prog-bar").style.width=percent+"%";$("#prog .bar").setAttribute("aria-valuenow",String(percent));$("#prog-right").textContent=fmt$(runCheckpoint.cost);
+ $("#btn-stop").hidden=true;$("#btn-progress-dismiss").hidden=false;
+}
+async function beginBackgroundOperation(){
+ if(!BACKGROUND_NATIVE)return;
+ if(!nativeReady)throw new Error("Le service Android n’est pas encore connecté. Aucun appel IA lancé.");
+ const token="run-"+Date.now()+"-"+Math.random().toString(36).slice(2);
+ backgroundRun={token,active:false,stopping:false,interrupted:false};
+ try{
+  await nativeRequest("begin",{token});
+  backgroundRun.active=true;runCheckpoint=null;prog.phase="Préparation";prog.done=0;prog.total=0;checkpointRun();renderBackgroundState();
+  $("#operation-hint").textContent="Tu peux changer d’application ou éteindre l’écran. Les résultats sont enregistrés progressivement.";
+ }catch(error){
+  try{nativeSend({action:"end",token,status:"interrupted"})}catch(ignored){}
+  backgroundRun=null;renderBackgroundState("Recherche non démarrée : "+error.message);throw error;
+ }
+}
+function endBackgroundOperation(error){
+ if(!backgroundRun)return;
+ const status=backgroundRun.interrupted?"interrupted":backgroundRun.stopping?"stopped":error?"error":runCheckpoint?.errors?"error":"complete";
+ let failure="";
+ try{checkpointRun(status)}catch(error){failure="L’avancement n’a pas pu être enregistré : "+error.message}
+ finally{try{nativeSend({action:"end",token:backgroundRun.token,status})}catch(error){failure="Le service Android n’a pas confirmé la fin de l’opération."}backgroundRun=null;renderBackgroundState(failure)}
+}
+$("#btn-battery-settings").onclick=()=>{if(nativeReady)nativeSend({action:"battery-settings"})};
+renderBackgroundState();
+restoreInterruptedRun();
 let operationDepth=0,lockedControls=[];
 function enterOperation(){
  operationDepth++;$("#operation-status").classList.remove("hidden");$("#btn-progress-dismiss").hidden=true;
@@ -1554,7 +1686,13 @@ for(const event of ["click","keydown","beforeinput","input","change","drop"]){do
 for(const el of document.querySelectorAll("button,input[type=file]")){
  for(const prop of ["onclick","onchange"]){const fn=el[prop];if(!fn)continue;
   if(fn.constructor.name!=="AsyncFunction"&&!["d-score","d-verify","d-emp"].includes(el.id))continue;
-  el[prop]=async function(...args){if(operationDepth)return;enterOperation();try{return await fn.apply(this,args)}catch(e){if(e.name!=="AbortError")alert("Opération interrompue : "+e.message)}finally{leaveOperation()}};
+  el[prop]=async function(...args){
+   if(operationDepth)return;enterOperation();let failure=null;
+   const longOperation=["btn-all","btn-web","btn-adzuna","btn-score-all","btn-verify-all","d-score","d-verify","d-emp","d-ats","btn-suggest","btn-cv-gen"].includes(el.id)||(el.id==="btn-manual"&&$("#manual-ai").checked);
+   try{if(longOperation)await beginBackgroundOperation();return await fn.apply(this,args)}
+   catch(e){failure=e;if(e.name!=="AbortError")alert("Opération interrompue : "+e.message)}
+   finally{try{if(longOperation)endBackgroundOperation(failure)}finally{leaveOperation()}}
+  };
  }
 }
 /* Resolve visible labels to controls; keep existing profile field ids and local data format. */
