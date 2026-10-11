@@ -171,6 +171,11 @@
    .operation-head{align-items:flex-start}#operation-status{top:4px;padding:12px}.operation-head button{font-size:12px;max-width:150px}
   }
   @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  /* Fit the detail to the available WebView window, also on older engines. */
+  .drawer{top:0;bottom:0;height:auto;max-height:none}
+  .drawer-header .btns{margin-top:8px}
+  .drawer-notice{padding:10px 12px;margin:0 0 14px;background:var(--info-bg);border-radius:6px;font-size:13px;color:var(--muted)}
+  @media(max-width:900px){.main{padding-bottom:calc(var(--mobile-nav-height,60px) + 14px + env(safe-area-inset-bottom,0px))}}
 </style>
 </head>
 <body>
@@ -191,7 +196,7 @@
         <button data-v="recherche">Nouvelle recherche</button><button data-v="profil">Profil et cible</button>
         <button data-v="reglages">Clés et réglages</button><button data-v="marche">Statistiques</button><button data-v="aide">Aide</button>
       </nav></div>
-      <div class="foot">Matchwork 1.1.3 · Données enregistrées sur cet appareil. Les analyses IA transmettent le CV et les annonces à OpenRouter. La lecture des annonces passe par Jina.</div>
+      <div class="foot">Matchwork 1.1.4 · Données enregistrées sur cet appareil. Les analyses IA transmettent le CV et les annonces à OpenRouter. La lecture des annonces passe par Jina.</div>
     </div>
   </aside>
 
@@ -213,7 +218,7 @@
       <div class="panel"><h2 id="home-profile">Ton profil</h2><div id="home-setup"></div><div style="margin-top:20px"><h2>Dernière recherche</h2><p class="subtext" id="home-last-run">Aucune recherche enregistrée pour ce profil.</p></div></div></div>
     </section>
     <section id="v-candidatures" class="hidden"><div class="section-title"><h1>Candidatures</h1><button class="btn ghost" data-v="offres">Choisir des offres</button></div>
-      <p class="subtext">Change le statut d’une offre dans sa fiche pour la retrouver ici. Le suivi est local ; aucune candidature n’est envoyée par l’application.</p>
+      <p class="subtext">Les offres que tu choisis de suivre apparaissent ici. Les suggestions de l’IA restent dans Offres ; elles ne constituent pas une sélection de ta part. Aucune candidature n’est envoyée par l’application.</p>
       <div class="panel"><label for="c-filter">Étape du suivi</label><select id="c-filter" data-read-ui><option value="">Toutes les offres suivies</option><option>À creuser</option><option>Contactée</option><option>Candidature envoyée</option><option>Entretien</option></select><p id="c-count" class="subtext" role="status"></p></div>
       <div class="panel offers-table"><div id="c-list"></div><div class="paging" id="c-paging" hidden><span id="c-page-info" class="subtext"></span><div class="btns"><button class="btn ghost sm" id="c-prev" data-read-ui>Précédent</button><button class="btn ghost sm" id="c-next" data-read-ui>Suivant</button></div></div></div>
     </section>
@@ -490,7 +495,8 @@
     </div>
   </header>
   <div class="drawer-content">
-    <section id="detail-resume" role="tabpanel" aria-labelledby="tab-resume"><div class="btns"><button class="btn" id="d-score">Analyser avec l’IA</button><button class="btn ghost" id="d-verify">Vérifier l’offre</button></div><p class="subtext">Ces actions peuvent utiliser ta clé OpenRouter. Le coût réel communiqué est enregistré.</p><div id="d-verif" class="small"></div><div id="d-ia" style="margin:18px 0"></div><h2>Texte de l’annonce</h2><div class="log" id="d-desc"></div></section>
+    <p id="d-readonly-hint" class="drawer-notice" hidden>Une opération est en cours. La fiche reste consultable ; le statut et les notes pourront être modifiés à sa fin.</p>
+    <section id="detail-resume" role="tabpanel" aria-labelledby="tab-resume"><div class="btns"><button class="btn" id="d-retain">Retenir cette offre</button><button class="btn ghost" id="d-score">Analyser avec l’IA</button><button class="btn ghost" id="d-verify">Vérifier l’offre</button></div><p class="subtext">Retenir une offre l’ajoute à ton suivi local. Les analyses et vérifications peuvent utiliser ta clé OpenRouter ; le coût communiqué est enregistré.</p><div id="d-verif" class="small"></div><div id="d-ia" style="margin:18px 0"></div><h2>Texte de l’annonce</h2><div class="log" id="d-desc"></div></section>
     <section id="detail-cv" role="tabpanel" aria-labelledby="tab-cv" hidden><h2>Lire mon CV sur cette annonce</h2><p class="subtext">L’analyse locale compare le texte du CV et celui de l’annonce. Elle ne simule pas un logiciel de recrutement réel.</p><label><input type="checkbox" id="ats-use-ai"> Ajouter une lecture IA (un appel OpenRouter)</label><div class="btns"><button class="btn" id="d-ats">Analyser le CV</button></div><div id="d-ats-out"></div></section>
     <section id="detail-employeur" role="tabpanel" aria-labelledby="tab-employeur" hidden><h2>Connaître l’employeur</h2><p class="subtext">La fiche IA recherche des informations publiques et peut être incomplète. Ton tableau établissements reste sur cet appareil.</p><div class="btns"><button class="btn" id="d-emp">Rechercher la fiche employeur (IA)</button></div><div id="d-empsheet"></div><div id="d-establishment" class="panel" style="margin-top:18px"></div></section>
     <section id="detail-suivi" role="tabpanel" aria-labelledby="tab-suivi" hidden><h2>Mon suivi</h2><p class="subtext">Le statut et les notes sont enregistrés automatiquement. Tu effectues tes démarches auprès de l’employeur séparément.</p><label for="d-statut">Statut de l’offre</label><select id="d-statut"><option>À voir</option><option>À creuser</option><option>Contactée</option><option>Candidature envoyée</option><option>Entretien</option><option>Écartée</option><option>Expirée</option></select><label for="d-notes">Mes notes</label><textarea id="d-notes" style="min-height:140px" placeholder="Contact, prochaines étapes, remarques…"></textarea><p id="d-saved" class="subtext" role="status"></p><h2 style="margin-top:24px">Historique des statuts</h2><div id="d-history"></div></section>
@@ -657,12 +663,25 @@ function renderHome(){
  $("#home-setup").querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>show(b.dataset.v));
  const last=profile.lastSearch;$("#home-last-run").textContent=last?`${new Date(last.at).toLocaleString("fr-FR")} · ${last.added} nouvelle(s) offre(s) · ${last.stopped?"arrêtée":last.errors?"avec erreurs":"terminée"} · coût communiqué ${fmt$(last.cost)}.`:"Aucune recherche enregistrée pour ce profil.";
 }
-function followedOffers(){return offers.filter(o=>["À creuser","Contactée","Candidature envoyée","Entretien"].includes(o.statut)&&(!$("#c-filter").value||o.statut===$("#c-filter").value)).sort((a,b)=>(Date.parse(b.statusAt)||Date.parse(b.ajoute)||0)-(Date.parse(a.statusAt)||Date.parse(a.ajoute)||0))}
+function hasPersonalFollow(o){return ["À creuser","Contactée","Candidature envoyée","Entretien"].includes(o.statut)}
+function followedOffers(){return offers.filter(o=>hasPersonalFollow(o)&&(!$("#c-filter").value||o.statut===$("#c-filter").value)).sort((a,b)=>(Date.parse(b.statusAt)||Date.parse(b.ajoute)||0)-(Date.parse(a.statusAt)||Date.parse(a.ajoute)||0))}
+function migrateAutomaticStatuses(){
+ let changed=false;
+ for(const o of offers){
+  const history=Array.isArray(o.statusHistory)?o.statusHistory:[],last=history.at(-1);
+  // Only undo recorded automatic changes. Keep ambiguous legacy states and annotated offers.
+  if(last?.source!=="IA"||last.statut!==o.statut||!["À creuser","Écartée"].includes(o.statut)||String(o.notes||"").trim())continue;
+  o.statut="À voir";o.statusAt=new Date().toISOString();
+  o.statusHistory=[...history,{statut:"À voir",at:o.statusAt,source:"correction"}].slice(-100);
+  changed=true;
+ }
+ if(changed)save(LS.offers,offers);
+}
 function renderCandidates(){
  const rows=followedOffers(),max=Math.max(0,Math.ceil(rows.length/PAGE_SIZE)-1);candidatePage=Math.min(candidatePage,max);
  $("#c-count").textContent=`${rows.length} offre(s) suivie(s)`;const host=$("#c-list");host.replaceChildren();
  if(!rows.length)host.innerHTML='<div class="empty">Aucune offre à cette étape. Dans une fiche, ouvre Suivi puis choisis « À creuser », « Contactée », « Candidature envoyée » ou « Entretien ».</div>';
- rows.slice(candidatePage*PAGE_SIZE,(candidatePage+1)*PAGE_SIZE).forEach(o=>{const row=document.createElement("div");row.className="candidature-row";row.innerHTML=`<div><b>${esc(o.titre)}</b><div class="muted">${esc([o.employeur,o.lieu].filter(Boolean).join(" · "))}</div><div style="margin-top:8px"><span class="pill-status">${esc(o.statut)}</span></div><div class="muted">${o.statusAt?"Statut modifié le "+new Date(o.statusAt).toLocaleDateString("fr-FR"):"Date de changement non enregistrée"}</div></div><button class="btn ghost sm" data-read-ui>Voir le suivi</button>`;row.querySelector("button").onclick=()=>{openDrawer(o);selectDetailTab("suivi")};host.append(row)});
+ rows.slice(candidatePage*PAGE_SIZE,(candidatePage+1)*PAGE_SIZE).forEach(o=>{const row=document.createElement("div");row.className="candidature-row";row.innerHTML=`<div><b>${esc(o.titre)}</b><div class="muted">${esc([o.employeur,o.lieu].filter(Boolean).join(" · "))}</div><div style="margin-top:8px"><span class="pill-status">${esc(o.statut)}</span></div><div class="muted">${o.statusAt?"Statut modifié le "+new Date(o.statusAt).toLocaleDateString("fr-FR"):"Date de changement non enregistrée"}</div></div><button class="btn ghost sm" data-read-ui>Voir le suivi</button>`;row.querySelector("button").onclick=()=>{openDrawer(o,"suivi")};host.append(row)});
  $("#c-paging").hidden=rows.length<=PAGE_SIZE;$("#c-page-info").textContent=`Page ${candidatePage+1} / ${max+1}`;$("#c-prev").disabled=candidatePage===0;$("#c-next").disabled=candidatePage===max;
 }
 $("#c-filter").onchange=()=>{candidatePage=0;renderCandidates()};$("#c-prev").onclick=()=>{candidatePage--;renderCandidates()};$("#c-next").onclick=()=>{candidatePage++;renderCandidates()};
@@ -783,7 +802,7 @@ $("#btn-wipe").onclick=()=>{if(confirm("Effacer toutes les données locales de c
 
 /* ---------- gestion des profils ---------- */
 function renderProfiles(){const l=$("#prof-list");l.innerHTML=profiles.map(p=>`<button data-pid="${esc(p.id)}" class="${p.id===pid?"active":""}">${esc(p.nom)}</button>`).join("");l.querySelectorAll("button").forEach(b=>b.onclick=()=>switchProfile(b.dataset.pid));const cur=profiles.find(p=>p.id===pid);$("#brand-sub").textContent=(cur?cur.nom:"")+(profile.domaine?" · "+profile.domaine.split(",")[0]:"")}
-function switchProfile(id){if(operationDepth)return;pid=id;save(CURRENT_KEY,pid);offers=load(LS.offers,[]);profile=load(LS.profile,{cv:"",cible:"",domaine:"",zone:"",sites:""});kw=load(LS.kw,[]);employers=load(LS.emp,{});current=null;closeDrawer();offerPage=0;candidatePage=0;fillSettings();renderKw();loadSearchFields();render();show("accueil")}
+function switchProfile(id){if(operationDepth)return;pid=id;save(CURRENT_KEY,pid);offers=load(LS.offers,[]);migrateAutomaticStatuses();profile=load(LS.profile,{cv:"",cible:"",domaine:"",zone:"",sites:""});kw=load(LS.kw,[]);employers=load(LS.emp,{});current=null;closeDrawer();offerPage=0;candidatePage=0;fillSettings();renderKw();loadSearchFields();render();show("accueil")}
 $("#prof-new").onclick=()=>{const nom=prompt("Nom du nouveau profil (ex. prénom) :");if(!nom)return;const id="p"+Date.now().toString(36);profiles.push({id,nom:nom.trim()});save(PROFILES_KEY,profiles);
  save("vlcb_"+id+"_profile",{cv:"",cible:"",domaine:"",zone:"",sites:""});save("vlcb_"+id+"_kw",[]);switchProfile(id);show("profil");$("#p-saved").textContent="Profil créé : importe un CV ou remplis les champs, puis Enregistrer."};
 $("#prof-ren").onclick=()=>{const pr=profiles.find(p=>p.id===pid);const nom=prompt("Nouveau nom :",pr.nom);if(nom){pr.nom=nom.trim();save(PROFILES_KEY,profiles);renderProfiles();$("#p-nom").value=pr.nom}};
@@ -976,7 +995,7 @@ Barème : 85 et plus = correspond à la cible sur le titre, l'entité et la char
   if(!ia||typeof ia.score!=="number"||!Number.isFinite(ia.score)||ia.score<0||ia.score>100||!["À creuser","Possible","Écarter"].includes(ia.verdict)||!Array.isArray(ia.forces)||!Array.isArray(ia.reserves))throw new Error("Réponse IA invalide : score, verdict ou arguments manquants");
   ia.evidenceChars=(o.description||"").trim().length;ia.evidenceMode=ia.evidenceChars===0?"Titre et employeur uniquement":ia.evidenceChars<800?"Description courte (moins de 800 caractères)":"Description disponible (complétude non garantie)";
   ia.at=new Date().toISOString();ia.cost=cost;ia.model=settings.orModel;o.ia=ia;
-  if(!o.type_entite&&ia.type_entite)o.type_entite=ia.type_entite;if(ia.verdict==="Écarter"&&o.statut==="À voir")setOfferStatus(o,"Écartée","IA");if(ia.verdict==="À creuser"&&o.statut==="À voir")setOfferStatus(o,"À creuser","IA")}
+  if(!o.type_entite&&ia.type_entite)o.type_entite=ia.type_entite}
  catch(e){recordRunError();o.ia={error:e.message}}
  save(LS.offers,offers);render();if(current&&current.id===o.id)renderIA(o)}
 $("#btn-dedupe").onclick=()=>{const n=dedupeAll();render();alert(n?`${n} doublon(s) fusionné(s).`:"Aucun doublon détecté.")};
@@ -1024,17 +1043,63 @@ $("#list-sort").onchange=()=>{const [key,dir]=$("#list-sort").value.split(":");s
 document.querySelectorAll("#tbl th").forEach(h=>{const b=document.createElement("button");b.dataset.readUi="";b.textContent=h.textContent;b.setAttribute("aria-label","Trier par "+h.textContent);h.replaceChildren(b);b.onclick=()=>{const k=h.dataset.k;if(sortKey===k)sortDir=-sortDir;else{sortKey=k;sortDir=k==="prio"||k==="score"||k==="date"?-1:1}offerPage=0;$("#list-sort").value=sortKey+":"+sortDir;render()}});
 
 /* ---------- drawer ---------- */
-function openDrawer(o){const wasOpen=$("#drawer").classList.contains("open");if(!wasOpen)drawerReturnFocus=document.activeElement;current=o;$("#d-titre").textContent=o.titre;$("#d-meta").innerHTML=esc([o.employeur,o.lieu,o.date,o.source,o.salaire].filter(Boolean).join("  ·  "))+((o.aussi||[]).length?`<div class="small" style="margin-top:3px">Aussi vue sur : ${o.aussi.map(a=>/^https?:/.test(a)?`<a href="${esc(a)}" target="_blank" rel="noopener">${esc(a.replace(/^https?:\/\//,"").split("/")[0])}</a>`:esc(a)).join(", ")}</div>`:"");$("#d-link").href=safeUrl(o.url)||"#";$("#d-link").style.display=safeUrl(o.url)?"":"none";$("#d-statut").value=o.statut;$("#d-notes").value=o.notes||"";$("#d-desc").textContent=o.description||"(pas de texte d'annonce)";renderIA(o);renderVerif(o);renderEmp(o);renderEstablishment(o);$("#d-ats-out").textContent=o.ats?`Dernière analyse enregistrée : ${o.ats.grade||"—"} · ${new Date(o.ats.at).toLocaleDateString("fr-FR")}. Relance pour consulter le détail.`:"Lance l’analyse pour comparer ton CV au texte de l’annonce.";
- $("#ats-use-ai").checked=false;$("#d-saved").textContent="";renderStatusHistory(o);selectDetailTab("resume");
- $("#drawer").removeAttribute("inert");$("#drawer").setAttribute("aria-hidden","false");$("#drawer").classList.add("open");$("#drawer-backdrop").hidden=false;document.querySelector(".app").inert=true;document.body.style.overflow="hidden";$("#drawer").scrollTop=0;$("#d-close").focus()}
+function safeDetailRender(selector,renderFn){
+ try{renderFn()}catch(error){
+  const panel=$(selector);
+  panel.replaceChildren();
+  const message=document.createElement("p");message.className="subtext";
+  message.textContent="Ces données enregistrées ne peuvent pas être affichées. Le suivi de l’offre reste disponible.";
+  panel.append(message);
+ }
+}
+function openDrawer(o,tab="resume"){
+ if(!o||typeof o!=="object")return;
+ const drawer=$("#drawer"),wasOpen=drawer.classList.contains("open");
+ if(!wasOpen)drawerReturnFocus=document.activeElement;
+ current=o;closeMenu();
+ $("#d-titre").textContent=o.titre||"Offre";
+ $("#d-meta").textContent=[o.employeur,o.lieu,o.date,o.source,o.salaire].filter(Boolean).join(" · ");
+ const also=Array.isArray(o.aussi)?o.aussi:[];
+ if(also.length){
+  const line=document.createElement("div");line.className="small";line.append("Aussi vue sur : ");
+  also.forEach((entry,index)=>{
+   if(index)line.append(", ");
+   const link=safeUrl(entry);
+   if(link){const a=document.createElement("a");a.href=link;a.target="_blank";a.rel="noopener";a.textContent=new URL(link).host;line.append(a)}
+   else line.append(String(entry));
+  });$("#d-meta").append(line);
+ }
+ $("#d-link").href=safeUrl(o.url)||"#";$("#d-link").style.display=safeUrl(o.url)?"":"none";
+ $("#d-statut").value=o.statut||"À voir";$("#d-notes").value=o.notes||"";
+ $("#d-desc").textContent=o.description||"(pas de texte d’annonce)";
+ $("#ats-use-ai").checked=false;$("#d-saved").textContent="";
+ $("#d-readonly-hint").hidden=!operationDepth;
+ $("#d-retain").textContent=hasPersonalFollow(o)?"Offre déjà suivie":"Retenir cette offre";
+ drawer.inert=false;drawer.removeAttribute("inert");drawer.setAttribute("aria-hidden","false");drawer.classList.add("open");
+ $("#drawer-backdrop").hidden=false;document.querySelector(".app").inert=true;document.body.style.overflow="hidden";
+ selectDetailTab(tab);drawer.scrollTop=0;
+ const target=tab==="suivi"?$("#tab-suivi"):$("#d-close");target.focus({preventScroll:true});
+}
 let drawerReturnFocus=null;
-function cleanupDrawer(){const d=$("#drawer");d.setAttribute("aria-hidden","true");d.setAttribute("inert","");$("#drawer-backdrop").hidden=true;document.querySelector(".app").inert=false;document.body.style.overflow="";if(drawerReturnFocus?.isConnected)drawerReturnFocus.focus();drawerReturnFocus=null}
+function cleanupDrawer(){const d=$("#drawer");d.setAttribute("aria-hidden","true");d.setAttribute("inert","");$("#drawer-backdrop").hidden=true;document.querySelector(".app").inert=false;document.body.style.overflow="";if(drawerReturnFocus?.isConnected)drawerReturnFocus.focus({preventScroll:true});drawerReturnFocus=null}
 function closeDrawer(){$("#drawer").classList.remove("open");cleanupDrawer()}
 new MutationObserver(()=>{if(!$("#drawer").classList.contains("open")&&$("#drawer").getAttribute("aria-hidden")==="false")cleanupDrawer()}).observe($("#drawer"),{attributes:true,attributeFilter:["class"]});
-function selectDetailTab(tab){document.querySelectorAll("[data-detail-tab]").forEach(b=>{const selected=b.dataset.detailTab===tab;b.setAttribute("aria-selected",String(selected));b.tabIndex=selected?0:-1;$("#detail-"+b.dataset.detailTab).hidden=!selected})}
+function selectDetailTab(tab){
+ if(!["resume","cv","employeur","suivi"].includes(tab))tab="resume";
+ document.querySelectorAll("[data-detail-tab]").forEach(b=>{const selected=b.dataset.detailTab===tab;b.setAttribute("aria-selected",String(selected));b.tabIndex=selected?0:-1;$("#detail-"+b.dataset.detailTab).hidden=!selected});
+ if(!current)return;
+ const o=current;
+ if(tab==="resume"){safeDetailRender("#d-ia",()=>renderIA(o));safeDetailRender("#d-verif",()=>renderVerif(o))}
+ if(tab==="employeur"){safeDetailRender("#d-empsheet",()=>renderEmp(o));safeDetailRender("#d-establishment",()=>renderEstablishment(o))}
+ if(tab==="suivi")safeDetailRender("#d-history",()=>renderStatusHistory(o));
+ if(tab==="cv"&&$("#d-ats-out").dataset.offerId!==pid+"/"+String(o.id||keyOf(o))){
+  $("#d-ats-out").dataset.offerId=pid+"/"+String(o.id||keyOf(o));
+  $("#d-ats-out").textContent=o.ats?"Dernière analyse enregistrée : "+(o.ats.grade||"—")+" · "+new Date(o.ats.at).toLocaleDateString("fr-FR")+". Relance pour consulter le détail.":"Lance l’analyse pour comparer ton CV au texte de l’annonce.";
+ }
+}
 document.querySelectorAll("[data-detail-tab]").forEach(b=>{b.onclick=()=>selectDetailTab(b.dataset.detailTab);b.onkeydown=e=>{const tabs=[...document.querySelectorAll("[data-detail-tab]")],i=tabs.indexOf(b);let next;if(e.key==="ArrowRight")next=tabs[(i+1)%tabs.length];if(e.key==="ArrowLeft")next=tabs[(i+tabs.length-1)%tabs.length];if(e.key==="Home")next=tabs[0];if(e.key==="End")next=tabs.at(-1);if(next){e.preventDefault();selectDetailTab(next.dataset.detailTab);next.focus()}}});
-function renderStatusHistory(o){const history=o.statusHistory||[];$("#d-history").innerHTML=history.length?'<ol class="timeline">'+history.slice(-25).reverse().map(h=>`<li>${esc(new Date(h.at).toLocaleString("fr-FR"))} · ${esc(h.statut)}${h.source==="IA"?" (analyse IA)":h.source==="verification"?" (vérification)":""}</li>`).join("")+'</ol>':'<p class="subtext">Les prochains changements de statut seront enregistrés ici. Aucune date passée n’est inventée.</p>'}
-function setOfferStatus(o,statut,source="manuel"){if(o.statut===statut)return;o.statut=statut;o.statusAt=new Date().toISOString();o.statusHistory=[...(o.statusHistory||[]),{statut,at:o.statusAt,source}].slice(-100);if(current?.id===o.id){$("#d-statut").value=statut;renderStatusHistory(o)}}
+function renderStatusHistory(o){const history=Array.isArray(o.statusHistory)?o.statusHistory:[];$("#d-history").innerHTML=history.length?'<ol class="timeline">'+history.slice(-25).reverse().map(h=>`<li>${esc(new Date(h.at).toLocaleString("fr-FR"))} · ${esc(h.statut)}${h.source==="IA"?" (analyse IA)":h.source==="verification"?" (vérification)":h.source==="correction"?" (suggestion IA dissociée du suivi)":""}</li>`).join("")+'</ol>':'<p class="subtext">Les prochains changements de statut seront enregistrés ici. Aucune date passée n’est inventée.</p>'}
+function setOfferStatus(o,statut,source="manuel"){if(o.statut===statut)return;o.statut=statut;o.statusAt=new Date().toISOString();o.statusHistory=[...(o.statusHistory||[]),{statut,at:o.statusAt,source}].slice(-100);if(current?.id===o.id){$("#d-statut").value=statut;$("#d-retain").textContent=hasPersonalFollow(o)?"Offre déjà suivie":"Retenir cette offre";renderStatusHistory(o)}}
 function renderIA(o){const d=$("#d-ia");if(!o.ia){d.innerHTML='<p class="muted small">Pas encore scorée.</p>';return}if(o.ia.loading){d.innerHTML='<p class="muted small">Scoring en cours…</p>';return}if(o.ia.error){d.innerHTML=`<p class="small" style="color:var(--red)">Erreur IA : ${esc(o.ia.error)}</p>`;return}
  const v=o.ia.verdict;const vc=v==="À creuser"?"s-hi":v==="Possible"?"s-mid":"s-lo";
  d.innerHTML=`<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="score ${cls(o.ia.score)}" style="font-size:18px">${o.ia.score}</span><span class="muted small">priorité ${priority(o)} (${agePenalty(o)?"-"+agePenalty(o)+" pour ancienneté"+(ageDays(o)!=null?", "+ageDays(o)+" j":""):"offre récente"})</span><span class="verdict ${vc}">${esc(v)}</span><span class="tag">${esc(o.ia.niveau||"")}</span><span class="tag">${esc(o.ia.type_entite||"")}</span><span class="tag">anglais : ${esc(o.ia.anglais||"?")}</span><span class="tag">charge : ${esc(o.ia.charge||"?")}</span></div>
@@ -1047,6 +1112,7 @@ $("#d-close").onclick=closeDrawer;$("#drawer-backdrop").onclick=closeDrawer;
 $("#d-statut").onchange=e=>{if(current){setOfferStatus(current,e.target.value);save(LS.offers,offers);$("#d-saved").textContent="Statut enregistré.";render()}};
 $("#d-notes").addEventListener("input",e=>{if(current){current.notes=e.target.value;save(LS.offers,offers);$("#d-saved").textContent="Notes enregistrées."}});
 $("#d-score").onclick=()=>{if(current)return scoreOffer(current)};
+$("#d-retain").onclick=()=>{if(!current||operationDepth)return;if(!hasPersonalFollow(current)){setOfferStatus(current,"À creuser");save(LS.offers,offers);render()}selectDetailTab("suivi");$("#d-saved").textContent="Offre ajoutée à ton suivi local. Aucune candidature n’a été envoyée."};
 document.addEventListener("keydown",e=>{
  if(e.key==="Escape"){if($("#drawer").classList.contains("open")){e.preventDefault();closeDrawer()}else closeMenu()}
  if(e.key==="Tab"&&$("#drawer").classList.contains("open")){
@@ -1301,7 +1367,7 @@ function validateOffers(list){
   for(const k of ["date","ajoute"])if(o[k]&&!Number.isFinite(Date.parse(o[k])))throw new Error("Date invalide : "+k);
   if(o.statut&&!OFFER_STATUSES.includes(o.statut))throw new Error("Statut d’offre inconnu.");
   if(o.statusAt!=null&&(typeof o.statusAt!=="string"||!Number.isFinite(Date.parse(o.statusAt))))throw new Error("Date de suivi invalide.");
-  if(o.statusHistory!=null&&(!Array.isArray(o.statusHistory)||o.statusHistory.some(h=>!isRecord(h)||!OFFER_STATUSES.includes(h.statut)||typeof h.at!=="string"||!Number.isFinite(Date.parse(h.at))||!["manuel","IA","verification"].includes(h.source))))throw new Error("Historique de suivi invalide.");
+  if(o.statusHistory!=null&&(!Array.isArray(o.statusHistory)||o.statusHistory.some(h=>!isRecord(h)||!OFFER_STATUSES.includes(h.statut)||typeof h.at!=="string"||!Number.isFinite(Date.parse(h.at))||!["manuel","IA","verification","correction"].includes(h.source))))throw new Error("Historique de suivi invalide.");
   if(o.aussi!=null&&(!Array.isArray(o.aussi)||o.aussi.some(x=>typeof x!=="string")))throw new Error("Sources secondaires invalides.");
   for(const k of ["ia","verif","ats"])if(o[k]!=null&&!isRecord(o[k]))throw new Error("Analyse invalide : "+k);
   if(o.ia){
@@ -1666,13 +1732,13 @@ renderBackgroundState();
 restoreInterruptedRun();
 let operationDepth=0,lockedControls=[];
 function enterOperation(){
- operationDepth++;$("#operation-status").classList.remove("hidden");$("#btn-progress-dismiss").hidden=true;
+ operationDepth++;$("#d-readonly-hint").hidden=false;$("#operation-status").classList.remove("hidden");$("#btn-progress-dismiss").hidden=true;
  if(!activeRun){$("#operation-title").textContent="Opération en cours";$("#operation-hint").textContent="Tu peux consulter les offres. Les modifications attendent la fin de l’opération.";$("#prog").classList.add("hidden");$("#prog").classList.remove("done","cancelled");$("#btn-stop").hidden=true}
  if(operationDepth===1){lockedControls=[...document.querySelectorAll('.app input,.app select,.app textarea,.app button,#drawer input,#drawer select,#drawer textarea,#drawer button')].filter(el=>!el.closest('[data-read-ui],[data-v]')).map(el=>[el,el.disabled]);lockedControls.forEach(([el])=>el.disabled=true)}
 }
 function leaveOperation(){
  operationDepth=Math.max(0,operationDepth-1);if(!operationDepth){
-  lockedControls.forEach(([el,disabled])=>el.disabled=disabled);lockedControls=[];$("#btn-cv-gen").disabled=!settings.orKey||!(profile.cv||"").trim();
+  lockedControls.forEach(([el,disabled])=>el.disabled=disabled);lockedControls=[];$("#d-readonly-hint").hidden=true;$("#btn-cv-gen").disabled=!settings.orKey||!(profile.cv||"").trim();
   if($("#prog").classList.contains("done"))$("#btn-progress-dismiss").hidden=false;else $("#operation-status").classList.add("hidden");renderHome();
  }
 }
@@ -1697,7 +1763,10 @@ for(const el of document.querySelectorAll("button,input[type=file]")){
 }
 /* Resolve visible labels to controls; keep existing profile field ids and local data format. */
 document.querySelectorAll("label:not([for])").forEach(label=>{if(label.querySelector("input"))return;const next=label.nextElementSibling;if(next?.matches("input[id],select[id],textarea[id]"))label.htmlFor=next.id});
-fillSettings();renderKw();loadSearchFields();renderConnectionState();setListView(listView);render();show("accueil");
+migrateAutomaticStatuses();fillSettings();renderKw();loadSearchFields();renderConnectionState();setListView(listView);render();show("accueil");
+function measureMobileNavigation(){const height=$("#primary-nav").getBoundingClientRect().height;if(height>0&&window.innerWidth<=900)document.documentElement.style.setProperty("--mobile-nav-height",height+"px")}
+if(window.ResizeObserver)new ResizeObserver(measureMobileNavigation).observe($("#primary-nav"));
+window.addEventListener("resize",measureMobileNavigation);measureMobileNavigation();
 </script>
 </body>
 </html>

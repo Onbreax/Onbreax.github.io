@@ -8,6 +8,14 @@ public final class MatchworkAndroidStateTest {
   if (!condition) throw new AssertionError(message);
  }
  public static void main(String[] args) throws Exception {
+  check(InsetsPolicy.bottom(48, 0) == 48, "only navigation reserved with keyboard hidden");
+  check(InsetsPolicy.bottom(48, 300) == 300, "keyboard overlaps navigation, not added to it");
+  check(InsetsPolicy.bottom(48, 0) == 48, "keyboard hide removes old bottom space immediately");
+  check(InsetsPolicy.bottom(0, 0) == 0, "no empty strip in a window without insets");
+  check(InsetsPolicy.bottom(0, 300) == 300, "floating window keyboard inset supported");
+  check(InsetsPolicy.bottom(-1, -1) == 0, "no negative padding");
+  check(InsetsPolicy.bottom(48, 300, false) == 48, "hidden keyboard cannot retain its last reported height");
+  check(InsetsPolicy.bottom(48, 300, true) == 300, "visible keyboard keeps editable fields above IME");
   OperationState state = new OperationState();
   check(!state.begin(null), "invalid token refused");
   check(state.begin("first"), "first operation starts");

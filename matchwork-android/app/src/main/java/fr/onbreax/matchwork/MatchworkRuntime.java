@@ -24,6 +24,7 @@ final class MatchworkRuntime {
  final OperationState state = new OperationState();
  final NativeHttp http;
  WebView web;
+ private MutableContextWrapper viewContext;
  MainActivity host;
  private WebMessagePort channel;
  private String startRequest;
@@ -34,9 +35,10 @@ final class MatchworkRuntime {
    && (uri.getPort() == -1 || uri.getPort() == 443) && uri.getUserInfo() == null && "/assets/index.html".equals(uri.getPath());
  }
  WebView view(MainActivity activity) {
-  host = activity;
+  attach(activity);
   if (web != null) return web;
-  web = new WebView(context);
+  viewContext = new MutableContextWrapper(activity);
+  web = new WebView(viewContext);
   WebSettings settings = web.getSettings();
   settings.setJavaScriptEnabled(true); settings.setDomStorageEnabled(true);
   settings.setAllowFileAccess(false); settings.setAllowContentAccess(true);
@@ -102,7 +104,8 @@ final class MatchworkRuntime {
  private WebResourceResponse unavailable() {
   return new WebResourceResponse("text/plain", "UTF-8", 404, "Not Found", new HashMap<>(), new ByteArrayInputStream(new byte[0]));
  }
- void detach(MainActivity activity) { if (host == activity) host = null; }
+ void attach(MainActivity activity) { host = activity; if (viewContext != null) viewContext.setBaseContext(activity); }
+ void detach(MainActivity activity) { if (host == activity) { host = null; if (viewContext != null) viewContext.setBaseContext(context); } }
  private void closeChannel() { if (channel != null) { try { channel.close(); } catch (Exception ignored) { } channel = null; } }
  void openExternal(Uri uri) {
   if (!"https".equals(uri.getScheme()) && !"http".equals(uri.getScheme())) return;

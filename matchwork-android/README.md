@@ -3,6 +3,17 @@
 Application personnelle Android 8+ contenant le code de `../matchwork.html`.
 Pas de chargement de l'interface depuis GitHub Pages. Internet reste nécessaire pour OpenRouter, Adzuna et Jina. Le lecteur PDF est embarqué.
 
+## Version 1.1.4
+
+- Android 11+ : le conteneur réserve une seule fois les barres système, l’encoche et le clavier. Les insets traités sont remis à zéro et transmis à la WebView, au lieu de bloquer les mises à jour par consommation. Quand le clavier devient invisible, son ancienne hauteur est ignorée. Les anciennes versions gardent le redimensionnement système.
+- Le moteur WebView conserve la recherche en arrière-plan, avec un contexte d’Activity lorsqu’il est affiché et un contexte application lorsqu’il est détaché. Le fond est clair et les icônes des barres système sont sombres.
+- La fiche s’ouvre directement dans l’onglet demandé. Les données IA, employeur et établissement sont rendues séparément ; une ancienne analyse invalide n’empêche pas l’ouverture du suivi.
+- Le verdict IA ne modifie plus le statut personnel. Le bouton « Retenir cette offre » ajoute explicitement une offre au suivi local, sans appel API ni envoi de candidature.
+- Les anciens changements automatiques « À creuser » / « Écartée » sont corrigés uniquement lorsque la dernière entrée d’historique porte l’origine IA, sans notes personnelles. L’historique et les verdicts restent conservés. Les choix manuels, les états d’origine inconnue et les offres annotées ne sont pas modifiés.
+- La fiche reste consultable pendant une recherche ; un message explique que le statut et les notes sont modifiables à sa fin. La marge sous les pages mobiles suit la hauteur réelle de la navigation.
+
+Les tests DOM couvrent l’ouverture directe du suivi, le retour à la liste, les données partielles, les choix manuels et les sauvegardes. Les tests JVM couvrent le calcul des marges à l’apparition et à la disparition du clavier. L’affichage réel Android et les interactions clavier restent à vérifier sur téléphone.
+
 ## Version 1.1.3
 
 - Recherche poursuivie lorsque l’Activity passe en arrière-plan : le moteur partagé appartient au contexte application et reste conservé quand son écran est détruit. Le service Android `dataSync`, lancé depuis une action visible, accompagne uniquement l’opération en cours.
@@ -42,7 +53,7 @@ Les appels de test sont simulés et les sources Android sont compilées. L’ex�
 
 L’identifiant d’application, l’origine WebView et les clés de stockage sont conservés. Installer l’APK signée avec la même clé par-dessus une version précédente permet de conserver les données Android ; ne pas désinstaller avant la mise à jour. Les anciens statuts sans date restent affichés sans inventer d’historique.
 
-La version 1.1.3 recompile les composants Android et embarque le HTML partagé. L’origine WebView reste `https://appassets.androidplatform.net/assets/index.html` et l’identifiant d’application reste identique. Le canal natif utilise les ports de messages de la plateforme Android, remis uniquement à cette page, avec les frames externes bloquées.
+La version 1.1.4 recompile les composants Android et embarque le HTML partagé. L’origine WebView reste `https://appassets.androidplatform.net/assets/index.html` et l’identifiant d’application reste identique. Le canal natif utilise les ports de messages de la plateforme Android, remis uniquement à cette page, avec les frames externes bloquées.
 
 ## Construire
 
@@ -71,6 +82,7 @@ Depuis la racine du dépôt, avec Node.js 20+ :
 npm install --no-save jsdom@26.1.0
 node tests/matchwork-ui.cjs
 node tests/matchwork-background.cjs
+node tests/matchwork-follow.cjs
 ```
 
 Les tests couvrent la migration des anciennes données, la navigation, les filtres, la pagination, le suivi et les sauvegardes, le nettoyage au retour Android, les erreurs et réponses tardives du solde, l’absence d’appel IA lors d’une analyse locale, l’isolation des résultats asynchrones et l’arrêt des recherches. Aucune clé réelle ni aucun appel facturé n’est utilisé.

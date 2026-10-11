@@ -23,20 +23,59 @@ public class MainActivity extends Activity {
  private final Handler handler = new Handler(Looper.getMainLooper());
  @Override public void onCreate(Bundle state) {
   super.onCreate(state); runtime = MatchworkRuntime.get(this);
-  root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setBackgroundColor(0xfff4f6f9);
-  root.setOnApplyWindowInsetsListener((view, insets) -> {
-   view.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
-   return insets.consumeSystemWindowInsets();
-  });
-  setContentView(root); restoreEngine();
+  root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setBackgroundColor(0xffe9edf2);
+  root.setOnApplyWindowInsetsListener((view, insets) -> applySafeInsets(view, insets));
+  setContentView(root); configureWindow(); restoreEngine();
  }
  void restoreEngine() {
   web = runtime.view(this);
   if (web.getParent() instanceof ViewGroup) ((ViewGroup) web.getParent()).removeView(web);
   root.addView(web, new LinearLayout.LayoutParams(-1, -1)); web.onResume();
+  root.requestApplyInsets();
  }
  boolean isVisible() { return visible; }
- @Override protected void onResume() { super.onResume(); visible = true; runtime.host = this; if (web != null) web.onResume(); }
+ @Override protected void onResume() { super.onResume(); visible = true; runtime.attach(this); if (web != null) web.onResume(); root.requestApplyInsets(); }
+ private void configureWindow() {
+  Window window = getWindow();
+  window.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0xffe9edf2));
+  window.setStatusBarColor(android.graphics.Color.TRANSPARENT);
+  window.setNavigationBarColor(android.graphics.Color.TRANSPARENT);
+  if (Build.VERSION.SDK_INT >= 29) { window.setNavigationBarContrastEnforced(false); window.setStatusBarContrastEnforced(false); }
+  if (Build.VERSION.SDK_INT >= 30) {
+   window.setDecorFitsSystemWindows(false);
+   // The native container sizes for IME exactly once; WebView receives zeroed IME insets.
+   window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+   WindowInsetsController controller = window.getInsetsController();
+   if (controller != null) {
+    int light = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+    controller.setSystemBarsAppearance(light, light);
+   }
+  } else {
+   window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+   window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+  }
+ }
+ private WindowInsets applySafeInsets(View view, WindowInsets insets) {
+  if (Build.VERSION.SDK_INT >= 30) {
+   int safeTypes = WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout();
+   android.graphics.Insets safe = insets.getInsets(safeTypes);
+   android.graphics.Insets ime = insets.getInsets(WindowInsets.Type.ime());
+   view.setPadding(safe.left, safe.top, safe.right, InsetsPolicy.bottom(safe.bottom, ime.bottom, insets.isVisible(WindowInsets.Type.ime())));
+   // Do not consume: zero the dimensions handled here, and deliver subsequent hide updates.
+   return new WindowInsets.Builder(insets)
+    .setInsets(safeTypes | WindowInsets.Type.ime(), android.graphics.Insets.NONE)
+    .setInsetsIgnoringVisibility(safeTypes, android.graphics.Insets.NONE)
+    .setDisplayCutout(null).setSystemWindowInsets(android.graphics.Insets.NONE).build();
+  }
+  int left = insets.getStableInsetLeft(), top = insets.getStableInsetTop(), right = insets.getStableInsetRight();
+  if (Build.VERSION.SDK_INT >= 28 && insets.getDisplayCutout() != null) {
+   DisplayCutout cutout = insets.getDisplayCutout();
+   left = Math.max(left, cutout.getSafeInsetLeft()); top = Math.max(top, cutout.getSafeInsetTop()); right = Math.max(right, cutout.getSafeInsetRight());
+  }
+  // Older Android already resizes the window for IME; only reserve its stable bars here.
+  view.setPadding(left, top, right, insets.getStableInsetBottom());
+  return insets.replaceSystemWindowInsets(0, 0, 0, 0);
+ }
  @Override protected void onPause() {
   visible = false;
   // Keep active JS alive; the service owns network calls and a bounded CPU wake lock.
