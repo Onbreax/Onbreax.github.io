@@ -47,7 +47,7 @@ async function main() {
  assert.equal(a.get('#v-accueil').classList.contains('hidden'), false);
  assert.equal(a.get('#drawer').getAttribute('aria-hidden'), 'true');
  assert.equal(a.get('#home-total').textContent, '1');
- assert.equal(a.get('#h-balance').textContent, '—');
+ assert.equal(a.get('#h-balance').textContent, 'À connecter');
  a.run('show("offres")');
  a.get('#f-text').value = 'aucun résultat'; a.run('render()');
  assert.match(a.get('#empty').textContent, /Aucune offre ne correspond/);
@@ -99,24 +99,27 @@ async function main() {
 
  // Ordinary inference keys are checked independently of management-only account credits.
  for (const [data, status, expected, pattern] of [
-  [{ error: { message: 'Invalid key' } }, 401, 'Indisponible', /Clé refusée/],
-  [{ data: {} }, 200, 'Indisponible', /informations valides/],
-  [{ data: { usage: '3.25' } }, 200, 'Indisponible', /informations valides/],
-  [{ error: {} }, 403, 'Indisponible', /Accès refusé/],
-  [{ error: {} }, 429, 'Indisponible', /Trop de demandes/],
-  [{ data: { usage: 3.25, is_management_key: true } }, 200, 'Indisponible', /champ facultatif/],
-  [{ data: { usage: 3.25, expires_at: '2020-01-01T00:00:00Z' } }, 200, 'Indisponible', /expiré/],
+  [{ error: { message: 'Invalid key' } }, 401, '—', /Clé refusée/],
+  [{ data: {} }, 200, '—', /informations valides/],
+  [{ data: { usage: '3.25' } }, 200, '—', /informations valides/],
+  [{ error: {} }, 403, '—', /Accès refusé/],
+  [{ error: {} }, 429, '—', /Trop de demandes/],
+  [{ data: { usage: 3.25, is_management_key: true } }, 200, '—', /champ des crédits/],
+  [{ data: { usage: 3.25, expires_at: '2020-01-01T00:00:00Z' } }, 200, '—', /expiré/],
   [{ data: { usage: 0, limit: 0, limit_remaining: 0 } }, 200, '0,00 $', /Clé IA active/],
   [{ data: { usage: 3.25, limit: 12, limit_remaining: 8.75 } }, 200, '8,75 $', /Clé IA active/],
-  [{ data: { usage: 3.25, limit: null, limit_remaining: null } }, 200, 'Clé active', /Clé IA active/]
+  [{ data: { usage: 3.25, limit: null, limit_remaining: null } }, 200, 'Sans plafond défini', /Clé IA active/],
+  [{ data: { usage: 300, limit: 100, limit_reset: 'monthly' } }, 200, 'Non communiqué', /Clé IA active/]
  ]) {
   a = app({ vlcb_settings: { orKey: 'mock-key' } }, () => reply(data, status));
-  await settle(); assert.equal(a.get('#h-balance').textContent, expected);
+  await settle(); assert.equal(a.get('#or-key-budget').textContent, expected);
+  assert.equal(a.get('#h-balance').textContent, 'À connecter', 'key allowance never replaces account credits in the header');
   assert.match(a.get('#or-connection').textContent, pattern);
   assert.equal(a.calls.every(c => c.url.endsWith('/key')), true, 'no account or paid call with an ordinary key');
-  assert.equal(a.get('#or-balance').textContent, 'Non accessible', 'key budget is not presented as account balance');
-  if (expected === '8,75 $') assert.equal(a.get('#h-balance-label').textContent, 'Budget de la clé');
-  if (expected === 'Clé active') assert.equal(a.get('#or-key-budget').textContent, 'Sans plafond défini');
+  assert.equal(a.get('#or-balance').textContent, 'À connecter', 'key budget is not presented as account balance');
+  assert.equal(a.get('#h-balance-label').textContent, 'Crédits OpenRouter');
+  assert.equal(a.get('#or-key-details').open, false, 'key allowance stays in collapsed details');
+  assert.equal(a.get('#or-account-setup').open, true, 'account credit setup is visible when management key is missing');
   await a.close();
  }
 
@@ -124,6 +127,7 @@ async function main() {
   [{ error: { message: 'Only management keys can perform this operation' } }, 403, 'Indisponible'],
   [{ error: {} }, 401, 'Indisponible'],
   [{ data: {} }, 200, 'Indisponible'],
+  [{ data: { total_credits: '30', total_usage: 8 } }, 200, 'Indisponible'],
   [{ data: { total_credits: 0, total_usage: 0 } }, 200, '0,00 $'],
   [{ data: { total_credits: 12, total_usage: 3.25 } }, 200, '8,75 $']
  ]) {
@@ -134,11 +138,39 @@ async function main() {
   await settle(); assert.equal(a.get('#or-balance').textContent, expected);
   assert.equal(a.get('#or-connection').dataset.state, 'ok', 'account balance failure never rejects a valid inference key');
   assert.equal(a.get('#or-key-usage').textContent, '3,250 $');
-  assert.equal(a.get('#h-balance').textContent, expected === 'Indisponible' ? 'Clé active' : expected);
+  assert.equal(a.get('#h-balance').textContent, expected, 'header shows only actual account credits or their error state');
   assert.equal(a.calls.some(c => c.url.endsWith('/chat/completions')), false, 'verification is not an inference call');
   assert.doesNotMatch(a.run('JSON.stringify(makeBackup())'), /inference-key|management-key/, 'both credentials excluded from backups');
   await a.close();
  }
+
+ // Different account balance, key allowance and local spending must never be conflated.
+ a = app({ vlcb_settings: { orKey: 'inference-key', orCreditsKey: 'management-key' }, vlcb_costs: { session: 0, total: 1, calls: 2 } }, url => {
+  if (url.endsWith('/key')) return keyReply({ usage: 8, limit: 100, limit_remaining: 92 });
+  return reply({ data: { total_credits: 30, total_usage: 8 } });
+ });
+ await settle(); assert.equal(a.get('#h-balance').textContent, '22,00 $');
+ assert.equal(a.get('#or-balance').textContent, '22,00 $');
+ assert.equal(a.get('#or-account-total').textContent, '30,00 $');
+ assert.equal(a.get('#or-account-usage').textContent, '8,000 $');
+ assert.equal(a.get('#or-key-limit').textContent, '100,00 $');
+ assert.equal(a.get('#or-key-budget').textContent, '92,00 $');
+ assert.equal(a.get('#h-total').textContent, '1,000 $', 'local app cost is separate from account consumption');
+ assert.equal(a.get('#or-account-setup').open, false); await a.close();
+
+ a = app({ vlcb_settings: { orKey: 'inference-key', orCreditsKey: 'management-key' } }, url => {
+  if (url.endsWith('/key')) return keyReply({ limit: 100, limit_remaining: 92 });
+  return reply({ error: {} }, 403);
+ });
+ await settle(); assert.equal(a.get('#or-key-budget').textContent, '92,00 $');
+ assert.equal(a.get('#h-balance').textContent, 'Indisponible', 'account error never falls back to the key allowance');
+ assert.equal(a.get('#or-account-total').textContent, '—'); await a.close();
+
+ a = app({ vlcb_settings: { orCreditsKey: 'management-key' } }, url => {
+  assert.match(url, /\/credits$/); return reply({ data: { total_credits: 30, total_usage: 8 } });
+ });
+ await settle(); assert.equal(a.get('#h-balance').textContent, '22,00 $');
+ assert.equal(a.get('#or-connection').dataset.state, 'missing'); await a.close();
 
  a = app({ vlcb_settings: { orKey: 'old-key', adId: 'saved-ad-id', adKey: 'saved-ad-key', orModel: 'saved-model' } }, () => keyReply());
  await settle(); a.get('#or-key').value = 'new-key'; a.get('#or-key').dispatchEvent(new a.w.Event('input'));
@@ -163,9 +195,22 @@ async function main() {
   return keyReply({ limit: 8, limit_remaining: 7 });
  });
  a.get('#or-key').value = 'new-key'; await a.get('#btn-or-save').onclick();
- assert.equal(a.get('#h-balance').textContent, '7,00 $');
+ assert.equal(a.get('#or-key-budget').textContent, '7,00 $');
+ assert.equal(a.get('#h-balance').textContent, 'À connecter');
  releaseKey(keyReply({ limit: 90, limit_remaining: 90 })); await settle();
- assert.equal(a.get('#h-balance').textContent, '7,00 $', 'late response from old inference key ignored'); await a.close();
+ assert.equal(a.get('#or-key-budget').textContent, '7,00 $', 'late response from old inference key ignored');
+ assert.equal(a.get('#h-balance').textContent, 'À connecter'); await a.close();
+
+ let releaseSlowKey;
+ a = app({ vlcb_settings: { orKey: 'slow-inference-key', orCreditsKey: 'management-key' } }, url => {
+  if (url.endsWith('/key')) return new Promise(resolve => { releaseSlowKey = resolve; });
+  return reply({ data: { total_credits: 30, total_usage: 8 } });
+ });
+ await settle(); assert.equal(a.get('#h-balance').textContent, '22,00 $', 'account credits do not wait for a slow inference key');
+ assert.equal(a.get('#or-connection').dataset.state, 'pending');
+ releaseSlowKey(reply({ error: {} }, 401)); await settle();
+ assert.equal(a.get('#or-connection').dataset.state, 'error');
+ assert.equal(a.get('#h-balance').textContent, '22,00 $', 'invalid inference key does not alter valid account credits'); await a.close();
 
  let releaseCredits;
  a = app({ vlcb_settings: { orKey: 'inference-key', orCreditsKey: 'old-management-key' } }, (url, options) => {
@@ -178,12 +223,13 @@ async function main() {
  releaseCredits(reply({ data: { total_credits: 90, total_usage: 0 } })); await settle();
  assert.equal(a.get('#h-balance').textContent, '7,00 $', 'late account response from old management key ignored');
  a.get('#or-credits-key').value = ''; await a.get('#btn-or-save').onclick();
- assert.equal(a.get('#h-balance').textContent, 'Clé active', 'removing management key clears the obsolete account balance');
+ assert.equal(a.get('#h-balance').textContent, 'À connecter', 'removing management key clears the obsolete account balance');
+ assert.equal(a.get('#or-account-total').textContent, '—');
  await a.close();
 
  a = app({ vlcb_settings: { orKey: 'mock-key' } }, () => { throw new Error('connection failed'); });
  await settle(); assert.equal(a.get('#or-connection').dataset.state, 'error');
- assert.equal(a.get('#h-balance').textContent, 'Indisponible'); await a.close();
+ assert.equal(a.get('#h-balance').textContent, 'À connecter'); await a.close();
 
  // The timeout covers the JSON body too, not only the response headers.
  a = app({ vlcb_settings: { orKey: 'mock-key' } }, (_url, options) => ({ ok: true, status: 200,
@@ -193,7 +239,17 @@ async function main() {
   const original = w.setTimeout.bind(w); w.setTimeout = (fn, delay) => original(fn, delay === 20000 ? 1 : delay);
  });
  await settle(); assert.match(a.get('#or-connection').textContent, /20 secondes/);
- assert.equal(a.get('#h-balance').textContent, 'Indisponible'); await a.close();
+ assert.equal(a.get('#h-balance').textContent, 'À connecter'); await a.close();
+
+ a = app({ vlcb_settings: { orKey: 'inference-key', orCreditsKey: 'management-key' } }, (url, options) => {
+  if (url.endsWith('/key')) return keyReply({ limit: 100, limit_remaining: 92 });
+  return { ok: true, status: 200, json: () => new Promise((_resolve, reject) => options.signal.addEventListener('abort', () => {
+   const error = new Error('aborted credits body'); error.name = 'AbortError'; reject(error);
+  }, { once: true })) };
+ }, w => { const original = w.setTimeout.bind(w); w.setTimeout = (fn, delay) => original(fn, delay === 20000 ? 1 : delay); });
+ await settle(); assert.match(a.get('#or-credit-status').textContent, /20 secondes/);
+ assert.equal(a.get('#h-balance').textContent, 'Indisponible');
+ assert.equal(a.get('#or-key-budget').textContent, '92,00 $'); await a.close();
 
  a = app({ vlcb_settings: { orKey: 'inference-key', orCreditsKey: 'management-key' } }, url => {
   if (url.endsWith('/key')) return keyReply();

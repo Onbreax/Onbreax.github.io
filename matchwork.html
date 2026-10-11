@@ -191,14 +191,14 @@
         <button data-v="recherche">Nouvelle recherche</button><button data-v="profil">Profil et cible</button>
         <button data-v="reglages">Clés et réglages</button><button data-v="marche">Statistiques</button><button data-v="aide">Aide</button>
       </nav></div>
-      <div class="foot">Matchwork 1.1.1 · Données enregistrées sur cet appareil. Les analyses IA transmettent le CV et les annonces à OpenRouter. La lecture des annonces passe par Jina.</div>
+      <div class="foot">Matchwork 1.1.2 · Données enregistrées sur cet appareil. Les analyses IA transmettent le CV et les annonces à OpenRouter. La lecture des annonces passe par Jina.</div>
     </div>
   </aside>
 
   <main class="main">
     <div id="storage-warning" class="panel hidden" role="alert" style="border-color:var(--red)"></div>
     <header class="topbar">
-      <div class="account"><div><span id="h-balance-label">OpenRouter</span><b id="h-balance" role="status">—</b></div><div><span>Depuis le dernier lancement</span><b id="h-session">0,000 $</b></div><div class="lifetime"><span>Total enregistré</span><b id="h-total">0,000 $</b></div></div>
+      <div class="account"><div><span id="h-balance-label">Crédits OpenRouter</span><b id="h-balance" role="status">À connecter</b></div><div><span>Depuis le dernier lancement</span><b id="h-session">0,000 $</b></div><div class="lifetime"><span>Total enregistré</span><b id="h-total">0,000 $</b></div></div>
       <button class="btn" data-v="recherche">Nouvelle recherche</button>
     </header>
     <div id="operation-status" class="panel hidden">
@@ -350,10 +350,9 @@
       <div class="panel">
         <h2>OpenRouter</h2>
         <div class="row r2">
-          <div><label for="or-key">Clé API pour l’IA</label><input type="password" id="or-key" autocomplete="off" aria-describedby="or-connection" placeholder="sk-or-…"><div class="btns"><button class="btn sm" id="btn-or-save">Enregistrer et vérifier</button></div><div id="or-connection" class="connection" role="status">Clé OpenRouter non enregistrée.</div></div>
-          <div><label>Solde du compte OpenRouter</label><div style="display:flex;gap:8px;align-items:center"><span id="or-balance" style="font-size:20px;font-weight:700">—</span><button class="btn ghost sm" id="btn-balance" data-read-ui>Actualiser</button></div><p class="subtext" id="or-credit-status" role="status"></p><p class="small"><b>Budget restant de la clé :</b> <span id="or-key-budget">—</span><br><b>Utilisation totale de cette clé :</b> <span id="or-key-usage">—</span></p><a href="https://openrouter.ai/settings/credits" target="_blank" rel="noopener noreferrer">Voir mon solde sur OpenRouter</a></div>
+          <div><label>Crédits disponibles sur le compte</label><div style="display:flex;gap:8px;align-items:center"><span id="or-balance" style="font-size:24px;font-weight:700" role="status">À connecter</span><button class="btn ghost sm" id="btn-balance" data-read-ui>Actualiser</button></div><p class="subtext" id="or-credit-status" role="status"></p><p class="small"><b>Crédits ajoutés au compte (cumul) :</b> <span id="or-account-total">—</span><br><b>Consommation du compte (cumul) :</b> <span id="or-account-usage">—</span></p><a href="https://openrouter.ai/settings/credits" target="_blank" rel="noopener noreferrer">Voir mes crédits sur OpenRouter</a><details id="or-account-setup" style="margin:12px 0"><summary>Connecter les crédits de mon compte</summary><p class="subtext">Pour afficher tes crédits disponibles, OpenRouter demande une clé de gestion distincte de la clé IA. Elle reste sur cet appareil, sert uniquement à lire les crédits et n’est jamais utilisée pour l’IA ni incluse dans les sauvegardes.</p><label for="or-credits-key">Clé de gestion pour les crédits</label><input type="password" id="or-credits-key" autocomplete="off" placeholder="Clé de gestion OpenRouter" aria-describedby="or-credit-status"><p class="subtext"><a href="https://openrouter.ai/settings/management-keys" target="_blank" rel="noopener noreferrer">Gérer les clés de gestion OpenRouter</a> · Après saisie, appuie sur « Actualiser ».</p></details></div>
+          <div><label for="or-key">Clé API pour l’IA</label><input type="password" id="or-key" autocomplete="off" aria-describedby="or-connection" placeholder="sk-or-…"><div class="btns"><button class="btn sm" id="btn-or-save">Enregistrer et vérifier</button></div><div id="or-connection" class="connection" role="status">Clé OpenRouter non enregistrée.</div><details id="or-key-details" data-read-ui style="margin:12px 0"><summary>Plafond et consommation de la clé</summary><p class="small"><b>Plafond de dépenses :</b> <span id="or-key-limit">—</span><br><b>Dépenses encore autorisées :</b> <span id="or-key-budget">—</span><br><b>Consommation de cette clé (cumul) :</b> <span id="or-key-usage">—</span></p><p class="subtext">Le plafond limite les dépenses autorisées avec cette clé. Il ne détermine pas le montant des crédits disponibles sur ton compte.</p></details></div>
         </div>
-        <details style="margin:12px 0"><summary>Afficher le solde global dans l’application (facultatif)</summary><p class="subtext">OpenRouter réserve le solde du compte aux clés de gestion. Ta clé IA suffit pour les recherches et analyses. La clé de gestion reste sur cet appareil, sert uniquement à lire le solde et n’est jamais utilisée pour l’IA ni incluse dans les sauvegardes.</p><label for="or-credits-key">Clé de gestion pour le solde</label><input type="password" id="or-credits-key" autocomplete="off" placeholder="Facultatif" aria-describedby="or-credit-status"><p class="subtext"><a href="https://openrouter.ai/settings/management-keys" target="_blank" rel="noopener noreferrer">Gérer les clés de gestion OpenRouter</a> · Après saisie, appuie sur « Actualiser ».</p></details>
         <label>Préréglages</label>
         <div class="btns" style="margin-top:0" id="presets">
           <button class="btn ghost sm" data-p="eco">Économique</button>
@@ -572,38 +571,39 @@ async function readOrAccount(endpoint,key){
 async function refreshBalance(){
  const request=++balanceRequest,key=settings.orKey,creditsKey=settings.orCreditsKey||"";
  const current=()=>request===balanceRequest&&key===settings.orKey&&creditsKey===(settings.orCreditsKey||"");
- const header=(label,value)=>{$("#h-balance-label").textContent=label;$("#h-balance").textContent=value};
- let keyHeader="—",keyLabel="OpenRouter";
- $("#or-key-budget").textContent="—";$("#or-key-usage").textContent="—";$("#or-balance").textContent="—";$("#or-credit-status").textContent="";
- if(key){
- header("OpenRouter","…");setOrConnection("pending","Clé enregistrée · vérification auprès d’OpenRouter…");
- try{
-  const r=await readOrAccount("key",key);
-  if(!r.ok)throw new Error(orReadError(r.status));
-  const d=r.data;
-  if(!d||!Number.isFinite(d.usage)||d.usage<0)throw new Error("OpenRouter n’a pas fourni d’informations valides sur la clé");
-  if(!current())return;
-  if(d.is_management_key||d.is_provisioning_key)throw new Error("Cette clé est une clé de gestion. Place-la dans le champ facultatif du solde et renseigne une clé API normale pour l’IA");
-  if(d.expires_at&&Number.isFinite(Date.parse(d.expires_at))&&Date.parse(d.expires_at)<=Date.now())throw new Error("Cette clé OpenRouter a expiré");
-  const remaining=Number.isFinite(d.limit_remaining)?d.limit_remaining:Number.isFinite(d.limit)?d.limit-d.usage:null;
-  $("#or-key-budget").textContent=remaining!==null?balanceMoney(remaining):d.limit===null?"Sans plafond défini":"Non communiqué";
-  $("#or-key-usage").textContent=fmt$(d.usage);
-  keyHeader=remaining!==null?balanceMoney(remaining):"Clé active";keyLabel=remaining!==null?"Budget de la clé":"OpenRouter";
-  header(keyLabel,keyHeader);setOrConnection("ok","Clé IA active · connexion OpenRouter vérifiée. Vérification sans appel IA facturé.");
- }catch(e){if(!current())return;keyHeader="Indisponible";header(keyLabel,keyHeader);setOrConnection("error",orNetworkError(e)+". La clé enregistrée est conservée.")}
- }else{header(keyLabel,keyHeader);setOrConnection("missing","Clé OpenRouter non enregistrée.")}
- if(!current())return;
- if(!creditsKey){$("#or-balance").textContent=key?"Non accessible":"—";$("#or-credit-status").textContent="Le solde global nécessite une clé de gestion facultative. Le budget de la clé est distinct du solde du compte.";return}
- $("#or-balance").textContent="…";connectionState("#or-credit-status","pending","Actualisation du solde du compte…");
- try{
-  const r=await readOrAccount("credits",creditsKey);
-  if(!r.ok)throw new Error(r.status===401?"Clé de gestion refusée ou expirée (HTTP 401)":r.status===403?"Le solde exige une clé de gestion OpenRouter (HTTP 403)":orReadError(r.status));
-  const d=r.data;
-  if(!d||!Number.isFinite(d.total_credits)||!Number.isFinite(d.total_usage))throw new Error("OpenRouter n’a pas fourni de solde valide");
-  if(!current())return;
-  const amount=balanceMoney(d.total_credits-d.total_usage);$("#or-balance").textContent=amount;header("Solde OpenRouter",amount);
-  connectionState("#or-credit-status","ok","Solde du compte actualisé à "+new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})+". Il peut inclure d’autres applications.");
- }catch(e){if(!current())return;$("#or-balance").textContent="Indisponible";header(keyLabel,keyHeader);connectionState("#or-credit-status","error",orNetworkError(e)+". L’état de ta clé IA est indiqué séparément.")}
+ const accountState=(state,value,message)=>{$("#h-balance-label").textContent="Crédits OpenRouter";$("#h-balance").textContent=value;$("#or-balance").textContent=value;connectionState("#or-credit-status",state,message)};
+ ["#or-key-limit","#or-key-budget","#or-key-usage","#or-account-total","#or-account-usage"].forEach(id=>$(id).textContent="—");
+ const verifyKey=async()=>{
+  if(!key){setOrConnection("missing","Clé OpenRouter non enregistrée.");return}
+  setOrConnection("pending","Clé enregistrée · vérification auprès d’OpenRouter…");
+  try{
+   const r=await readOrAccount("key",key);
+   if(!r.ok)throw new Error(orReadError(r.status));
+   const d=r.data;
+   if(!d||!Number.isFinite(d.usage)||d.usage<0)throw new Error("OpenRouter n’a pas fourni d’informations valides sur la clé");
+   if(!current())return;
+   if(d.is_management_key||d.is_provisioning_key)throw new Error("Cette clé est une clé de gestion. Place-la dans le champ des crédits et renseigne une clé API normale pour l’IA");
+   if(d.expires_at&&Number.isFinite(Date.parse(d.expires_at))&&Date.parse(d.expires_at)<=Date.now())throw new Error("Cette clé OpenRouter a expiré");
+   $("#or-key-limit").textContent=Number.isFinite(d.limit)?balanceMoney(d.limit):d.limit===null?"Sans plafond défini":"Non communiqué";
+   $("#or-key-budget").textContent=Number.isFinite(d.limit_remaining)?balanceMoney(d.limit_remaining):d.limit===null?"Sans plafond défini":"Non communiqué";
+   $("#or-key-usage").textContent=fmt$(d.usage);
+   setOrConnection("ok","Clé IA active · connexion OpenRouter vérifiée. Vérification sans appel IA facturé.");
+  }catch(e){if(current())setOrConnection("error",orNetworkError(e)+". La clé enregistrée est conservée.")}
+ };
+ const loadCredits=async()=>{
+  if(!creditsKey){accountState("missing","À connecter","Pour afficher l’argent disponible sur ton compte, renseigne la clé de gestion ci-dessous. Ta clé IA reste utilisable séparément.");return}
+  accountState("pending","…","Actualisation des crédits du compte…");
+  try{
+   const r=await readOrAccount("credits",creditsKey);
+   if(!r.ok)throw new Error(r.status===401?"Clé de gestion refusée ou expirée (HTTP 401)":r.status===403?"Les crédits du compte exigent une clé de gestion OpenRouter (HTTP 403)":orReadError(r.status));
+   const d=r.data;
+   if(!d||!Number.isFinite(d.total_credits)||!Number.isFinite(d.total_usage))throw new Error("OpenRouter n’a pas fourni de crédits valides");
+   if(!current())return;
+   $("#or-account-total").textContent=balanceMoney(d.total_credits);$("#or-account-usage").textContent=fmt$(d.total_usage);
+   accountState("ok",balanceMoney(d.total_credits-d.total_usage),"Crédits du compte actualisés à "+new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})+". Crédits ajoutés moins consommation du compte, toutes applications confondues.");
+  }catch(e){if(current())accountState("error","Indisponible",orNetworkError(e)+". Les crédits ne peuvent pas être affichés ; le budget de la clé reste dans ses détails.")}
+ };
+ await Promise.all([verifyKey(),loadCredits()]);
 }
 /* modèles */
 async function loadModels(){try{const r=await fetch("https://openrouter.ai/api/v1/models");const j=await r.json();models=(j.data||[]).map(m=>({id:m.id,name:m.name||m.id,pin:+(m.pricing&&m.pricing.prompt||0)*1e6,pout:+(m.pricing&&m.pricing.completion||0)*1e6})).sort((a,b)=>a.id.localeCompare(b.id));save(LS.models,models);renderModels();estimate();$("#m-count").textContent=models.length+" modèles chargés"}catch(e){$("#m-count").textContent="Impossible de charger la liste ("+e.message+")"}}
@@ -717,7 +717,7 @@ for(const f of TARGET_FIELDS){$("#target-"+f.key).addEventListener("input",()=>{
 })}
 
 let profileFormPid=null;
-function fillSettings(){profileFormPid=pid;$("#btn-cv-gen").disabled=!settings.orKey||!(profile.cv||"").trim();renderCvFile();$("#or-key").value=settings.orKey||"";$("#or-credits-key").value=settings.orCreditsKey||"";$("#ad-id").value=settings.adId||"";$("#ad-key").value=settings.adKey||"";$("#p-cv").value=profile.cv||"";fillTargetForm(profile);$("#p-nom").value=(profiles.find(p=>p.id===pid)||{}).nom||"";$("#p-domaine").value=profile.domaine||"";$("#p-zone").value=profile.zone||"";$("#p-sites").value=profile.sites||"";renderModels();renderCosts();refreshBalance();estimate();renderProfiles()}
+function fillSettings(){profileFormPid=pid;$("#btn-cv-gen").disabled=!settings.orKey||!(profile.cv||"").trim();renderCvFile();$("#or-key").value=settings.orKey||"";$("#or-credits-key").value=settings.orCreditsKey||"";$("#or-account-setup").open=!settings.orCreditsKey;$("#ad-id").value=settings.adId||"";$("#ad-key").value=settings.adKey||"";$("#p-cv").value=profile.cv||"";fillTargetForm(profile);$("#p-nom").value=(profiles.find(p=>p.id===pid)||{}).nom||"";$("#p-domaine").value=profile.domaine||"";$("#p-zone").value=profile.zone||"";$("#p-sites").value=profile.sites||"";renderModels();renderCosts();refreshBalance();estimate();renderProfiles()}
 function saveOpenRouterKeys(){
  const orKey=$("#or-key").value.trim(),orCreditsKey=$("#or-credits-key").value.trim();
  if(operationDepth&&(orKey!==(settings.orKey||"")||orCreditsKey!==(settings.orCreditsKey||""))){connectionState("#or-connection","draft","La vérification de la nouvelle clé attend la fin de l’opération en cours.");return false}

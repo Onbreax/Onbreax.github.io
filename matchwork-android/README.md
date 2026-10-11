@@ -3,6 +3,13 @@
 Application personnelle Android 8+ contenant le code de `../matchwork.html`.
 Pas de chargement de l'interface depuis GitHub Pages. Internet reste nécessaire pour OpenRouter, Adzuna et Jina. Le lecteur PDF est embarqué.
 
+## Version 1.1.2
+
+- Les crédits réellement disponibles du compte OpenRouter sont le montant principal dans l’en-tête et les réglages : `total_credits - total_usage`. Les crédits cumulés et la consommation du compte sont affichés séparément des coûts enregistrés par Matchwork.
+- Le plafond de dépenses, les dépenses encore autorisées et la consommation de la clé IA sont regroupés dans des détails repliables. Le budget de la clé ne remplace jamais les crédits du compte, même si ceux-ci sont inaccessibles.
+- Sans clé de gestion, les crédits affichent « À connecter » ; en cas d’erreur, « Indisponible ». La configuration des crédits est ouverte lorsque cette clé manque. Les crédits zéro sont affichés comme zéro, et les réponses invalides restent indisponibles.
+- La lecture des crédits et la vérification de la clé IA démarrent indépendamment : une clé IA lente ou refusée n’empêche pas l’affichage de crédits valides. Les réponses tardives des anciennes clés restent ignorées.
+
 ## Version 1.1.1
 
 - Vérification de la clé IA via `GET /api/v1/key`, indépendante de la lecture du solde : une clé IA valide reste reconnue quand le solde du compte est inaccessible.
@@ -21,9 +28,9 @@ Pas de chargement de l'interface depuis GitHub Pages. Internet reste nécessaire
 - État des clés explicite, erreurs de solde affichées comme indisponibles, réponses tardives d’une ancienne clé ignorées. Les appels sans coût communiqué sont signalés ; l’estimation exclut les frais de navigation et de vérification.
 - Extraction du CV et analyse locale du texte sans appel IA automatique. La proposition de profil et la lecture IA du CV se lancent séparément.
 
-L’identifiant d’application, l’origine WebView et les clés de stockage sont conservés. Installer l’APK signée avec la même clé par-dessus la version 1.0.0 ou 1.1.0 permet de conserver les données Android ; ne pas désinstaller avant la mise à jour. Les anciens statuts sans date restent affichés sans inventer d’historique.
+L’identifiant d’application, l’origine WebView et les clés de stockage sont conservés. Installer l’APK signée avec la même clé par-dessus une version précédente permet de conserver les données Android ; ne pas désinstaller avant la mise à jour. Les anciens statuts sans date restent affichés sans inventer d’historique.
 
-Le composant Android natif n’a pas changé dans cette révision. L’APK 1.1.1 conserve ses classes et ressources compilées et remplace le HTML embarqué ainsi que le numéro de version du manifeste, avant alignement et signature avec la clé existante. Le nettoyage de la fiche lors du retour Android est géré dans le HTML partagé. Les parcours ont été vérifiés avec des appels simulés ; un essai sur téléphone reste nécessaire pour valider le sélecteur de fichiers, l’impression et le confort tactile.
+Le composant Android natif n’a pas changé dans cette révision. L’APK 1.1.2 conserve ses classes et ressources compilées et remplace le HTML embarqué ainsi que le numéro de version du manifeste, avant alignement et signature avec la clé existante. Le nettoyage de la fiche lors du retour Android est géré dans le HTML partagé. Les parcours ont été vérifiés avec des appels simulés ; un essai sur téléphone reste nécessaire pour valider le sélecteur de fichiers, l’impression et le confort tactile.
 
 ## Construire
 
