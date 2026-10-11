@@ -7,6 +7,7 @@ Pas de chargement de l'interface depuis GitHub Pages. Internet reste nécessaire
 
 - Android 11+ : le conteneur réserve une seule fois les barres système, l’encoche et le clavier. Les insets traités sont remis à zéro et transmis à la WebView, au lieu de bloquer les mises à jour par consommation. Quand le clavier devient invisible, son ancienne hauteur est ignorée. Les anciennes versions gardent le redimensionnement système.
 - Le moteur WebView conserve la recherche en arrière-plan, avec un contexte d’Activity lorsqu’il est affiché et un contexte application lorsqu’il est détaché. Le fond est clair et les icônes des barres système sont sombres.
+- Les dialogues de création et de renommage de profil sont affichés explicitement par l’Activity, comme les confirmations, sans dépendre du contexte intermédiaire de la WebView.
 - La fiche s’ouvre directement dans l’onglet demandé. Les données IA, employeur et établissement sont rendues séparément ; une ancienne analyse invalide n’empêche pas l’ouverture du suivi.
 - Le verdict IA ne modifie plus le statut personnel. Le bouton « Retenir cette offre » ajoute explicitement une offre au suivi local, sans appel API ni envoi de candidature.
 - Les anciens changements automatiques « À creuser » / « Écartée » sont corrigés uniquement lorsque la dernière entrée d’historique porte l’origine IA, sans notes personnelles. L’historique et les verdicts restent conservés. Les choix manuels, les états d’origine inconnue et les offres annotées ne sont pas modifiés.

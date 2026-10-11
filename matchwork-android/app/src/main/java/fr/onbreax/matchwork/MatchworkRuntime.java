@@ -94,6 +94,19 @@ final class MatchworkRuntime {
     else result.cancel();
     return true;
    }
+   @Override public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
+    if (host != null && host.isVisible()) {
+     android.widget.EditText input = new android.widget.EditText(host);
+     input.setSingleLine(true);
+     input.setText(defaultValue == null ? "" : defaultValue);
+     input.setSelectAllOnFocus(true);
+     new android.app.AlertDialog.Builder(host).setTitle("Matchwork").setMessage(message).setView(input)
+      .setPositiveButton("Valider", (dialog, which) -> result.confirm(input.getText().toString()))
+      .setNegativeButton("Annuler", (dialog, which) -> result.cancel())
+      .setOnCancelListener(dialog -> result.cancel()).show();
+    } else result.cancel();
+    return true;
+   }
    @Override public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
     if (host == null) { callback.onReceiveValue(null); return false; }
     return host.chooseFile(callback, params);
