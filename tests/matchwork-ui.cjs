@@ -11,7 +11,7 @@ const offer = (n, extra = {}) => ({ id: 'test' + n, titre: 'Responsable conformi
  employeur: 'Entreprise ' + n, lieu: 'Paris', date: now.slice(0, 10), ajoute: now,
  statut: 'À voir', source: 'Test', description: 'Une annonce fictive sans données personnelles.',
  url: 'https://example.org/offre/' + n, notes: '', ...extra });
-function app(seed = {}, mockFetch) {
+function app(seed = {}, mockFetch, beforeRun) {
  const errors = [], alerts = [], calls = [];
  const virtualConsole = new VirtualConsole();
  virtualConsole.on('jsdomError', e => errors.push(e));
@@ -24,6 +24,7 @@ function app(seed = {}, mockFetch) {
   if (mockFetch) return mockFetch(url, options);
   throw new Error('Unexpected network access in test: ' + url); };
  w.Chart = class { destroy() {} };
+ if (beforeRun) beforeRun(w);
  for (const [k, v] of Object.entries(seed)) w.localStorage.setItem(k, JSON.stringify(v));
  const context = dom.getInternalVMContext();
  vm.runInContext(script, context);
@@ -35,6 +36,8 @@ function app(seed = {}, mockFetch) {
 const settle = () => new Promise(r => setTimeout(r, 5));
 const reply = (data, status = 200) => ({ ok: status >= 200 && status < 300, status,
  json: async () => data, text: async () => JSON.stringify(data) });
+const keyReply = (extra = {}) => reply({ data: { usage: 3.25, limit: null, limit_remaining: null,
+ is_management_key: false, is_provisioning_key: false, ...extra } });
 async function main() {
  let a = app({ vlcb_offers: [offer(1)], vlcb_profile: { cv: 'CV historique', cible: 'Lieu : Paris' },
   vlcb_settings: { adId: 'fake-id', adKey: 'fake-key' } });
@@ -94,33 +97,115 @@ async function main() {
  a.run('leaveOperation()'); assert.equal(a.get('#d-notes').disabled, false);
  await a.close();
 
+ // Ordinary inference keys are checked independently of management-only account credits.
+ for (const [data, status, expected, pattern] of [
+  [{ error: { message: 'Invalid key' } }, 401, 'Indisponible', /Clé refusée/],
+  [{ data: {} }, 200, 'Indisponible', /informations valides/],
+  [{ data: { usage: '3.25' } }, 200, 'Indisponible', /informations valides/],
+  [{ error: {} }, 403, 'Indisponible', /Accès refusé/],
+  [{ error: {} }, 429, 'Indisponible', /Trop de demandes/],
+  [{ data: { usage: 3.25, is_management_key: true } }, 200, 'Indisponible', /champ facultatif/],
+  [{ data: { usage: 3.25, expires_at: '2020-01-01T00:00:00Z' } }, 200, 'Indisponible', /expiré/],
+  [{ data: { usage: 0, limit: 0, limit_remaining: 0 } }, 200, '0,00 $', /Clé IA active/],
+  [{ data: { usage: 3.25, limit: 12, limit_remaining: 8.75 } }, 200, '8,75 $', /Clé IA active/],
+  [{ data: { usage: 3.25, limit: null, limit_remaining: null } }, 200, 'Clé active', /Clé IA active/]
+ ]) {
+  a = app({ vlcb_settings: { orKey: 'mock-key' } }, () => reply(data, status));
+  await settle(); assert.equal(a.get('#h-balance').textContent, expected);
+  assert.match(a.get('#or-connection').textContent, pattern);
+  assert.equal(a.calls.every(c => c.url.endsWith('/key')), true, 'no account or paid call with an ordinary key');
+  assert.equal(a.get('#or-balance').textContent, 'Non accessible', 'key budget is not presented as account balance');
+  if (expected === '8,75 $') assert.equal(a.get('#h-balance-label').textContent, 'Budget de la clé');
+  if (expected === 'Clé active') assert.equal(a.get('#or-key-budget').textContent, 'Sans plafond défini');
+  await a.close();
+ }
+
  for (const [data, status, expected] of [
-  [{ error: { message: 'Invalid key' } }, 401, 'Indisponible'],
+  [{ error: { message: 'Only management keys can perform this operation' } }, 403, 'Indisponible'],
+  [{ error: {} }, 401, 'Indisponible'],
   [{ data: {} }, 200, 'Indisponible'],
   [{ data: { total_credits: 0, total_usage: 0 } }, 200, '0,00 $'],
   [{ data: { total_credits: 12, total_usage: 3.25 } }, 200, '8,75 $']
  ]) {
-  a = app({ vlcb_settings: { orKey: 'mock-key' } }, () => reply(data, status));
-  await settle(); assert.equal(a.get('#h-balance').textContent, expected);
-  if (status === 401) assert.match(a.get('#or-connection').textContent, /Clé refusée/);
-  assert.equal(a.calls.every(c => c.url.endsWith('/credits')), true, 'no paid call at startup');
-  a.get('#or-key').value = 'changed-but-unsaved'; a.get('#or-key').dispatchEvent(new a.w.Event('input'));
-  a.get('#btn-balance').click(); assert.match(a.get('#or-connection').textContent, /Enregistre d’abord/);
-  assert.equal(a.run('settings.orKey'), 'mock-key'); await a.close();
+  a = app({ vlcb_settings: { orKey: 'inference-key', orCreditsKey: 'management-key' } }, (url, options) => {
+   if (url.endsWith('/key')) { assert.equal(options.headers.Authorization, 'Bearer inference-key'); return keyReply(); }
+   assert.match(url, /\/credits$/); assert.equal(options.headers.Authorization, 'Bearer management-key'); return reply(data, status);
+  });
+  await settle(); assert.equal(a.get('#or-balance').textContent, expected);
+  assert.equal(a.get('#or-connection').dataset.state, 'ok', 'account balance failure never rejects a valid inference key');
+  assert.equal(a.get('#or-key-usage').textContent, '3,250 $');
+  assert.equal(a.get('#h-balance').textContent, expected === 'Indisponible' ? 'Clé active' : expected);
+  assert.equal(a.calls.some(c => c.url.endsWith('/chat/completions')), false, 'verification is not an inference call');
+  assert.doesNotMatch(a.run('JSON.stringify(makeBackup())'), /inference-key|management-key/, 'both credentials excluded from backups');
+  await a.close();
  }
 
- let releaseCredits;
+ a = app({ vlcb_settings: { orKey: 'old-key', adId: 'saved-ad-id', adKey: 'saved-ad-key', orModel: 'saved-model' } }, () => keyReply());
+ await settle(); a.get('#or-key').value = 'new-key'; a.get('#or-key').dispatchEvent(new a.w.Event('input'));
+ assert.equal(a.get('#or-connection').dataset.state, 'draft');
+ a.get('#ad-id').value = 'unsaved-ad-id';
+ await a.get('#btn-balance').onclick();
+ assert.equal(a.run('settings.orKey'), 'new-key', 'refresh saves the key that was actually entered');
+ assert.equal(JSON.parse(a.w.localStorage.getItem('vlcb_settings')).orKey, 'new-key');
+ assert.equal(a.run('settings.adId'), 'saved-ad-id', 'OpenRouter key save leaves other draft settings alone');
+ assert.equal(a.run('settings.orModel'), 'saved-model');
+ assert.equal(a.get('#or-connection').dataset.state, 'ok');
+ a.get('#or-key').value = 'third-key'; await a.get('#btn-or-save').onclick();
+ assert.equal(a.run('settings.orKey'), 'third-key');
+ a.get('#or-key').value = 'blocked-key'; a.run('enterOperation()');
+ await a.get('#btn-balance').onclick();
+ assert.equal(a.run('settings.orKey'), 'third-key', 'cannot switch paid-operation credentials while an operation runs');
+ a.run('leaveOperation()'); await a.close();
+
+ let releaseKey;
  a = app({ vlcb_settings: { orKey: 'old-key' } }, (_url, options) => {
-  if (options.headers.Authorization === 'Bearer old-key') return new Promise(resolve => { releaseCredits = resolve; });
+  if (options.headers.Authorization === 'Bearer old-key') return new Promise(resolve => { releaseKey = resolve; });
+  return keyReply({ limit: 8, limit_remaining: 7 });
+ });
+ a.get('#or-key').value = 'new-key'; await a.get('#btn-or-save').onclick();
+ assert.equal(a.get('#h-balance').textContent, '7,00 $');
+ releaseKey(keyReply({ limit: 90, limit_remaining: 90 })); await settle();
+ assert.equal(a.get('#h-balance').textContent, '7,00 $', 'late response from old inference key ignored'); await a.close();
+
+ let releaseCredits;
+ a = app({ vlcb_settings: { orKey: 'inference-key', orCreditsKey: 'old-management-key' } }, (url, options) => {
+  if (url.endsWith('/key')) return keyReply();
+  if (options.headers.Authorization === 'Bearer old-management-key') return new Promise(resolve => { releaseCredits = resolve; });
   return reply({ data: { total_credits: 8, total_usage: 1 } });
  });
- a.get('#or-key').value = 'new-key'; a.get('#btn-save-settings').click(); await settle();
+ await settle(); a.get('#or-credits-key').value = 'new-management-key'; await a.get('#btn-balance').onclick();
  assert.equal(a.get('#h-balance').textContent, '7,00 $');
  releaseCredits(reply({ data: { total_credits: 90, total_usage: 0 } })); await settle();
- assert.equal(a.get('#h-balance').textContent, '7,00 $', 'late response from old key ignored'); await a.close();
+ assert.equal(a.get('#h-balance').textContent, '7,00 $', 'late account response from old management key ignored');
+ a.get('#or-credits-key').value = ''; await a.get('#btn-or-save').onclick();
+ assert.equal(a.get('#h-balance').textContent, 'Clé active', 'removing management key clears the obsolete account balance');
+ await a.close();
+
+ a = app({ vlcb_settings: { orKey: 'mock-key' } }, () => { throw new Error('connection failed'); });
+ await settle(); assert.equal(a.get('#or-connection').dataset.state, 'error');
+ assert.equal(a.get('#h-balance').textContent, 'Indisponible'); await a.close();
+
+ // The timeout covers the JSON body too, not only the response headers.
+ a = app({ vlcb_settings: { orKey: 'mock-key' } }, (_url, options) => ({ ok: true, status: 200,
+  json: () => new Promise((_resolve, reject) => options.signal.addEventListener('abort', () => {
+   const error = new Error('aborted body'); error.name = 'AbortError'; reject(error);
+  }, { once: true })) }), w => {
+  const original = w.setTimeout.bind(w); w.setTimeout = (fn, delay) => original(fn, delay === 20000 ? 1 : delay);
+ });
+ await settle(); assert.match(a.get('#or-connection').textContent, /20 secondes/);
+ assert.equal(a.get('#h-balance').textContent, 'Indisponible'); await a.close();
+
+ a = app({ vlcb_settings: { orKey: 'inference-key', orCreditsKey: 'management-key' } }, url => {
+  if (url.endsWith('/key')) return keyReply();
+  if (url.endsWith('/credits')) return reply({ data: { total_credits: 10, total_usage: 0 } });
+  return reply({ usage: { cost: .002 }, choices: [{ message: { content: 'test' } }] });
+ });
+ await settle(); await a.run('orChat({model:"test-model",messages:[]})');
+ assert.equal(a.calls.find(c => c.url.endsWith('/chat/completions')).options.headers.Authorization, 'Bearer inference-key', 'management credential never used for inference');
+ assert.equal(a.run('costs.session'), .002, 'account reads do not count as paid calls'); await a.close();
 
  a = app({ vlcb_p1_offers: [offer(1)], vlcb_settings: { orKey: 'mock-key' }, vlcb_p1_profile: { cv: 'Compétences conformité audit contrôle interne.' } }, url => {
-  assert.match(url, /\/credits$/); return reply({ data: { total_credits: 10, total_usage: 0 } });
+  assert.match(url, /\/key$/); return keyReply();
  });
  a.run('openDrawer(offers[0])'); a.get('#tab-cv').click(); await a.get('#d-ats').onclick();
  assert.equal(a.calls.some(c => c.url.endsWith('/chat/completions')), false, 'local ATS stays free with a saved key');
@@ -129,7 +214,7 @@ async function main() {
 
  let releaseAnalysis;
  a = app({ vlcb_p1_offers: [offer(1), offer(2)], vlcb_settings: { orKey: 'mock-key' }, vlcb_p1_profile: { cv: 'Compétences conformité audit.' } }, url => {
-  if (url.endsWith('/credits')) return reply({ data: { total_credits: 10, total_usage: 0 } });
+  if (url.endsWith('/key')) return keyReply();
   return new Promise(resolve => { releaseAnalysis = resolve; });
  });
  a.run('openDrawer(offers[0])'); a.get('#ats-use-ai').checked = true;
@@ -142,7 +227,7 @@ async function main() {
 
  let releaseSearch;
  a = app({ vlcb_settings: { orKey: 'mock-key' }, vlcb_p1_kw: ['mot un', 'mot deux'] }, url => {
-  if (url.endsWith('/credits')) return reply({ data: { total_credits: 10, total_usage: 0 } });
+  if (url.endsWith('/key')) return keyReply();
   return new Promise(resolve => { releaseSearch = resolve; });
  });
  a.get('#s-autoscore').checked = false; a.get('#s-autoverify').checked = false;

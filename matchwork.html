@@ -191,14 +191,14 @@
         <button data-v="recherche">Nouvelle recherche</button><button data-v="profil">Profil et cible</button>
         <button data-v="reglages">Clés et réglages</button><button data-v="marche">Statistiques</button><button data-v="aide">Aide</button>
       </nav></div>
-      <div class="foot">Matchwork 1.1.0 · Données enregistrées sur cet appareil. Les analyses IA transmettent le CV et les annonces à OpenRouter. La lecture des annonces passe par Jina.</div>
+      <div class="foot">Matchwork 1.1.1 · Données enregistrées sur cet appareil. Les analyses IA transmettent le CV et les annonces à OpenRouter. La lecture des annonces passe par Jina.</div>
     </div>
   </aside>
 
   <main class="main">
     <div id="storage-warning" class="panel hidden" role="alert" style="border-color:var(--red)"></div>
     <header class="topbar">
-      <div class="account"><div><span>Solde OpenRouter</span><b id="h-balance">—</b></div><div><span>Depuis le dernier lancement</span><b id="h-session">0,000 $</b></div><div class="lifetime"><span>Total enregistré</span><b id="h-total">0,000 $</b></div></div>
+      <div class="account"><div><span id="h-balance-label">OpenRouter</span><b id="h-balance" role="status">—</b></div><div><span>Depuis le dernier lancement</span><b id="h-session">0,000 $</b></div><div class="lifetime"><span>Total enregistré</span><b id="h-total">0,000 $</b></div></div>
       <button class="btn" data-v="recherche">Nouvelle recherche</button>
     </header>
     <div id="operation-status" class="panel hidden">
@@ -350,10 +350,10 @@
       <div class="panel">
         <h2>OpenRouter</h2>
         <div class="row r2">
-          <div><label>Clé API</label><input type="password" id="or-key" autocomplete="off" aria-describedby="or-connection" placeholder="sk-or-…"></div>
-        <div id="or-connection" class="connection" role="status">Clé OpenRouter non enregistrée.</div>
-          <div><label>Solde</label><div style="display:flex;gap:8px;align-items:center"><span id="or-balance" style="font-size:20px;font-weight:700">—</span><button class="btn ghost sm" id="btn-balance" data-read-ui>Actualiser</button></div></div>
+          <div><label for="or-key">Clé API pour l’IA</label><input type="password" id="or-key" autocomplete="off" aria-describedby="or-connection" placeholder="sk-or-…"><div class="btns"><button class="btn sm" id="btn-or-save">Enregistrer et vérifier</button></div><div id="or-connection" class="connection" role="status">Clé OpenRouter non enregistrée.</div></div>
+          <div><label>Solde du compte OpenRouter</label><div style="display:flex;gap:8px;align-items:center"><span id="or-balance" style="font-size:20px;font-weight:700">—</span><button class="btn ghost sm" id="btn-balance" data-read-ui>Actualiser</button></div><p class="subtext" id="or-credit-status" role="status"></p><p class="small"><b>Budget restant de la clé :</b> <span id="or-key-budget">—</span><br><b>Utilisation totale de cette clé :</b> <span id="or-key-usage">—</span></p><a href="https://openrouter.ai/settings/credits" target="_blank" rel="noopener noreferrer">Voir mon solde sur OpenRouter</a></div>
         </div>
+        <details style="margin:12px 0"><summary>Afficher le solde global dans l’application (facultatif)</summary><p class="subtext">OpenRouter réserve le solde du compte aux clés de gestion. Ta clé IA suffit pour les recherches et analyses. La clé de gestion reste sur cet appareil, sert uniquement à lire le solde et n’est jamais utilisée pour l’IA ni incluse dans les sauvegardes.</p><label for="or-credits-key">Clé de gestion pour le solde</label><input type="password" id="or-credits-key" autocomplete="off" placeholder="Facultatif" aria-describedby="or-credit-status"><p class="subtext"><a href="https://openrouter.ai/settings/management-keys" target="_blank" rel="noopener noreferrer">Gérer les clés de gestion OpenRouter</a> · Après saisie, appuie sur « Actualiser ».</p></details>
         <label>Préréglages</label>
         <div class="btns" style="margin-top:0" id="presets">
           <button class="btn ghost sm" data-p="eco">Économique</button>
@@ -548,30 +548,62 @@ function addCost(usage){const known=usage&&typeof usage.cost==="number"&&Number.
 async function orChat(body){const r=await timedFetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+settings.orKey,"HTTP-Referer":"http://localhost","X-Title":"Matchwork"},body:JSON.stringify({...body,usage:{include:true}})});
  if(!r.ok)throw new Error("HTTP "+r.status+" "+(await r.text()).slice(0,160));const j=await r.json();const cost=addCost(j.usage);return {text:(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content||"").trim(),cost}}
 /* solde */
-let balanceRequest=0;
+let balanceRequest=0,orConnection={state:"missing",message:"Clé OpenRouter non enregistrée."};
 function connectionState(id,state,text){const e=$(id);e.dataset.state=state;e.textContent=text}
 function renderConnectionState(){
  const dirty=$("#or-key").value.trim()!==(settings.orKey||"");
- if(dirty)connectionState("#or-connection","draft","Clé modifiée · enregistre les réglages pour l’utiliser.");
+ if(dirty)connectionState("#or-connection","draft","Clé modifiée · appuie sur « Enregistrer et vérifier » ou « Actualiser ».");
  else if(!settings.orKey)connectionState("#or-connection","missing","Clé OpenRouter non enregistrée.");
+ else connectionState("#or-connection",orConnection.state,orConnection.message);
  const adDirty=$("#ad-id").value.trim()!==(settings.adId||"")||$("#ad-key").value.trim()!==(settings.adKey||"");
  connectionState("#ad-connection",adDirty?"draft":"saved",adDirty?"Identifiants modifiés · enregistre les réglages.":settings.adId&&settings.adKey?"Identifiants Adzuna enregistrés · la connexion sera contrôlée lors d’une recherche.":"Identifiants Adzuna incomplets ou absents.");
 }
-async function refreshBalance(){
- const request=++balanceRequest,key=settings.orKey;
- const setBalance=t=>["#or-balance","#h-balance"].forEach(id=>$(id).textContent=t);
- if(!key){setBalance("—");connectionState("#or-connection","missing","Clé OpenRouter non enregistrée.");return}
- setBalance("…");connectionState("#or-connection","pending","Clé enregistrée · vérification de la connexion…");
+function setOrConnection(state,message){orConnection={state,message};renderConnectionState()}
+const balanceMoney=v=>v.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" $";
+function orReadError(status){return status===401?"Clé refusée ou expirée (HTTP 401)":status===403?"Accès refusé par OpenRouter (HTTP 403)":status===429?"Trop de demandes : réessaie dans un moment (HTTP 429)":"Service OpenRouter indisponible (HTTP "+status+")"}
+function orNetworkError(e){return e.name==="AbortError"?"OpenRouter n’a pas répondu dans les 20 secondes. Réessaie.":e instanceof TypeError?"Connexion impossible : vérifie Internet puis réessaie. Le navigateur peut aussi bloquer la requête.":e.message}
+async function readOrAccount(endpoint,key){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);
  try{
-  const r=await timedFetch("https://openrouter.ai/api/v1/credits",{headers:{Authorization:"Bearer "+key}},20000);
-  if(!r.ok)throw new Error(r.status===401||r.status===403?"Clé refusée (HTTP "+r.status+")":"Service indisponible (HTTP "+r.status+")");
-  const j=await r.json(),d=j.data;
-  if(!d||!Number.isFinite(d.total_credits)||!Number.isFinite(d.total_usage))throw new Error("Le service n’a pas fourni de solde valide");
-  if(request!==balanceRequest||key!==settings.orKey)return;
-  setBalance((d.total_credits-d.total_usage).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" $");
-  connectionState("#or-connection","ok","Connexion OpenRouter vérifiée · solde actualisé.");
- }catch(e){if(request!==balanceRequest||key!==settings.orKey)return;setBalance("Indisponible");connectionState("#or-connection","error",e.message+". La clé est conservée ; réessaie l’actualisation.")}
- renderConnectionState();
+  const r=await fetch("https://openrouter.ai/api/v1/"+endpoint,{headers:{Authorization:"Bearer "+key},signal:controller.signal});
+  return {ok:r.ok,status:r.status,data:r.ok?(await r.json()).data:null};
+ }finally{clearTimeout(timer)}
+}
+async function refreshBalance(){
+ const request=++balanceRequest,key=settings.orKey,creditsKey=settings.orCreditsKey||"";
+ const current=()=>request===balanceRequest&&key===settings.orKey&&creditsKey===(settings.orCreditsKey||"");
+ const header=(label,value)=>{$("#h-balance-label").textContent=label;$("#h-balance").textContent=value};
+ let keyHeader="—",keyLabel="OpenRouter";
+ $("#or-key-budget").textContent="—";$("#or-key-usage").textContent="—";$("#or-balance").textContent="—";$("#or-credit-status").textContent="";
+ if(key){
+ header("OpenRouter","…");setOrConnection("pending","Clé enregistrée · vérification auprès d’OpenRouter…");
+ try{
+  const r=await readOrAccount("key",key);
+  if(!r.ok)throw new Error(orReadError(r.status));
+  const d=r.data;
+  if(!d||!Number.isFinite(d.usage)||d.usage<0)throw new Error("OpenRouter n’a pas fourni d’informations valides sur la clé");
+  if(!current())return;
+  if(d.is_management_key||d.is_provisioning_key)throw new Error("Cette clé est une clé de gestion. Place-la dans le champ facultatif du solde et renseigne une clé API normale pour l’IA");
+  if(d.expires_at&&Number.isFinite(Date.parse(d.expires_at))&&Date.parse(d.expires_at)<=Date.now())throw new Error("Cette clé OpenRouter a expiré");
+  const remaining=Number.isFinite(d.limit_remaining)?d.limit_remaining:Number.isFinite(d.limit)?d.limit-d.usage:null;
+  $("#or-key-budget").textContent=remaining!==null?balanceMoney(remaining):d.limit===null?"Sans plafond défini":"Non communiqué";
+  $("#or-key-usage").textContent=fmt$(d.usage);
+  keyHeader=remaining!==null?balanceMoney(remaining):"Clé active";keyLabel=remaining!==null?"Budget de la clé":"OpenRouter";
+  header(keyLabel,keyHeader);setOrConnection("ok","Clé IA active · connexion OpenRouter vérifiée. Vérification sans appel IA facturé.");
+ }catch(e){if(!current())return;keyHeader="Indisponible";header(keyLabel,keyHeader);setOrConnection("error",orNetworkError(e)+". La clé enregistrée est conservée.")}
+ }else{header(keyLabel,keyHeader);setOrConnection("missing","Clé OpenRouter non enregistrée.")}
+ if(!current())return;
+ if(!creditsKey){$("#or-balance").textContent=key?"Non accessible":"—";$("#or-credit-status").textContent="Le solde global nécessite une clé de gestion facultative. Le budget de la clé est distinct du solde du compte.";return}
+ $("#or-balance").textContent="…";connectionState("#or-credit-status","pending","Actualisation du solde du compte…");
+ try{
+  const r=await readOrAccount("credits",creditsKey);
+  if(!r.ok)throw new Error(r.status===401?"Clé de gestion refusée ou expirée (HTTP 401)":r.status===403?"Le solde exige une clé de gestion OpenRouter (HTTP 403)":orReadError(r.status));
+  const d=r.data;
+  if(!d||!Number.isFinite(d.total_credits)||!Number.isFinite(d.total_usage))throw new Error("OpenRouter n’a pas fourni de solde valide");
+  if(!current())return;
+  const amount=balanceMoney(d.total_credits-d.total_usage);$("#or-balance").textContent=amount;header("Solde OpenRouter",amount);
+  connectionState("#or-credit-status","ok","Solde du compte actualisé à "+new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})+". Il peut inclure d’autres applications.");
+ }catch(e){if(!current())return;$("#or-balance").textContent="Indisponible";header(keyLabel,keyHeader);connectionState("#or-credit-status","error",orNetworkError(e)+". L’état de ta clé IA est indiqué séparément.")}
 }
 /* modèles */
 async function loadModels(){try{const r=await fetch("https://openrouter.ai/api/v1/models");const j=await r.json();models=(j.data||[]).map(m=>({id:m.id,name:m.name||m.id,pin:+(m.pricing&&m.pricing.prompt||0)*1e6,pout:+(m.pricing&&m.pricing.completion||0)*1e6})).sort((a,b)=>a.id.localeCompare(b.id));save(LS.models,models);renderModels();estimate();$("#m-count").textContent=models.length+" modèles chargés"}catch(e){$("#m-count").textContent="Impossible de charger la liste ("+e.message+")"}}
@@ -685,9 +717,16 @@ for(const f of TARGET_FIELDS){$("#target-"+f.key).addEventListener("input",()=>{
 })}
 
 let profileFormPid=null;
-function fillSettings(){profileFormPid=pid;$("#btn-cv-gen").disabled=!settings.orKey||!(profile.cv||"").trim();renderCvFile();$("#or-key").value=settings.orKey||"";$("#ad-id").value=settings.adId||"";$("#ad-key").value=settings.adKey||"";$("#p-cv").value=profile.cv||"";fillTargetForm(profile);$("#p-nom").value=(profiles.find(p=>p.id===pid)||{}).nom||"";$("#p-domaine").value=profile.domaine||"";$("#p-zone").value=profile.zone||"";$("#p-sites").value=profile.sites||"";renderModels();renderCosts();refreshBalance();estimate();renderProfiles()}
-$("#btn-save-settings").onclick=()=>{settings={orKey:$("#or-key").value.trim(),orModel:$("#or-model").value,orSearchModel:$("#or-search-model").value,adId:$("#ad-id").value.trim(),adKey:$("#ad-key").value.trim()};save(LS.settings,settings);$("#s-saved").textContent="Réglages et clés enregistrés sur cet appareil.";$("#btn-cv-gen").disabled=!settings.orKey;renderConnectionState();renderHome();refreshBalance()};
-$("#btn-balance").onclick=()=>{if($("#or-key").value.trim()!==(settings.orKey||"")){connectionState("#or-connection","draft","Enregistre d’abord la nouvelle clé ; l’actualisation utilise la clé enregistrée.");return}refreshBalance()};
+function fillSettings(){profileFormPid=pid;$("#btn-cv-gen").disabled=!settings.orKey||!(profile.cv||"").trim();renderCvFile();$("#or-key").value=settings.orKey||"";$("#or-credits-key").value=settings.orCreditsKey||"";$("#ad-id").value=settings.adId||"";$("#ad-key").value=settings.adKey||"";$("#p-cv").value=profile.cv||"";fillTargetForm(profile);$("#p-nom").value=(profiles.find(p=>p.id===pid)||{}).nom||"";$("#p-domaine").value=profile.domaine||"";$("#p-zone").value=profile.zone||"";$("#p-sites").value=profile.sites||"";renderModels();renderCosts();refreshBalance();estimate();renderProfiles()}
+function saveOpenRouterKeys(){
+ const orKey=$("#or-key").value.trim(),orCreditsKey=$("#or-credits-key").value.trim();
+ if(operationDepth&&(orKey!==(settings.orKey||"")||orCreditsKey!==(settings.orCreditsKey||""))){connectionState("#or-connection","draft","La vérification de la nouvelle clé attend la fin de l’opération en cours.");return false}
+ const next={...settings,orKey,orCreditsKey};
+ try{save(LS.settings,next)}catch(e){connectionState("#or-connection","error","Enregistrement impossible : "+e.message);return false}
+ settings=next;$("#s-saved").textContent="Clés OpenRouter enregistrées sur cet appareil.";$("#btn-cv-gen").disabled=!!operationDepth||!settings.orKey||!(profile.cv||"").trim();renderConnectionState();renderHome();return true;
+}
+$("#btn-save-settings").onclick=()=>{const next={...settings,orKey:$("#or-key").value.trim(),orCreditsKey:$("#or-credits-key").value.trim(),orModel:$("#or-model").value,orSearchModel:$("#or-search-model").value,adId:$("#ad-id").value.trim(),adKey:$("#ad-key").value.trim()};try{save(LS.settings,next)}catch(e){$("#s-saved").textContent="Enregistrement impossible : "+e.message;return}settings=next;$("#s-saved").textContent="Réglages et clés enregistrés sur cet appareil.";$("#btn-cv-gen").disabled=!settings.orKey||!(profile.cv||"").trim();renderConnectionState();renderHome();return refreshBalance()};
+$("#btn-or-save").onclick=$("#btn-balance").onclick=()=>{if(saveOpenRouterKeys())return refreshBalance()};
 ["#or-key","#ad-id","#ad-key"].forEach(id=>$(id).addEventListener("input",renderConnectionState));
 $("#btn-models").onclick=loadModels;$("#m-filter").addEventListener("input",renderModels);
 /* préréglages : la recherche web n'a pas besoin d'un modèle fort (le plugin fait la recherche, le modèle lit et structure) ; le scoring, si */
