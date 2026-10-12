@@ -3,6 +3,15 @@
 Application personnelle Android 8+ contenant le code de `../matchwork.html`.
 Pas de chargement de l'interface depuis GitHub Pages. Internet reste nécessaire pour OpenRouter, Adzuna et Jina. Le lecteur PDF est embarqué.
 
+## Version 1.1.5
+
+- Correction de la construction manuelle : la déclaration SDK est placée avant l’application dans le manifeste compilé. Android calcule certains paramètres de compatibilité pendant la lecture de l’application ; les anciennes APK plaçaient cette déclaration après. Le ratio 1,86 observé sur la capture correspond à la limite historique d’Android.
+- L’application et son Activity déclarent explicitement une fenêtre redimensionnable, sans restriction d’orientation ou de ratio. Le rendu matériel est également déclaré explicitement.
+- Les marges verticales du menu mobile passent de 6 à 2 pixels CSS, en conservant des boutons d’au moins 48 pixels. L’espace sous la page suit la hauteur mesurée du menu, qui inclut déjà la zone de sécurité.
+- Le script de construction contrôle le manifeste binaire de l’APK avant de la signer : ordre du SDK, versions, redimensionnement et rendu matériel. Le même contrôle détecte le défaut dans la version 1.1.4.
+
+La signature, l’identifiant d’application, l’origine WebView et les données locales restent conservés. Le rendu réel sur le téléphone reste à confirmer après installation.
+
 ## Version 1.1.4
 
 - Android 11+ : le conteneur réserve une seule fois les barres système, l’encoche et le clavier. Les insets traités sont remis à zéro et transmis à la WebView, au lieu de bloquer les mises à jour par consommation. Quand le clavier devient invisible, son ancienne hauteur est ignorée. Les anciennes versions gardent le redimensionnement système.
@@ -54,7 +63,7 @@ Les appels de test sont simulés et les sources Android sont compilées. L’ex�
 
 L’identifiant d’application, l’origine WebView et les clés de stockage sont conservés. Installer l’APK signée avec la même clé par-dessus une version précédente permet de conserver les données Android ; ne pas désinstaller avant la mise à jour. Les anciens statuts sans date restent affichés sans inventer d’historique.
 
-La version 1.1.4 recompile les composants Android et embarque le HTML partagé. L’origine WebView reste `https://appassets.androidplatform.net/assets/index.html` et l’identifiant d’application reste identique. Le canal natif utilise les ports de messages de la plateforme Android, remis uniquement à cette page, avec les frames externes bloquées.
+La version 1.1.5 recompile les composants Android et embarque le HTML partagé. L’origine WebView reste `https://appassets.androidplatform.net/assets/index.html` et l’identifiant d’application reste identique. Le canal natif utilise les ports de messages de la plateforme Android, remis uniquement à cette page, avec les frames externes bloquées.
 
 ## Construire
 

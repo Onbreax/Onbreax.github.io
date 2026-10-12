@@ -19,14 +19,20 @@ root.set('package','fr.onbreax.matchwork')
 root.set('{http://schemas.android.com/apk/res/android}versionCode',re.search(r'versionCode\s+(\d+)',source)[1])
 version=re.search(r"versionName\s+'([^']+)'",source)[1]
 root.set('{http://schemas.android.com/apk/res/android}versionName',version)
-sdk=ET.SubElement(root,'uses-sdk')
-sdk.set('{http://schemas.android.com/apk/res/android}minSdkVersion','26')
-sdk.set('{http://schemas.android.com/apk/res/android}targetSdkVersion','35')
+for old_sdk in root.findall('uses-sdk'):
+ root.remove(old_sdk)
+sdk=ET.Element('uses-sdk')
+sdk.set('{http://schemas.android.com/apk/res/android}minSdkVersion',re.search(r'minSdk\s+(\d+)',source)[1])
+sdk.set('{http://schemas.android.com/apk/res/android}targetSdkVersion',re.search(r'targetSdk\s+(\d+)',source)[1])
+# Android derives application compatibility flags while reading this section.
+# Declare the SDK first, so the application is never parsed with legacy defaults.
+root.insert(0,sdk)
 ET.ElementTree(root).write('build/AndroidManifest.xml',encoding='utf-8')
 Path('build/version.txt').write_text(version)
 PY
 "$MATCHWORK_TOOLS/aapt2" compile --dir app/src/main/res -o build/resources.zip
 "$MATCHWORK_TOOLS/aapt2" link -o build/base.apk --manifest build/AndroidManifest.xml -I "$MATCHWORK_ANDROID_JAR" -A app/src/main/assets build/resources.zip
+python3 check-package.py build/base.apk --aapt "$MATCHWORK_TOOLS/aapt"
 if command -v javac >/dev/null; then
  javac -source 8 -target 8 -classpath "$MATCHWORK_ANDROID_JAR" -d build/classes app/src/main/java/fr/onbreax/matchwork/*.java
 else
