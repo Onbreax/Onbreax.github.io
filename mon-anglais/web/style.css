@@ -62,6 +62,18 @@ a{color:var(--accent)}[hidden]{display:none!important}small,.muted{color:var(--i
 .prompt-box{font:12.5px/1.5 ui-monospace,Menlo,Consolas,monospace;min-height:150px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:10px;font-size:14px;z-index:50;max-width:90vw}
 .mobile-nav{display:none}
+.live-cta{display:flex;text-decoration:none;color:inherit;gap:12px}.live-cta:hover{border-color:var(--accent)}a.panel.hero.live-cta{display:block}
+.live-stage{display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px 0 8px}
+.orb{position:relative;width:168px;height:168px;border-radius:50%;border:0;padding:0;background:var(--soft);display:grid;place-items:center}
+.orb-core{width:96px;height:96px;border-radius:50%;background:var(--accent);transition:transform .3s,background .3s}
+.orb[data-state="listening"] .orb-core{background:var(--ok);animation:orb-breathe 1.6s ease-in-out infinite}
+.orb[data-state="speaking"] .orb-core{animation:orb-talk .5s ease-in-out infinite alternate}
+.orb[data-state="thinking"] .orb-core{transform:scale(.7);opacity:.6;animation:orb-wait 1s ease-in-out infinite alternate}
+.orb[data-state="paused"] .orb-core,.orb[data-state="ended"] .orb-core,.orb[data-state="error"] .orb-core{background:var(--line);transform:scale(.8)}
+@keyframes orb-breathe{50%{transform:scale(1.12)}}@keyframes orb-talk{to{transform:scale(1.2)}}@keyframes orb-wait{to{opacity:1}}
+.orb-label{font-weight:650;color:var(--ink-2);text-align:center;min-height:24px}
+.live-heard{min-height:48px;max-width:640px;text-align:center;font-size:18px;color:var(--ink)}
+.live-actions{justify-content:center;margin:6px 0 16px}
 @media (max-width:860px){.shell{display:block}.side{display:none}.mobile-brand{display:flex;align-items:center;gap:8px;font-weight:750;margin-right:auto}.mobile-brand .mark{width:28px;height:28px;font-size:12px}
 .content{padding:14px 16px calc(var(--nav-h) + 24px)}.topbar{margin-bottom:14px}
 .mobile-nav{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--paper);border-top:1px solid var(--line);padding:4px 6px max(4px,env(safe-area-inset-bottom))}

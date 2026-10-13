@@ -274,6 +274,38 @@ function voicePrompt(scenario, level, weak){
     "When I say \"feedback please\", stop the role-play and reply with ONLY a JSON object (no other text) in this format, with comments in French:\n" +
     '{"level":"B1","criteria":{"fluency":0,"range":0,"accuracy":0,"coherence":0},"summary_fr":"...","strengths_fr":["..."],"priorities_fr":["..."],' + ERROR_SCHEMA + "," + VOCAB_SCHEMA + "}";
 }
+// --- Discussion en direct ---
+const LIVE = {id:"live", title:"Discussion en direct"};
+const partnerOf = accent => accent === "en-US" ? {name:"Jake", from:"Boston, in the US"} : {name:"Emma", from:"Manchester, in the UK"};
+function liveSystem(level, memory, accent, topic){
+  const p = partnerOf(accent);
+  return "You are " + p.name + ", a warm, curious native English speaker from " + p.from + ", in a live voice call with a French-speaking adult who is practising English (estimated level " + levelLabel(level || 3.5) + "). You are a conversation partner, not a teacher." +
+    " Talk like a real person on the phone: short natural replies (1 to 3 sentences, rarely more than 40 words), contractions, everyday expressions, a little humour. Share your own opinions and small stories, and ask one question at a time." +
+    " Use vocabulary and grammar just slightly above the learner's level. If they seem lost (\"sorry?\", \"what?\", a very short or confused answer), say it again more simply with easier words." +
+    " Always reply in English, even if the learner uses French; if they ask how to say something, give the English words briefly and carry on." +
+    " Do not correct mistakes unless you truly cannot understand; then ask them to rephrase." +
+    " Their words come from speech recognition: ignore missing punctuation and guess the meaning of odd words." +
+    " Never use lists, markdown, emojis or stage directions: your text is read aloud." +
+    (memory ? " What you remember about them from previous calls: " + memory : " This is your first call with them: get to know them.") +
+    (topic ? " They would like to talk about: " + topic + "." : "");
+}
+const MEMORY_RULE = memory => ' Also add a field "memory_en": a short summary in English (max 500 characters) of personal facts about the learner worth remembering for future calls (name, job, family, interests, plans, recent events), merged with this previous summary: "' + (memory || "") + '".';
+function liveFeedbackMessages(turns, memory){
+  const m = chatFeedbackMessages(LIVE, turns.filter(t => !t.hidden));
+  m[0].content += MEMORY_RULE(memory);
+  return m;
+}
+function liveVoicePrompt(level, memory, accent){
+  return liveSystem(level, memory, accent, "") + "\n\nStart now: greet me and begin the conversation.\n\n" +
+    "When I say \"feedback please\", stop the conversation and reply with ONLY a JSON object (no other text) in this format, with comments in French:\n" +
+    '{"level":"B1","criteria":{"fluency":0,"range":0,"accuracy":0,"coherence":0},"summary_fr":"...","strengths_fr":["..."],"priorities_fr":["..."],' + ERROR_SCHEMA + "," + VOCAB_SCHEMA + ',"memory_en":"..."}' + MEMORY_RULE(memory);
+}
+// Découpe un texte reçu en continu en phrases à lire au fur et à mesure
+function splitSentences(buffer){
+  const out = []; let rest = buffer, m;
+  while ((m = rest.match(/^([\s\S]*?[.!?…]["”’)]?)\s+(?=\S)/))) { if (m[1].trim()) out.push(m[1].trim()); rest = rest.slice(m[0].length); }
+  return {sentences:out, rest};
+}
 const messagesToText = msgs => msgs.map(m => m.content).join("\n\n");
 
-if (typeof module !== "undefined") module.exports = {levelLabel, parseLevel, efsetToLevel, overallLevel, dayKey, monthKey, shuffled, streak, fsrsReview, intervalDays, previewLabel, vocabQueue, placementInit, placementNext, placementAnswer, placementEstimate, planFor, weakestTopic, topErrors, wordDiff, normWords, parseJSONLoose, normFeedback, normQuestions, writingMessages, speakingMessages, chatSystem, chatFeedbackMessages, grammarGenMessages, voicePrompt, messagesToText};
+if (typeof module !== "undefined") module.exports = {levelLabel, parseLevel, efsetToLevel, overallLevel, dayKey, monthKey, shuffled, streak, fsrsReview, intervalDays, previewLabel, vocabQueue, placementInit, placementNext, placementAnswer, placementEstimate, planFor, weakestTopic, topErrors, wordDiff, normWords, parseJSONLoose, normFeedback, normQuestions, writingMessages, speakingMessages, chatSystem, chatFeedbackMessages, grammarGenMessages, voicePrompt, messagesToText, LIVE, partnerOf, liveSystem, liveFeedbackMessages, liveVoicePrompt, splitSentences};

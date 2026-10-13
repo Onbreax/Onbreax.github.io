@@ -1,7 +1,7 @@
 "use strict";
 // Interface : vues, stockage local, appels OpenRouter, micro et synthèse vocale.
 
-const VERSION = "1.0.0", STORE = "monAnglais.v1";
+const VERSION = "1.1.0", STORE = "monAnglais.v1";
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
 const on = (sel, ev, fn, root = document) => $$(sel, root).forEach(el => el.addEventListener(ev, fn));
@@ -11,9 +11,9 @@ const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const wordsIn = s => normWords(s).length;
 
 function defaults(){
-  return {v:1, settings:{mode:"openrouter", key:"", model:"google/gemini-3.8-flash", budget:3, accent:"en-GB", voice:"", autoSpeak:true, minutes:60, newPerDay:10, theme:"auto"},
+  return {v:1, settings:{mode:"openrouter", key:"", model:"google/gemini-3.8-flash", budget:3, accent:"en-GB", voice:"", autoSpeak:true, minutes:60, newPerDay:10, theme:"auto", rate:1, pauseMs:1500},
     profile:{skills:{}, history:[]}, cards:{}, custom:[], grammar:{}, seen:{}, genGrammar:{}, errors:[], sessions:{}, spend:{}, calls:0,
-    listening:[], writings:[], convos:[], drafts:{}, assessment:null, lastResult:null};
+    listening:[], writings:[], convos:[], drafts:{}, assessment:null, lastResult:null, liveMemory:""};
 }
 function loadState(){
   const d = defaults();
@@ -37,10 +37,11 @@ function toast(msg){
 // État temporaire de la vue courante (non enregistré)
 let T = {};
 function cleanup(){
+  for (const f of T.onCleanup || []) try { f(); } catch {}
   try { speechSynthesis.cancel(); } catch {}
   if (T.mic) T.mic.stop();
   for (const id of T.timers || []) clearInterval(id);
-  T = {timers:[]};
+  T = {timers:[], onCleanup:[]};
 }
 function every(ms, fn){ const id = setInterval(fn, ms); T.timers.push(id); return id; }
 
@@ -59,7 +60,7 @@ function pickVoice(){
     vs.find(v => v.lang.replace("_", "-") === acc && /google|natural|premium|enhanced|neural/i.test(v.name)) ||
     vs.find(v => v.lang.replace("_", "-") === acc) || vs[0] || null;
 }
-function speak(text, rate = 1){
+function speak(text, rate = S.settings.rate || 1){
   return new Promise(resolve => {
     if (!("speechSynthesis" in window)) { toast("La lecture vocale n'est pas disponible dans ce navigateur."); return resolve(); }
     speechSynthesis.cancel();
@@ -93,29 +94,70 @@ function startMic(onText){
 }
 
 // --- OpenRouter ---
-async function callAI(messages, {maxTokens = 2500, temperature = 0.4} = {}){
+const OR_CHAT = "https://openrouter.ai/api/v1/chat/completions";
+function aiPreflight(){
   const st = S.settings, m = monthKey();
   if (!st.key) throw new Error("Aucune clé OpenRouter : ajoute-la dans Réglages ou passe en mode abonnement.");
   if ((S.spend[m] || 0) >= st.budget) throw new Error("Budget du mois atteint (" + fmtUsd(S.spend[m]) + " sur " + fmtUsd(st.budget) + "). Augmente-le dans Réglages ou utilise le mode abonnement.");
+}
+const aiHeaders = () => ({"Content-Type":"application/json", "Authorization":"Bearer " + S.settings.key, "X-Title":"Mon anglais"});
+const aiNetError = e => e.name === "AbortError" ? Object.assign(new Error("Pas de réponse à temps. Réessaie."), {aborted:true}) : new Error("Connexion à OpenRouter impossible. Vérifie ta connexion Internet.");
+function aiHttpError(status, j){
+  const code = (j && j.error && j.error.code) || status;
+  return new Error({401:"Clé OpenRouter refusée. Vérifie-la dans Réglages.", 402:"Crédits OpenRouter insuffisants. Recharge ton compte sur openrouter.ai.", 429:"Ce modèle est saturé pour l'instant. Réessaie dans un moment ou choisis-en un autre."}[code] ||
+    "Erreur OpenRouter : " + ((j && j.error && j.error.message) || status));
+}
+function aiRecordCost(cost){
+  const m = monthKey();
+  S.spend[m] = (S.spend[m] || 0) + (typeof cost === "number" ? cost : 0); S.calls = (S.calls || 0) + 1; save(); renderChips();
+}
+const aiBody = (messages, maxTokens, temperature, extra) => JSON.stringify({model:S.settings.model, messages, max_tokens:maxTokens, temperature, usage:{include:true}, reasoning:{effort:"low", exclude:true}, ...extra});
+async function callAI(messages, {maxTokens = 2500, temperature = 0.4} = {}){
+  aiPreflight();
   const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 120000);
   let r, j;
   try {
-    r = await fetch("https://openrouter.ai/api/v1/chat/completions", {method:"POST", signal:ctrl.signal,
-      headers:{"Content-Type":"application/json", "Authorization":"Bearer " + st.key, "X-Title":"Mon anglais"},
-      body:JSON.stringify({model:st.model, messages, max_tokens:maxTokens, temperature, usage:{include:true}, reasoning:{effort:"low", exclude:true}})});
+    r = await fetch(OR_CHAT, {method:"POST", signal:ctrl.signal, headers:aiHeaders(), body:aiBody(messages, maxTokens, temperature)});
     j = await r.json().catch(() => ({}));
-  } catch (e) {
-    throw new Error(e.name === "AbortError" ? "Pas de réponse après 2 minutes. Réessaie." : "Connexion à OpenRouter impossible. Vérifie ta connexion Internet.");
-  } finally { clearTimeout(timer); }
-  if (!r.ok || j.error) {
-    const code = (j.error && j.error.code) || r.status;
-    throw new Error({401:"Clé OpenRouter refusée. Vérifie-la dans Réglages.", 402:"Crédits OpenRouter insuffisants. Recharge ton compte sur openrouter.ai.", 429:"Ce modèle est saturé pour l'instant. Réessaie dans un moment ou choisis-en un autre."}[code] ||
-      "Erreur OpenRouter : " + ((j.error && j.error.message) || r.status));
-  }
-  const u = j.usage || {};
-  S.spend[m] = (S.spend[m] || 0) + (typeof u.cost === "number" ? u.cost : 0); S.calls = (S.calls || 0) + 1; save(); renderChips();
+  } catch (e) { throw aiNetError(e); } finally { clearTimeout(timer); }
+  if (!r.ok || j.error) throw aiHttpError(r.status, j);
+  aiRecordCost((j.usage || {}).cost);
   const c = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
   const text = typeof c === "string" ? c : Array.isArray(c) ? c.map(x => typeof x === "string" ? x : (x && x.text) || "").join("") : "";
+  if (!text.trim()) throw new Error("Le modèle a renvoyé une réponse vide. Réessaie ou choisis un autre modèle.");
+  return text;
+}
+// Réponse reçue morceau par morceau (pour parler dès la première phrase)
+async function callAIStream(messages, onDelta, {maxTokens = 500, temperature = 0.8, signal} = {}){
+  aiPreflight();
+  let r, text = "", cost = null;
+  try {
+    r = await fetch(OR_CHAT, {method:"POST", signal, headers:aiHeaders(), body:aiBody(messages, maxTokens, temperature, {stream:true})});
+    if (!r.ok) throw aiHttpError(r.status, await r.json().catch(() => ({})));
+    const reader = r.body.getReader(), dec = new TextDecoder();
+    let buf = "";
+    for (;;) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, {stream:true});
+      let i;
+      while ((i = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+        if (!line.startsWith("data:")) continue;
+        const data = line.slice(5).trim();
+        if (data === "[DONE]") continue;
+        let j; try { j = JSON.parse(data); } catch { continue; }
+        if (j.error) throw aiHttpError(500, j);
+        const d = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content;
+        if (d) { text += d; onDelta(d, text); }
+        if (j.usage && typeof j.usage.cost === "number") cost = j.usage.cost;
+      }
+    }
+  } catch (e) {
+    if (cost === null && text) aiRecordCost(0);
+    throw e instanceof TypeError || e.name === "AbortError" ? aiNetError(e) : e;
+  }
+  aiRecordCost(cost);
   if (!text.trim()) throw new Error("Le modèle a renvoyé une réponse vide. Réessaie ou choisis un autre modèle.");
   return text;
 }
@@ -193,8 +235,8 @@ function parseFeedback(text){
 }
 
 // --- Navigation ---
-const VIEWS = {today:viewToday, practice:viewPractice, bilan:viewBilan, vocab:viewVocab, grammar:viewGrammar, listen:viewListen, write:viewWrite, speak:viewSpeak, progress:viewProgress, settings:viewSettings};
-const NAV_OF = {vocab:"practice", grammar:"practice", listen:"practice", write:"practice", speak:"practice"};
+const VIEWS = {live:viewLive, today:viewToday, practice:viewPractice, bilan:viewBilan, vocab:viewVocab, grammar:viewGrammar, listen:viewListen, write:viewWrite, speak:viewSpeak, progress:viewProgress, settings:viewSettings};
+const NAV_OF = {live:"practice", vocab:"practice", grammar:"practice", listen:"practice", write:"practice", speak:"practice"};
 function route(){
   cleanup();
   const [raw, query] = location.hash.slice(1).split("?"), name = VIEWS[raw] ? raw : "today", params = new URLSearchParams(query || "");
@@ -237,6 +279,7 @@ function viewToday(){
     blocks.map(([k, title, detail, href]) => '<div class="block' + (sess.done[k] ? " done" : "") + '"><button class="check' + (sess.done[k] ? " on" : "") + '" data-toggle="' + k + '" aria-label="Marquer « ' + esc(title) + ' » comme ' + (sess.done[k] ? "non fait" : "fait") + '">✓</button>' +
       '<div><div class="title">' + esc(title) + ' <span class="muted" style="font-weight:500">· ' + plan.minutes[k] + ' min</span></div><div class="detail">' + esc(detail) + "</div></div>" +
       '<a class="btn small' + (sess.done[k] ? "" : " primary") + '" href="' + href + '">' + (sess.done[k] ? "Refaire" : "Commencer") + "</a></div>").join("") + "</div>" +
+    '<a class="panel live-cta row" href="#live"><span class="grow"><b>Envie de parler ?</b><br><span class="muted">Discussion en direct avec ' + esc(partnerOf(S.settings.accent).name) + ', à voix haute, sans bouton.</span></span><span class="btn primary">Parler maintenant</span></a>' +
     '<div class="grid2"><div class="panel"><div class="eyebrow">Point de grammaire du jour</div><h3>' + esc(GRAMMAR_TOPICS[plan.topic]) + '</h3><p class="muted">Choisi parmi tes thèmes les plus faibles ou pas encore travaillés.</p></div>' +
     '<div class="panel"><div class="eyebrow">Erreur la plus fréquente (30 jours)</div>' + (errs.length ? "<h3>" + esc(ERROR_CATS[errs[0][0]][0]) + " · " + errs[0][1] + ' fois</h3><p class="muted">' + esc(ERROR_CATS[errs[0][0]][1]) + "</p>" : '<p class="muted">Tes erreurs à l\'écrit et à l\'oral apparaîtront ici après tes premières corrections.</p>') + "</div></div>"
   );
@@ -256,6 +299,7 @@ function viewPractice(){
     '<a href="#grammar"><h2>Grammaire</h2><p class="muted">' + (g.n ? Math.round(100 * g.ok / g.n) + " % de réussite sur " + g.n + " questions" : "10 thèmes clés du B1 au C1") + "</p></a>" +
     '<a href="#listen"><h2>Écoute</h2><p class="muted">Dictées lues par une voix anglaise' + (avgL !== null ? " · moyenne " + avgL + " %" : "") + "</p></a>" +
     '<a href="#write"><h2>Écrit</h2><p class="muted">Rédaction corrigée par l\'IA, erreurs expliquées en français</p></a>' +
+    '<a href="#live"><h2>Discussion en direct</h2><p class="muted">Parle librement avec ' + esc(partnerOf(S.settings.accent).name) + ', à voix haute, quand tu veux</p></a>' +
     '<a href="#speak"><h2>Oral</h2><p class="muted">Jeux de rôle au micro avec un partenaire IA</p></a>' +
     '<a href="#bilan"><h2>Bilan de niveau</h2><p class="muted">Test complet des 4 compétences, à refaire chaque mois</p></a></div>');
 }
@@ -588,6 +632,7 @@ function viewSpeak(params){
     const rec = planFor(S).scenario;
     render(backLink() + "<h1>Oral</h1><p class=\"lead\">Choisis une situation. Parle au micro, ton partenaire te répond à voix haute. Le bilan détaillé arrive à la fin.</p>" +
       (Recognition ? "" : '<div class="notice">La reconnaissance vocale n\'est pas disponible dans ce navigateur (utilise Chrome ou Edge). Tu peux écrire tes réponses, ou utiliser le mode vocal de ChatGPT.</div>') +
+      '<a class="panel hero live-cta" href="#live' + (T.plan ? "?plan=" + T.plan : "") + '"><h2>Discussion en direct avec ' + esc(partnerOf(S.settings.accent).name) + '</h2><p class="muted" style="margin:0">Conversation libre à voix haute, sans bouton : tu parles, ' + (partnerOf(S.settings.accent).name === "Emma" ? "elle" : "il") + ' répond et t\'écoute à nouveau. ' + (S.liveMemory ? "Se souvient de vos discussions." : "Adaptée à ton niveau.") + '</p></a><h2 style="margin-top:18px">Jeux de rôle</h2>' +
       '<div class="hub">' + [SCENARIOS.find(s => s.id === rec), ...SCENARIOS.filter(s => s.id !== rec)].map(s => '<a href="#speak?s=' + s.id + (T.plan ? "&plan=" + T.plan : "") + '"><h3>' + esc(s.title) + (s.id === rec ? ' <span class="tag">Suggéré</span>' : "") + '</h3><p class="muted" style="margin:0">' + esc(s.open) + "</p></a>").join("") + "</div>");
     return;
   }
@@ -643,6 +688,160 @@ function finishConvo(sc, fb, turns){
   if (T.plan === "speaking") markDone("speaking");
 }
 
+// --- Discussion en direct : écoute, réponse vocale, réécoute, sans bouton ---
+const LIVE_TOPICS = ["My job", "Weekend plans", "A film or series", "Travel", "Food and cooking", "Sport", "Technology", "Something in the news"];
+function liveLevel(){ return (S.profile.skills.speaking || {}).x || overallLevel(S.profile.skills) || 3.5; }
+function viewLive(){
+  const p = partnerOf(S.settings.accent);
+  if (!useApi()) {
+    render(backLink("#speak", "Oral") + "<h1>Discussion en direct</h1><div class=\"notice info\">La discussion en direct dans l'app utilise ta clé OpenRouter (Réglages). Avec ton abonnement, le mode vocal de ChatGPT fait la même chose : colle cette consigne au début de la conversation, " + esc(p.name) + " s'adaptera à ton niveau.</div><div id=\"sub\"></div><div id=\"fb\"></div>");
+    subscriptionBox($("#sub"), liveVoicePrompt(liveLevel(), S.liveMemory, S.settings.accent), raw => {
+      const fb = parseFeedback(raw); liveSaveMemory(raw); finishConvo(LIVE, fb, 0);
+      $("#sub").innerHTML = ""; $("#fb").innerHTML = feedbackHTML(fb, "Bilan de la discussion"); bindFeedback($("#fb"), fb);
+    }, "1. Copie la consigne et colle-la dans une nouvelle conversation ChatGPT. 2. Lance le mode vocal et discute aussi longtemps que tu veux. 3. À la fin, dis « feedback please ». 4. Colle la réponse ici : tes erreurs, ta progression et ce que " + esc(p.name) + " sait de toi seront enregistrés.");
+    return;
+  }
+  render(backLink("#speak", "Oral") + "<h1>Discussion en direct</h1><p class=\"lead\">Parle librement avec " + esc(p.name) + ", comme au téléphone : tu parles, " + (p.name === "Emma" ? "elle" : "il") + " répond à voix haute puis t'écoute à nouveau, sans bouton à presser. Niveau visé : " + esc(levelLabel(liveLevel())) + ", un peu au-dessus pour progresser.</p>" +
+    (Recognition ? "" : '<div class="notice">La reconnaissance vocale n\'est pas disponible dans ce navigateur : ouvre l\'app dans Chrome ou Edge pour discuter à voix haute.</div>') +
+    '<div class="panel"><label for="lv-topic">De quoi veux-tu parler ? (facultatif)</label><input id="lv-topic" placeholder="Ex. : my job, a film I saw, my holidays…" autocapitalize="none">' +
+    '<div class="row" style="margin-top:8px">' + LIVE_TOPICS.map(t => '<button class="btn small" data-topic="' + esc(t) + '">' + esc(t) + "</button>").join("") + "</div>" +
+    '<div class="row" style="margin-top:16px"><button class="btn primary" id="lv-start"' + (Recognition ? "" : " disabled") + ">Démarrer la discussion</button></div>" +
+    '<p class="muted" style="margin-top:12px">Conseils : des écouteurs avec micro évitent l\'écho. ' + esc(p.name) + " répond après " + (S.settings.pauseMs / 1000).toLocaleString("fr-FR") + " s de silence (réglable dans Réglages). Touche le cercle pour répondre tout de suite ou pour couper la parole.</p></div>" +
+    (S.liveMemory ? '<div class="panel tight"><div class="row"><span class="grow"><b>' + esc(p.name) + " se souvient de toi</b><br><small>" + esc(S.liveMemory) + '</small></span><button class="btn small ghost danger" id="lv-forget">Oublier</button></div></div>' : "") +
+    '<div id="fb"></div>');
+  on("[data-topic]", "click", e => { $("#lv-topic").value = e.currentTarget.dataset.topic; });
+  on("#lv-forget", "click", () => { if (confirm("Effacer ce que " + p.name + " sait de toi ?")) { S.liveMemory = ""; save(); viewLive(); } });
+  on("#lv-start", "click", () => liveStart($("#lv-topic").value.trim().slice(0, 200)));
+}
+function liveSaveMemory(raw){
+  try { const m = parseJSONLoose(raw).memory_en; if (typeof m === "string" && m.trim()) { S.liveMemory = m.trim().slice(0, 600); save(); } } catch {}
+}
+async function keepAwake(){ try { if (navigator.wakeLock) T.wake = await navigator.wakeLock.request("screen"); } catch {} }
+function liveStart(topic){
+  const p = partnerOf(S.settings.accent);
+  const L = T.live = {p, topic, state:"thinking", turns:[{role:"user", hidden:true, content:"[The learner has just joined the call." + (topic ? " They'd like to talk about: " + topic + "." : "") + " Greet them" + (S.liveMemory ? " like an old friend" : "") + " and start the conversation.]"}], started:Date.now(), subs:true, final:"", interim:""};
+  keepAwake();
+  T.onCleanup.push(() => liveHalt(L), () => { if (T.wake) T.wake.release().catch(() => {}); });
+  const reawake = () => { if (document.visibilityState === "visible" && T.live === L) keepAwake(); };
+  document.addEventListener("visibilitychange", reawake);
+  T.onCleanup.push(() => document.removeEventListener("visibilitychange", reawake));
+  render('<div class="row"><h1 class="grow">' + esc(p.name) + '</h1><span class="timer" id="lv-time">0:00</span></div>' +
+    '<div class="live-stage"><button class="orb" id="orb" data-state="thinking"><span class="orb-core"></span></button><div class="orb-label" id="orb-label" aria-live="polite"></div><div class="live-heard" id="heard"></div></div>' +
+    '<div class="row live-actions"><button class="btn" id="lv-pause">Pause</button><button class="btn" id="lv-simpler">Répète plus simplement</button><button class="btn" id="lv-subs">Masquer le texte</button><button class="btn primary" id="lv-end">Terminer</button></div>' +
+    '<div id="lv-err"></div><div class="panel"><div class="chat" id="lv-log"></div></div><div id="fb"></div>');
+  every(1000, () => { const s = Math.floor((Date.now() - L.started) / 1000); $("#lv-time").textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); });
+  on("#orb", "click", () => { if (L.state === "listening") liveSubmit(L); else if (L.state === "speaking") liveInterrupt(L); else if (L.state === "paused") liveListen(L); });
+  on("#lv-pause", "click", () => { if (L.state === "paused") liveListen(L); else { liveHalt(L); L.state = "paused"; liveUpdate(L); } });
+  on("#lv-simpler", "click", () => { if (L.state === "thinking" || L.state === "ended") return; liveHalt(L); L.turns.push({role:"user", content:"Sorry, could you say that again more simply?"}); liveAsk(L); });
+  on("#lv-subs", "click", () => { L.subs = !L.subs; $("#lv-subs").textContent = L.subs ? "Masquer le texte" : "Afficher le texte"; liveLog(L); });
+  on("#lv-end", "click", () => liveEnd(L));
+  liveAsk(L);
+}
+function liveHalt(L){
+  clearTimeout(L.silence);
+  if (L.mic) { L.mic.stop(); L.mic = null; }
+  if (L.speaker) L.speaker.cancel();
+  if (L.abort) L.abort.abort();
+}
+const LIVE_LABELS = {listening:"Je t'écoute… touche le cercle pour envoyer", thinking:"…", speaking:"{name} parle · touche pour l'interrompre", paused:"En pause · touche le cercle pour reprendre", ended:"Discussion terminée", error:""};
+function liveUpdate(L){
+  const orb = $("#orb"); if (!orb || T.live !== L) return;
+  orb.dataset.state = L.state;
+  orb.setAttribute("aria-label", LIVE_LABELS[L.state].replace("{name}", L.p.name) || "Discussion");
+  $("#orb-label").textContent = LIVE_LABELS[L.state].replace("{name}", L.p.name);
+  $("#heard").textContent = L.state === "listening" ? (L.final + " " + L.interim).trim() : "";
+  $("#lv-pause").textContent = L.state === "paused" ? "Reprendre" : "Pause";
+  $("#lv-end").disabled = L.state === "ended";
+}
+function liveLog(L){
+  const log = $("#lv-log"); if (!log || T.live !== L) return;
+  log.innerHTML = L.turns.filter(t => !t.hidden).map((t, i) => '<div class="msg ' + (t.role === "user" ? "me" : "ai") + '">' +
+    (t.role === "assistant" && !L.subs ? '<span class="muted">(texte masqué)</span>' : esc(t.content)) + "</div>").join("");
+  log.scrollTop = log.scrollHeight;
+}
+function makeSpeaker(onIdle){
+  const q = []; let busy = false, stopped = false;
+  const next = () => {
+    if (stopped) return;
+    const t = q.shift();
+    if (t === undefined) { busy = false; onIdle(); return; }
+    busy = true; speak(t).then(next);
+  };
+  return {push(t){ if (stopped) return; q.push(t); if (!busy) next(); }, cancel(){ stopped = true; q.length = 0; try { speechSynthesis.cancel(); } catch {} }, get busy(){ return busy || q.length > 0; }};
+}
+async function liveAsk(L){
+  L.state = "thinking"; L.final = L.interim = ""; liveUpdate(L); liveLog(L); $("#lv-err").innerHTML = "";
+  const turn = {role:"assistant", content:""}, abort = new AbortController();
+  let pending = "", streamDone = false;
+  const speaker = makeSpeaker(() => { if (streamDone && T.live === L && L.state === "speaking") liveListen(L); });
+  L.speaker = speaker; L.abort = abort;
+  const system = liveSystem(liveLevel(), S.liveMemory, S.settings.accent, L.topic);
+  const history = L.turns.slice(-24).map(t => ({role:t.role, content:t.content}));
+  L.turns.push(turn);
+  try {
+    await callAIStream([{role:"system", content:system}, ...history], (d, text) => {
+      turn.content = text; pending += d;
+      const {sentences, rest} = splitSentences(pending); pending = rest;
+      for (const sn of sentences) speaker.push(sn);
+      if (sentences.length && L.state === "thinking") { L.state = "speaking"; liveUpdate(L); }
+      liveLog(L);
+    }, {signal:abort.signal, maxTokens:400});
+    turn.content = turn.content.trim();
+    if (pending.trim()) speaker.push(pending.trim());
+    streamDone = true;
+    if (L.state === "thinking") { L.state = "speaking"; liveUpdate(L); }
+    if (!speaker.busy && L.state === "speaking") liveListen(L);
+    liveLog(L);
+  } catch (e) {
+    if (abort.signal.aborted) { if (!turn.content.trim()) L.turns.splice(L.turns.indexOf(turn), 1); return; }
+    speaker.cancel(); L.turns.splice(L.turns.indexOf(turn), 1);
+    L.state = "error"; liveUpdate(L); liveLog(L);
+    const box = $("#lv-err"); if (!box || T.live !== L) return;
+    box.innerHTML = '<div class="notice">' + esc(e.message) + '</div><div class="row" style="margin-bottom:14px"><button class="btn primary" id="lv-retry">Réessayer</button></div>';
+    on("#lv-retry", "click", () => liveAsk(L), box);
+  }
+}
+function liveListen(L){
+  if (T.live !== L || L.state === "ended") return;
+  clearTimeout(L.silence);
+  L.state = "listening"; L.final = L.interim = ""; liveUpdate(L);
+  L.mic = startMic((final, interim) => {
+    if (L.state !== "listening") return;
+    L.final = final; L.interim = interim; liveUpdate(L);
+    clearTimeout(L.silence);
+    if ((final + interim).trim()) L.silence = setTimeout(() => liveSubmit(L), S.settings.pauseMs || 1500);
+  });
+}
+function liveSubmit(L){
+  if (L.state !== "listening") return;
+  const text = (L.final + " " + L.interim).trim();
+  if (!text) return;
+  L.state = "thinking"; clearTimeout(L.silence);
+  if (L.mic) { L.mic.stop(); L.mic = null; }
+  L.turns.push({role:"user", content:text});
+  liveAsk(L);
+}
+function liveInterrupt(L){
+  if (L.speaker) L.speaker.cancel();
+  if (L.abort) L.abort.abort();
+  const last = L.turns[L.turns.length - 1];
+  if (last && last.role === "assistant" && !last.content.trim()) L.turns.pop();
+  liveListen(L);
+}
+function liveEnd(L){
+  liveHalt(L); L.state = "ended"; liveUpdate(L); liveLog(L);
+  if (T.wake) T.wake.release().catch(() => {});
+  const turns = L.turns.filter(t => t.content.trim()), n = turns.filter(t => t.role === "user" && !t.hidden).length;
+  $(".live-actions").innerHTML = '<button class="btn primary" id="lv-new">Nouvelle discussion</button><a class="btn" href="#today">Retour au plan</a>';
+  on("#lv-new", "click", () => { const plan = T.plan; cleanup(); T.plan = plan; viewLive(); window.scrollTo(0, 0); });
+  if (n < 3) { $("#fb").innerHTML = '<div class="panel tight muted">Discussion trop courte pour un bilan (3 réponses minimum).</div>'; return; }
+  aiTask($("#fb"), liveFeedbackMessages(turns, S.liveMemory), raw => {
+    const fb = parseFeedback(raw); liveSaveMemory(raw); finishConvo(LIVE, fb, n);
+    $("#fb").innerHTML = feedbackHTML(fb, "Bilan de la discussion"); bindFeedback($("#fb"), fb);
+  }, {label:"Analyse de ta discussion…"});
+  $("#fb").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
 // --- Progrès ---
 const SHORT = {reading:"Lecture", listening:"Écoute", writing:"Écrit", speaking:"Oral", grammar:"Grammaire", vocabulary:"Vocabulaire"};
 function viewProgress(){
@@ -678,6 +877,8 @@ function viewSettings(){
     '<div><label for="voice">Voix</label><select id="voice"><option value="">Automatique</option>' + vs.map(v => '<option value="' + esc(v.voiceURI) + '"' + (v.voiceURI === st.voice ? " selected" : "") + ">" + esc(v.name + " (" + v.lang + ")") + "</option>").join("") + "</select></div>" +
     '<div><label for="minutes">Temps par jour</label><select id="minutes">' + [30, 45, 60, 90].map(m => '<option value="' + m + '"' + (st.minutes === m ? " selected" : "") + ">" + m + " minutes</option>").join("") + "</select></div>" +
     '<div><label for="newPerDay">Nouveaux mots par jour</label><select id="newPerDay">' + [5, 10, 15, 20].map(m => '<option value="' + m + '"' + (st.newPerDay === m ? " selected" : "") + ">" + m + "</option>").join("") + "</select></div>" +
+    '<div><label for="rate">Vitesse de la voix</label><select id="rate">' + [[0.85, "Lente"], [0.95, "Un peu lente"], [1, "Normale"], [1.1, "Rapide"]].map(([v, l]) => '<option value="' + v + '"' + (st.rate === v ? " selected" : "") + ">" + l + "</option>").join("") + "</select></div>" +
+    '<div><label for="pauseMs">Silence avant la réponse (discussion en direct)</label><select id="pauseMs">' + [[1000, "1 seconde"], [1500, "1,5 seconde"], [2500, "2,5 secondes"], [4000, "4 secondes"]].map(([v, l]) => '<option value="' + v + '"' + (st.pauseMs === v ? " selected" : "") + ">" + l + "</option>").join("") + "</select></div>" +
     '<div><label for="theme">Thème</label><select id="theme">' + [["auto", "Automatique"], ["light", "Clair"], ["dark", "Sombre"]].map(([v, l]) => '<option value="' + v + '"' + (st.theme === v ? " selected" : "") + ">" + l + "</option>").join("") + '</select></div></div><div class="row" style="margin-top:12px"><button class="btn" id="test-voice">Tester la voix</button></div></div>' +
     '<div class="panel"><h2>Mes données</h2><p class="muted">Tout est enregistré dans ce navigateur, sur cet appareil. La sauvegarde n\'inclut pas ta clé OpenRouter.</p><div class="row"><button class="btn" id="export">Exporter une sauvegarde</button><button class="btn" id="import">Importer une sauvegarde</button><button class="btn danger" id="reset">Tout effacer</button></div></div>');
   const set = (k, v) => { S.settings[k] = v; save(); renderChips(); };
@@ -689,6 +890,8 @@ function viewSettings(){
   on("#voice", "change", e => set("voice", e.target.value));
   on("#minutes", "change", e => set("minutes", +e.target.value));
   on("#newPerDay", "change", e => set("newPerDay", +e.target.value));
+  on("#rate", "change", e => set("rate", +e.target.value));
+  on("#pauseMs", "change", e => set("pauseMs", +e.target.value));
   on("#theme", "change", e => { set("theme", e.target.value); applyTheme(); });
   on("#test-voice", "click", () => speak("Hello! This is how I sound. Let's practise your English together."));
   on("#key-check", "click", async () => {

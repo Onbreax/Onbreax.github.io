@@ -94,4 +94,16 @@ const w = M.writingMessages("Task", "My text here.", {assessment:true});
 assert.equal(w[0].role, "system"); assert.match(w[0].content, /JSON/); assert.match(w[1].content, /placement test/); assert.match(w[1].content, /3 words/);
 assert.match(M.voicePrompt(D.SCENARIOS[0], 3.5, ["articles"]), /feedback please/);
 assert.match(M.chatSystem(D.SCENARIOS[0], 3.5, []), /B1\+/);
+// Discussion en direct
+assert.equal(M.partnerOf("en-US").name, "Jake"); assert.equal(M.partnerOf("en-GB").name, "Emma");
+const ls = M.liveSystem(4, "Mohand works in sales.", "en-GB", "Travel");
+assert.match(ls, /Emma/); assert.match(ls, /B2/); assert.match(ls, /works in sales/); assert.match(ls, /Travel/);
+assert.match(M.liveSystem(3, "", "en-US", ""), /first call/);
+const lf = M.liveFeedbackMessages([{role:"user", hidden:true, content:"[joined]"}, {role:"assistant", content:"Hi!"}, {role:"user", content:"Hello"}], "old facts");
+assert.match(lf[0].content, /memory_en/); assert.match(lf[0].content, /old facts/); assert.doesNotMatch(lf[1].content, /joined/);
+assert.match(M.liveVoicePrompt(3.5, "", "en-GB"), /feedback please[\s\S]*memory_en/);
+let sp = M.splitSentences("Hi there! How are you? I'm");
+assert.deepEqual(sp.sentences, ["Hi there!", "How are you?"]); assert.equal(sp.rest, "I'm");
+sp = M.splitSentences("Really?"); assert.deepEqual(sp.sentences, []); assert.equal(sp.rest, "Really?");
+assert.deepEqual(M.splitSentences("He said \"great.\" Then left.").sentences, ['He said "great."']);
 console.log("Mon anglais core: all tests passed");
