@@ -38,10 +38,16 @@ async function main(){
       const body = JSON.parse(route.request().postData()); calls.push(body);
       assert.equal(route.request().headers().authorization, "Bearer sk-or-test");
       const sys = body.messages[0].content;
+      if (body.stream) {
+        const parts = body.messages.some(m => m.role === "user" && m.content.includes("more simply")) ? ["Of course. ", "Where did you go?"] : ["Hi! I'm Emma. ", "How are ", "you today? ", "Tell me more."];
+        const sse = parts.map(c => "data: " + JSON.stringify({choices:[{delta:{content:c}}]}) + "\n\n").join("") + ": keep-alive\n\ndata: " + JSON.stringify({choices:[{delta:{}}], usage:{cost:0.0004}}) + "\n\ndata: [DONE]\n\n";
+        return route.fulfill({status:200, contentType:"text/event-stream", body:sse});
+      }
       let content;
       if (sys.includes("role-playing")) content = "That sounds great. What did you enjoy most about it?";
       else if (sys.includes("grammar exercises")) content = JSON.stringify({questions:[{question:"The letter ___ yesterday.", options:["was sent", "sent", "is sent", "has sent"], explanation_fr:"Passif au prétérit."}]});
       else if (sys.includes("speaking examiner")) content = feedback("B1+");
+      else if (sys.includes("memory_en")) content = feedback("B1+").replace(/}$/, ',"memory_en":"Works in marketing, likes travel."}');
       else if (sys.includes("reviewing a role-play")) content = feedback("B1");
       else content = "Voici ma correction :\n" + feedback("B2");
       return route.fulfill({json:{model:body.model, choices:[{message:{content}}], usage:{prompt_tokens:1000, completion_tokens:300, cost:0.002}}});
@@ -169,6 +175,30 @@ async function main(){
   assert.equal(st.custom.length, 1);
   assert(st.spend[Object.keys(st.spend)[0]] > 0.01);
 
+  // Discussion en direct : écoute, réponse vocale par phrase, réécoute automatique
+  await page.evaluate(() => { const s = JSON.parse(localStorage.getItem("monAnglais.v1")); s.settings.pauseMs = 1000; localStorage.setItem("monAnglais.v1", JSON.stringify(s)); });
+  await page.goto("http://app.test/#today"); await page.reload();
+  await page.click('a.live-cta[href="#live"]');
+  await page.click('[data-topic="Travel"]'); await page.click("#lv-start");
+  await page.waitForFunction(() => document.querySelectorAll("#lv-log .msg.me").length >= 2, null, {timeout:30000});
+  const spoken = await page.evaluate(() => window.__spoken);
+  assert(spoken.includes("Hi!") && spoken.includes("I'm Emma.") && spoken.includes("How are you today?") && spoken.includes("Tell me more."), spoken.join(" | "));
+  const liveCalls = calls.filter(c => c.stream);
+  assert.match(liveCalls[0].messages[0].content, /live voice call[\s\S]*Travel/);
+  assert.match(liveCalls[0].messages[1].content, /^\[The learner has just joined/);
+  assert.equal(liveCalls[1].messages[2].role, "assistant"); assert.equal(liveCalls[1].messages[3].role, "user");
+  assert.equal(await page.locator("#lv-log .msg").first().innerText(), "Hi! I'm Emma. How are you today? Tell me more.");
+  await page.waitForSelector('#orb[data-state="listening"]'); await page.click("#lv-simpler");
+  await page.waitForSelector("text=Where did you go?");
+  await page.click("#lv-subs"); assert.match(await page.locator("#lv-log").innerText(), /texte masqué/);
+  await page.waitForFunction(() => document.querySelectorAll("#lv-log .msg.me").length >= 4, null, {timeout:30000});
+  await page.click("#lv-end"); await page.waitForSelector("text=Bilan de la discussion");
+  st = await page.evaluate(() => JSON.parse(localStorage.getItem("monAnglais.v1")));
+  assert.equal(st.liveMemory, "Works in marketing, likes travel."); assert.equal(st.convos[st.convos.length - 1].scenario, "live");
+  await page.click("#lv-new");
+  assert.match(await text(), /Emma se souvient de toi[\s\S]*Works in marketing/);
+  if (shots) { await page.click("#lv-start"); await page.waitForSelector('#orb[data-state="listening"]'); await page.screenshot({path:path.join(shots, "direct.png")}); await page.click("#lv-pause"); }
+
   // Budget atteint : l'app propose le copier-coller
   await page.evaluate(() => { const s = JSON.parse(localStorage.getItem("monAnglais.v1")); s.settings.budget = 0.01; localStorage.setItem("monAnglais.v1", JSON.stringify(s)); });
   await page.goto("http://app.test/#write"); await page.reload();
@@ -190,6 +220,8 @@ async function main(){
   await page.waitForSelector("text=Corrections (2)");
   await page.goto("http://app.test/#speak?s=hotel");
   assert.match(await page.locator(".prompt-box").inputValue(), /feedback please/);
+  await page.goto("http://app.test/#live");
+  assert.match(await page.locator(".prompt-box").inputValue(), /Emma[\s\S]*memory_en[\s\S]*Works in marketing/);
   assert.equal(calls.length, before, "no API call in subscription mode");
 
   // Progrès, export sans clé
@@ -202,7 +234,7 @@ async function main(){
 
   // Mobile : pas de défilement horizontal, navigation du bas
   await page.setViewportSize({width:390, height:844});
-  for (const h of ["#today", "#practice", "#progress", "#settings", "#vocab", "#grammar", "#bilan?result=1"]) {
+  for (const h of ["#live", "#speak", "#today", "#practice", "#progress", "#settings", "#vocab", "#grammar", "#bilan?result=1"]) {
     await page.goto("http://app.test/" + h);
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "no horizontal scroll on " + h);
   }

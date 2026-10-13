@@ -1,4 +1,4 @@
-# Mon anglais 1.0.0
+# Mon anglais 1.1.0
 
 Application personnelle pour réviser l'anglais une heure par jour, à l'écrit comme à l'oral, à partir d'un bilan de niveau sur les 4 compétences. Page HTML autonome : `mon-anglais.html` (https://onbreax.github.io/mon-anglais.html).
 
@@ -22,6 +22,17 @@ Application personnelle pour réviser l'anglais une heure par jour, à l'écrit 
 - **Écrit** : sujet du jour ou sujet libre ; correction détaillée, version améliorée, vocabulaire à ajouter aux cartes.
 - **Oral** : 12 jeux de rôle (entretien, restaurant, médecin, réunion…). Le partenaire IA répond à voix haute ; le bilan de fin liste les erreurs et la formulation naturelle. En mode abonnement, la consigne est prévue pour le mode vocal de ChatGPT : dire « feedback please » à la fin, puis coller la réponse dans l'app.
 
+## Discussion en direct
+
+Conversation libre à voix haute, comme au téléphone, avec Emma (accent britannique) ou Jake (accent américain, selon l'accent choisi dans Réglages). Accès : « Parler maintenant » sur l'écran du jour, Pratiquer ou Oral.
+
+- Pas de bouton à presser : l'app écoute, envoie après un silence (1,5 s par défaut, réglable de 1 à 4 s), lit la réponse phrase par phrase dès qu'elle arrive, puis réécoute.
+- Toucher le cercle : répondre tout de suite pendant l'écoute, couper la parole pendant la réponse, reprendre après une pause. « Répète plus simplement » demande une reformulation plus facile ; « Masquer le texte » entraîne la compréhension orale.
+- Le partenaire parle un peu au-dessus du niveau mesuré à l'oral, reste en anglais et ne corrige pas pendant la discussion. Le micro est coupé pendant qu'il parle pour éviter l'écho ; des écouteurs avec micro restent conseillés.
+- En fin de discussion (3 réponses minimum) : bilan détaillé et mise à jour de ce que le partenaire retient de toi (prénom, travail, centres d'intérêt), réutilisé aux discussions suivantes et effaçable.
+- L'écran reste allumé pendant la discussion quand le navigateur le permet.
+- Nécessite le mode OpenRouter. En mode abonnement, l'app fournit la consigne équivalente pour le mode vocal de ChatGPT, mémoire comprise.
+
 Les erreurs relevées à l'écrit et à l'oral sont classées (temps, articles, prépositions…) et orientent le point de grammaire et les conversations des jours suivants.
 
 ## Coût
@@ -42,7 +53,7 @@ Sources dans `mon-anglais/web/` : `content.js` (questions, mots, dictées, sujet
 
 Tests :
 
-- `node tests/mon-anglais-core.cjs` : contenu (identifiants, options), niveaux et barème EF SET, FSRS, file de vocabulaire, test adaptatif (candidats A1, B1, B2, C1), plan du jour, série, dictée, lecture des réponses de l'IA.
-- `node tests/mon-anglais-ui.cjs` (Playwright et Chromium) : bilan complet, plan, vocabulaire, grammaire et questions générées, dictée, écrit, conversation et bilan oral, budget atteint, mode abonnement, export sans clé, échappement du texte de l'IA, affichage mobile à 390 px. OpenRouter, le micro et la voix sont simulés : aucun appel payant. Variables : `CHROME_EXECUTABLE`, `PLAYWRIGHT_MODULE`, `MON_ANGLAIS_SCREENSHOT_DIR`.
+- `node tests/mon-anglais-core.cjs` : consignes de la discussion en direct et découpage en phrases, contenu (identifiants, options), niveaux et barème EF SET, FSRS, file de vocabulaire, test adaptatif (candidats A1, B1, B2, C1), plan du jour, série, dictée, lecture des réponses de l'IA.
+- `node tests/mon-anglais-ui.cjs` (Playwright et Chromium) : bilan complet, plan, vocabulaire, grammaire et questions générées, dictée, écrit, conversation et bilan oral, discussion en direct (réponse en continu lue par phrase, réécoute automatique, reformulation, mémoire), budget atteint, mode abonnement, export sans clé, échappement du texte de l'IA, affichage mobile à 390 px. OpenRouter, le micro et la voix sont simulés : aucun appel payant. Variables : `CHROME_EXECUTABLE`, `PLAYWRIGHT_MODULE`, `MON_ANGLAIS_SCREENSHOT_DIR`.
 
-Non vérifié : les appels réels à OpenRouter, la reconnaissance vocale réelle sur Android et la calibration des niveaux sur de vrais apprenants.
+Non vérifié : les appels réels à OpenRouter (dont la réponse en continu), la reconnaissance vocale réelle sur Android, le délai de réponse réel et la calibration des niveaux sur de vrais apprenants.
