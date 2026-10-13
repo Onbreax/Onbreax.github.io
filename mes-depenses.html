@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="light"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Mes dépenses</title><style>:root{--ink:#172536;--muted:#5d6a7c;--bg:#edf1f6;--paper:#fff;--line:#ccd5e0;--accent:#b62e55;--soft:#fbeaf0;--green:#166950;--nav-height:61px;--shadow:0 4px 22px #17253608}
+*{box-sizing:border-box}html{color-scheme:light}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:disabled{opacity:.55;cursor:wait}button:focus-visible,a:focus-visible{outline:3px solid #b62e5566;outline-offset:3px}button,input,select{min-height:44px}input,select,textarea{width:100%;padding:10px 12px;border:1px solid #acb9cb;border-radius:9px;background:#fff;color:var(--ink)}input[type=checkbox]{width:18px;min-height:18px}textarea{min-height:90px}label{display:block;font-size:13px;font-weight:650;margin:12px 0 5px}small,.muted{color:var(--muted)}h1,h2,h3,p{margin-top:0}h1{font-size:32px;line-height:1.2;letter-spacing:-.8px}h2{font-size:19px}h3{font-size:16px}a{color:var(--accent)}[hidden]{display:none!important}.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:9px 15px;border:1px solid #acb9cb;border-radius:9px;background:#fff;color:var(--ink);font-weight:650;text-decoration:none}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.ghost{background:transparent;border-color:transparent}.btn.small{font-size:13px;padding:6px 10px}.pill{display:inline-block;padding:3px 8px;background:#edf1f6;border-radius:6px;font-size:12px;font-weight:600;white-space:nowrap}.pill.rose{background:var(--soft);color:#982445}.pill.green{background:#e7f4ed;color:var(--green)}
+.shell{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:100vh}.side{background:#172536;color:#fff;padding:26px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100dvh}.brand{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:750;margin-bottom:32px}.mark{display:grid;place-items:center;background:#f8d7e1;color:#982445;width:35px;height:35px;border-radius:11px;font-weight:800;font-size:24px}.side small{color:#c4cedb;font-size:12px}.main-nav{display:grid;gap:7px}.main-nav button{display:flex;align-items:center;gap:10px;color:#c4cedb;background:transparent;border:0;text-align:left;border-radius:9px;padding:12px;font-weight:600}.main-nav button.active{color:#fff;background:#33445c}.nav-icon{font-size:18px;width:22px;text-align:center}.side-footer{margin-top:auto;padding-top:20px;font-size:12px;color:#c4cedb;line-height:1.7}.side-footer button{color:#fff;border-color:#65758c;width:100%;margin-bottom:15px}.content{max-width:1400px;padding:24px 32px;width:100%;margin:auto}.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:28px}.topbar-title{font-size:13px;color:var(--muted)}.topbar-actions,.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.view-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin:0 0 24px}.view-head p{color:var(--muted);margin:10px 0 0}.month-select{display:flex;align-items:center;gap:8px}.month-select input{width:160px}.month-select button{width:44px;padding:0}.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:var(--shadow)}.hero-number{font-size:44px;font-weight:750;line-height:1.1;letter-spacing:-1px;margin:14px 0 12px;font-variant-numeric:tabular-nums}.hero-panel{border-left:4px solid var(--accent)}.hero-eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}.metric .value{display:block;font-size:22px;font-weight:700;line-height:1.3;margin:6px 0;font-variant-numeric:tabular-nums}.metric small{font-size:12px}.dashboard{display:grid;grid-template-columns:1.05fr 1fr;gap:18px;margin-top:18px}.panel-heading{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:16px}.panel-heading h2{margin:0}.notice{padding:12px 15px;border:1px solid #dfc3cf;border-radius:10px;background:#fff4f7;color:#703349;font-size:13px;margin:0 0 18px}.notice.neutral{background:#f3f6fa;border-color:var(--line);color:var(--muted)}.demo-banner{display:flex;gap:12px;align-items:center;justify-content:space-between;border-bottom:1px solid #d599ae;background:#fbeaf0;padding:10px 18px;color:#8e2142;font-weight:600;font-size:13px}.chart{height:170px;display:grid;grid-template-columns:repeat(6,1fr);align-items:end;gap:13px;padding-top:10px}.chart-column{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px}.chart-bar{width:70%;max-width:52px;min-height:3px;background:#b62e55;border-radius:6px 6px 0 0}.chart-value{font-size:11px;color:var(--muted)}.chart-label{font-size:12px;white-space:nowrap;color:var(--muted)}.category-row{display:grid;grid-template-columns:130px 1fr 85px;gap:12px;align-items:center;font-size:13px;margin:13px 0}.category-track{height:7px;background:#e8edf3;border-radius:6px;overflow:hidden}.category-bar{height:100%;background:#b62e55;border-radius:6px}.amount{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:650}.credit{color:var(--green)}.recent-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;border-bottom:1px solid #e0e6ef;padding:12px 0}.recent-row:last-child{border:0}.recent-row strong{font-size:14px}.recent-row small{display:block;font-size:12px}.empty{padding:30px 12px;text-align:center;color:var(--muted)}.empty h3{color:var(--ink)}.filters{display:grid;grid-template-columns:minmax(160px,1.4fr) 1fr 1fr;gap:10px;padding:14px 0}.filters input,.filters select{font-size:14px}.table-panel{padding:0;overflow:hidden}.table{width:100%;border-collapse:collapse}.table th{background:#f5f7fa;color:var(--muted);font-size:12px;font-weight:650;text-align:left;padding:13px 15px;border-bottom:1px solid var(--line)}.table td{padding:13px 15px;border-bottom:1px solid #dde4ed;font-size:14px;vertical-align:middle}.table tbody tr{cursor:pointer}.table tbody tr:hover{background:#fbf4f7}.table td:nth-child(2){max-width:450px}.transaction-label{display:block;font-weight:650;overflow-wrap:anywhere}.transaction-sub{font-size:12px;color:var(--muted);display:block;margin-top:3px}.table .amount{text-align:right}.pagination{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;font-size:13px;color:var(--muted)}.accounts-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.account-card .bank-name{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:650}.account-card h2{margin:9px 0 6px;font-size:18px}.account-card .balance{font-size:24px;font-weight:700;margin:18px 0 2px}.account-card .actions{margin-top:18px}.howto{line-height:1.8;font-size:14px;color:var(--muted)}.howto li{margin-bottom:8px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.separator{border:0;border-top:1px solid var(--line);margin:22px 0}.modal{position:fixed;inset:0;background:#17253670;z-index:60;display:grid;place-items:center;padding:18px}.modal-card{background:#fff;border-radius:16px;width:min(580px,100%);max-height:calc(100dvh - 36px);overflow:auto;padding:24px;box-shadow:0 20px 80px #17253640}.modal-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}.modal-head h2{margin:0}.modal .actions{margin-top:20px}.modal .muted{font-size:13px}.auth-screen{min-height:100dvh;display:grid;place-items:center;padding:25px;background:linear-gradient(150deg,#edf1f6 40%,#fcecf2)}.auth-card{width:min(420px,100%);background:white;border:1px solid var(--line);padding:32px;border-radius:20px;box-shadow:var(--shadow)}.auth-card .brand{color:var(--ink);margin-bottom:28px}.auth-card h1{font-size:26px}.auth-card p{color:var(--muted);font-size:14px}.auth-card button{width:100%}.auth-card .actions{margin-top:20px;display:grid;gap:10px}.error{color:#a02742;font-size:13px;white-space:pre-wrap;margin-top:10px}.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);z-index:100;background:#172536;color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;width:max-content;max-width:90vw;box-shadow:var(--shadow)}.progress{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}.spinner{width:15px;height:15px;border:2px solid #ddd;border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.import-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}.preview{overflow:auto;border:1px solid var(--line);max-height:170px;border-radius:9px}.preview table{font-size:12px;width:100%;border-collapse:collapse}.preview td,.preview th{padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}.field-note{font-size:12px;color:var(--muted);margin:5px 0 0}.danger{color:#a02742}.small-note{font-size:12px;color:var(--muted);line-height:1.7}.mini-list{list-style:none;padding:0;margin:0}.mini-list li{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #e0e6ef;padding:10px 0;font-size:13px}.wide{grid-column:1/-1}.method{background:#f4f6fa;border-radius:9px;padding:12px;font-size:12px;color:var(--muted);margin-top:18px}.busy-indicator{position:fixed;top:0;left:0;height:3px;background:var(--accent);width:100%;z-index:120}.mobile-brand{display:none}
+@media(max-width:900px){.shell{display:block}.side{display:none}.mobile-brand{display:flex;gap:8px;align-items:center;font-weight:750}.mobile-brand .mark{width:29px;height:29px;font-size:20px}.topbar-title{display:none}.content{padding:17px 18px calc(var(--nav-height) + 18px)}.topbar{margin-bottom:24px}.mobile-nav{display:grid;position:fixed;bottom:0;left:0;right:0;grid-template-columns:repeat(3,1fr);z-index:30;background:#fff;border-top:1px solid #bec9d8;padding:3px 7px max(3px,env(safe-area-inset-bottom));box-shadow:0 -3px 12px #17253608}.mobile-nav button{display:flex;justify-content:center;align-items:center;gap:7px;border:0;border-radius:8px;background:transparent;color:var(--muted);padding:8px 3px;min-height:48px;font-size:13px;font-weight:600}.mobile-nav button.active{background:var(--soft);color:#982445}.view-head{align-items:flex-start}.view-head h1{font-size:28px}.view-head p{font-size:13px}.accounts-grid{grid-template-columns:1fr 1fr}.topbar-actions .text-desktop{display:none}.modal{padding:10px}.modal-card{max-height:calc(100dvh - 20px);padding:20px}.hero-number{font-size:39px}.table td,.table th{padding:11px 12px}.table td:first-child,.table th:first-child{width:85px}.table td:nth-child(3),.table th:nth-child(3){display:none}.table td:nth-child(4),.table th:nth-child(4){display:none}.table .transaction-sub{display:block!important}}
+@media(min-width:901px){.mobile-nav{display:none}.table td:nth-child(2) .transaction-bank{display:none}}
+@media(max-width:600px){.dashboard{grid-template-columns:1fr}.content{padding:14px 12px calc(var(--nav-height) + 14px)}.view-head{display:block}.view-head .month-select{margin-top:15px}.month-select input{flex:1;width:auto}.panel{padding:18px}.metrics{gap:8px}.metric .value{font-size:18px}.metric small{font-size:11px}.metrics .metric{padding:14px 10px}.accounts-grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}.filters input{grid-column:1/-1}.topbar{gap:5px}.topbar-actions{gap:4px}.topbar-actions .btn{padding:7px 10px;font-size:12px}.topbar-actions .btn.primary{display:none}.mobile-brand{font-size:17px}.category-row{grid-template-columns:110px 1fr 75px;gap:8px}.table td:nth-child(2){max-width:210px}.table td:first-child{width:66px;font-size:12px}.table .amount{font-size:13px;padding-left:5px}.row{grid-template-columns:1fr}.auth-card{padding:25px}.demo-banner{font-size:12px;padding:7px 12px}.demo-banner .btn{font-size:12px}.hero-number{font-size:38px}.import-grid{grid-template-columns:1fr 1fr}.modal-head h2{font-size:18px}.pagination{gap:8px;font-size:12px}.pagination .btn{font-size:12px}.toast{bottom:calc(var(--nav-height) + 12px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></head>
+<body>
+<section id="auth" class="auth-screen"><div class="auth-card"><div class="brand"><span class="mark">m</span>Mes dépenses</div><h1 id="auth-title">Ton mois, en clair.</h1><p id="auth-description">Réunis tes comptes courants et comprends tes dépenses. Ton espace est chiffré sur cet appareil.</p><form id="auth-form"><label for="password">Mot de passe de ton espace</label><input id="password" type="password" autocomplete="new-password" minlength="10" required><div id="confirm-box"><label for="password-confirm">Confirmer le mot de passe</label><input id="password-confirm" type="password" autocomplete="new-password" minlength="10"></div><p id="auth-error" class="error" role="alert"></p><div class="actions"><button id="auth-submit" class="btn primary" type="submit">Créer mon espace</button><button id="demo-start" class="btn" type="button">Découvrir avec des données fictives</button><button id="restore-auth" class="btn ghost" type="button">Restaurer une sauvegarde</button></div></form><p class="small-note" style="margin:20px 0 0">Mes dépenses 1.0.0 · Sans IA · Aucun mot de passe bancaire n’est demandé par l’application.</p></div></section>
+<section id="app" hidden>
+<div id="demo-banner" class="demo-banner" hidden><span>Démonstration · chiffres et comptes fictifs</span><button class="btn small" id="demo-exit">Mon espace personnel</button></div>
+<div class="shell"><aside class="side"><div class="brand"><span class="mark">m</span>Mes dépenses</div><nav class="main-nav" aria-label="Navigation principale"><button data-view="month" class="active"><span class="nav-icon">▥</span>Vue mensuelle</button><button data-view="transactions"><span class="nav-icon">≡</span>Opérations</button><button data-view="accounts"><span class="nav-icon">○</span>Comptes</button></nav><div class="side-footer"><button class="btn" data-action="settings">Réglages et connexion</button>Mes dépenses 1.0.0<br>Comptes courants · calculs locaux<br>Stockage chiffré sur cet appareil</div></aside>
+<main class="content"><header class="topbar"><div class="topbar-title">ESPACE PERSONNEL · COMPTES COURANTS</div><div class="mobile-brand"><span class="mark">m</span>Mes dépenses</div><div class="topbar-actions"><button class="btn small" id="global-import">Importer<span class="text-desktop"> des opérations</span></button><button class="btn small" data-action="settings" aria-label="Réglages et connexion">Réglages</button><button class="btn small" id="lock">Verrouiller</button></div></header><div id="status" aria-live="polite"></div><div id="main-content"></div></main></div>
+<nav id="mobile-nav" class="mobile-nav" aria-label="Navigation mobile"><button data-view="month" class="active">Mon mois</button><button data-view="transactions">Opérations</button><button data-view="accounts">Comptes</button></nav>
+</section>
+<div id="modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-card"><div class="modal-head"><h2 id="modal-title"></h2><button class="btn small" id="modal-close" aria-label="Fermer la fenêtre">Fermer</button></div><div id="modal-body"></div><p id="modal-error" class="error" role="alert"></p></div></div>
+<div id="toast" class="toast" role="status" hidden></div><div id="busy" class="busy-indicator" hidden></div>
+<input id="csv-file" type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values" hidden><input id="pem-file" type="file" accept=".pem" hidden><input id="backup-file" type="file" accept=".json,application/json" hidden>
+<script>(function(root) {
+"use strict";
+const categories=["À classer","Courses","Restaurants","Transport","Logement","Factures","Abonnements","Santé","Achats","Loisirs","Frais bancaires","Autres"];
+const flows=["auto","expense","refund","income","internal","savings"];
+const normalize=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim();
+const iban=s=>String(s||"").replace(/\s/g,"").toUpperCase();
+function money(value) {
+ let s=String(value??"").trim().replace(/[\s\u00a0\u202f€]/g,"");
+ if(!s)throw Error("Montant manquant.");
+ let sign=1;
+ if(/^\(.*\)$/.test(s)){sign=-1;s=s.slice(1,-1);}
+ if(s[0]==="-"){sign*=-1;s=s.slice(1);}else if(s[0]==="+")s=s.slice(1);
+ if(s.includes(",")&&s.includes(".")){if(s.lastIndexOf(",")>s.lastIndexOf("."))s=s.replace(/\./g,"").replace(",",".");else s=s.replace(/,/g,"");}
+ else if(s.includes(","))s=s.replace(",",".");
+ if(!/^\d+(?:\.\d{1,2})?$/.test(s))throw Error("Montant invalide : deux décimales maximum.");
+ const [whole,decimal=""]=s.split(".");
+ const n=Number(whole)*100+Number(decimal.padEnd(2,"0"));
+ if(!Number.isSafeInteger(n)||n>100000000000)throw Error("Montant hors limite.");
+ return sign*n;
+}
+function date(value) {
+ const s=String(value||"").trim();let y,m,d;
+ let match=s.match(/^(\d{4})-(\d{2})-(\d{2})(?:T.*)?$/);
+ if(match)[,y,m,d]=match;
+ else {match=s.match(/^(\d{2})[/.](\d{2})[/.](\d{4})$/);if(!match)throw Error("Date invalide : "+s);[,d,m,y]=match;}
+ const iso=y+"-"+m+"-"+d,check=new Date(iso+"T12:00:00Z");
+ if(!Number.isFinite(check.getTime())||check.toISOString().slice(0,10)!==iso)throw Error("Date impossible : "+s);
+ return iso;
+}
+function hash(s) {
+ let a=2166136261,b=3335557771;
+ for(let i=0;i<s.length;i++){a=Math.imul(a^s.charCodeAt(i),16777619);b=Math.imul(b^s.charCodeAt(i),2246822519);}
+ return (a>>>0).toString(16)+(b>>>0).toString(16);
+}
+function fingerprint(t){return JSON.stringify([t.accountId,t.date,t.amount,t.currency,normalize(t.label),iban(t.counterpartyIban)]);}
+function category(label,mcc) {
+ const s=normalize(label);
+ if(/frais|commission|agios/.test(s))return "Frais bancaires";
+ if(/carrefour|auchan|lidl|aldi|monoprix|intermarche|leclerc|supermarche|picard/.test(s))return "Courses";
+ if(/restaurant|boulanger|cafe |ubereats|uber eats|deliveroo/.test(s))return "Restaurants";
+ if(/sncf|ratp|navigo|transport|uber |bolt |station service/.test(s))return "Transport";
+ if(/loyer|quittance/.test(s))return "Logement";
+ if(/edf|engie|electric|orange|bouygues|sfr|free telecom|internet/.test(s))return "Factures";
+ if(/netflix|spotify|abonnement|openrouter/.test(s))return "Abonnements";
+ if(/pharmacie|medecin|doctolib|hopital/.test(s))return "Santé";
+ if(String(mcc)==="5411")return "Courses";
+ if(["5812","5814"].includes(String(mcc)))return "Restaurants";
+ return "À classer";
+}
+function empty() {return {schema:1,accounts:[],transactions:[],overrides:{},connections:[],settings:{appId:"",pem:"",redirect:"https://onbreax.github.io/mes-depenses-retour.html"},pendingAuth:null,audit:[]};}
+function validate(db) {
+ if(!db||db.schema!==1||!Array.isArray(db.accounts)||!Array.isArray(db.transactions)||db.accounts.length>100||db.transactions.length>60000)throw Error("Données incompatibles ou trop volumineuses.");
+ const ids=new Set(),byId=new Map();
+ for(const a of db.accounts){
+  if(!a||typeof a.id!=="string"||!a.id||a.id.length>200||ids.has(a.id)||typeof a.name!=="string"||a.name.length>200||typeof a.bank!=="string"||typeof a.iban!=="string"||!["current","savings","excluded"].includes(a.role)||!["csv","api"].includes(a.sourceMode))throw Error("Compte invalide.");
+  if(a.balance&&(!Number.isSafeInteger(a.balance.amount)||typeof a.balance.currency!=="string"||!/^[A-Z]{3}$/.test(a.balance.currency)||typeof a.balance.at!=="string"||!Number.isFinite(Date.parse(a.balance.at))))throw Error("Solde enregistré invalide.");
+  if(a.lastSync){date(a.lastSync.from);date(a.lastSync.to);if(!Number.isFinite(Date.parse(a.lastSync.at)))throw Error("Date de synchronisation invalide.");}
+  ids.add(a.id);
+ }
+ const rows=new Set();
+ for(const t of db.transactions){
+  if(!t||typeof t.id!=="string"||rows.has(t.id)||!ids.has(t.accountId)||!Number.isSafeInteger(t.amount)||Math.abs(t.amount)>100000000000||typeof t.label!=="string"||t.label.length>2000||!/^[A-Z]{3}$/.test(t.currency)||!["api","csv"].includes(t.source))throw Error("Opération invalide.");
+  date(t.date);rows.add(t.id);byId.set(t.id,t);
+ }
+ if(!db.overrides||typeof db.overrides!=="object"||Array.isArray(db.overrides))throw Error("Classement invalide.");
+ for(const [key,v] of Object.entries(db.overrides)){const t=byId.get(key);if(!v||!flows.includes(v.flow)||!categories.includes(v.category)||(v.note!==undefined&&(typeof v.note!=="string"||v.note.length>2000))||(v.fee!==undefined&&(!Number.isSafeInteger(v.fee)||v.fee<0||(t&&v.fee>Math.abs(t.amount)))))throw Error("Classement invalide.");}
+ if(!Array.isArray(db.connections)||db.connections.length>100)throw Error("Connexions invalides.");
+ if(!db.settings||typeof db.settings.appId!=="string"||typeof db.settings.pem!=="string"||db.settings.pem.length>20000)throw Error("Paramètres invalides.");
+ if(!Array.isArray(db.audit)||db.audit.length>80||db.audit.some(a=>!a||typeof a.text!=="string"||a.text.length>3000||!Number.isFinite(Date.parse(a.at))))throw Error("Historique local invalide.");
+ if(db.pendingAuth!==null&&(!db.pendingAuth||typeof db.pendingAuth.state!=="string"||!Number.isFinite(db.pendingAuth.at)||!db.pendingAuth.aspsp))throw Error("Autorisation invalide.");
+ return db;
+}
+function visible(db) {
+ const accounts=new Map(db.accounts.map(a=>[a.id,a]));
+ return db.transactions.filter(t=>{const a=accounts.get(t.accountId);return a&&a.role==="current"&&t.source===a.sourceMode;});
+}
+function classify(db,t) {
+ const own=db.accounts.find(a=>a.iban&&iban(a.iban)===iban(t.counterpartyIban));
+ const override=db.overrides[t.id];
+ const cat=override?.category||t.category||category(t.label,t.mcc);
+ let flow=override?.flow||"auto",reason="Classement local";
+ if(flow==="auto") {
+  if(own){flow=own.role==="savings"?"savings":"internal";reason="Compte destinataire ou émetteur identifié parmi tes comptes";}
+  else if(t.amount<0)flow="expense";
+  else if(/\brefund\b|\bremb(?:oursement)? (?:cb|carte|achats?)\b/.test(normalize(t.label)))flow="refund";
+  else flow="income";
+ }
+ return {flow,category:cat,reason,manual:override?.flow!=="auto"&&!!override};
+}
+function candidates(db) {
+ const all=visible(db).filter(t=>t.status==="BOOK"&&!["internal","savings"].includes(classify(db,t).flow)&&!db.overrides[t.id]&&/\bvirement\b|\bvir\b|transfer|revolut|recharge/.test(normalize(t.label)));
+ const groups=new Map(),matches=new Map(),result=new Map();
+ for(const t of all){const key=t.currency+":"+t.amount;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(t);}
+ for(const t of all){const group=groups.get(t.currency+":"+(-t.amount))||[];matches.set(t.id,group.length>200?[]:group.filter(o=>o.accountId!==t.accountId&&Math.abs(Date.parse(o.date)-Date.parse(t.date))<=7*86400000));}
+ for(const t of all){const possible=matches.get(t.id);if(possible.length===1&&matches.get(possible[0].id)?.length===1)result.set(t.id,possible[0].id);}
+ return result;
+}
+function summary(db,month) {
+ if(!/^\d{4}-(0[1-9]|1[012])$/.test(month))throw Error("Mois invalide.");
+ const totals={gross:0,refunds:0,net:0,incoming:0,savingsOut:0,savingsIn:0,internalOut:0,pending:0,otherCurrency:0,undated:0,unclassified:0,count:0,categories:{}};
+ for(const t of visible(db).filter(t=>t.date.slice(0,7)===month)) {
+  if(t.currency!=="EUR"){totals.otherCurrency++;continue;}
+  if(t.dateBasis!=="booking")totals.undated++;
+  if(t.status!=="BOOK"){totals.pending++;continue;}
+  const c=classify(db,t),fee=["internal","savings"].includes(c.flow)?(db.overrides[t.id]?.fee||0):0;totals.count++;
+  if(fee){totals.gross+=fee;totals.categories["Frais bancaires"]=(totals.categories["Frais bancaires"]||0)+fee;}
+  if(c.flow==="expense"&&t.amount<0){totals.gross-=t.amount;totals.categories[c.category]=(totals.categories[c.category]||0)-t.amount;if(c.category==="À classer")totals.unclassified++;}
+  else if(c.flow==="refund"&&t.amount>0){totals.refunds+=t.amount;totals.categories[c.category]=(totals.categories[c.category]||0)-t.amount;}
+  else if(c.flow==="income"&&t.amount>0)totals.incoming+=t.amount;
+  else if(c.flow==="internal"&&t.amount<0)totals.internalOut+=-t.amount-fee;
+  else if(c.flow==="savings"){if(t.amount<0)totals.savingsOut+=-t.amount-fee;else totals.savingsIn+=t.amount;}
+ }
+ totals.net=totals.gross-totals.refunds;
+ for(const n of Object.values(totals))if(typeof n==="number"&&!Number.isSafeInteger(n))throw Error("Total hors limite.");
+ return totals;
+}
+function normalizeAPI(raw,accountId) {
+ if(!raw?.transaction_amount||!["CRDT","DBIT"].includes(raw.credit_debit_indicator))throw Error("Montant ou sens d’une opération bancaire manquant.");
+ const amount=Math.abs(money(raw.transaction_amount.amount))*(raw.credit_debit_indicator==="DBIT"?-1:1);
+ const other=amount<0?raw.creditor:raw.debtor;
+ const cp=amount<0?raw.creditor_account:raw.debtor_account;
+ const label=[other?.name,...(Array.isArray(raw.remittance_information)?raw.remittance_information:[])].filter(Boolean).join(" · ")||raw.bank_transaction_code?.description||"Opération bancaire";
+ const ds=raw.booking_date||raw.transaction_date||raw.value_date;
+ return {id:"",accountId,amount,currency:String(raw.transaction_amount.currency||"").toUpperCase(),date:date(ds),dateBasis:raw.booking_date?"booking":"fallback",label:label.slice(0,2000),counterpartyIban:iban(cp?.iban),status:String(raw.status||"OTHR"),source:"api",entryRef:String(raw.entry_reference||""),mcc:String(raw.merchant_category_code||""),category:category(label,raw.merchant_category_code)};
+}
+function replaceAPI(db,accountId,rawRows,from,to) {
+ date(from);date(to);
+ const parsed=rawRows.map(r=>normalizeAPI(r,accountId));
+ const occurrence=new Map(),stable=new Map(),rows=[];
+ for(const t of parsed) {
+  if(t.entryRef){
+   t.id="api:"+accountId+":"+t.entryRef;
+   const old=stable.get(t.id);
+   if(old){
+    if(old.status==="BOOK"&&t.status==="BOOK"&&(old.amount!==t.amount||old.currency!==t.currency||old.date!==t.date))throw Error("La banque renvoie deux écritures contradictoires pour le même identifiant.");
+    const rank={BOOK:3,CNCL:4,RJCT:4,PDNG:2,HOLD:1,SCHD:0,OTHR:0};
+    if((rank[t.status]||0)>=(rank[old.status]||0))Object.assign(old,t);
+    continue;
+   }
+   stable.set(t.id,t);
+  }
+  else {const k=hash(fingerprint(t)+"|"+t.status);const n=(occurrence.get(k)||0)+1;occurrence.set(k,n);t.id="api:"+accountId+":"+k+":"+n;}
+  rows.push(t);
+ }
+ const map=new Map(db.transactions.filter(t=>!(t.accountId===accountId&&t.source==="api"&&t.date>=from&&t.date<=to)).map(t=>[t.id,t]));
+ for(const t of rows)map.set(t.id,t);
+ db.transactions=[...map.values()];
+ return rows.length;
+}
+function csv(text) {
+ text=String(text).replace(/^\uFEFF/,"");
+ const first=text.split(/\r?\n/)[0],sep=(first.match(/;/g)||[]).length>(first.match(/,/g)||[]).length?";":((first.match(/\t/g)||[]).length>0?"\t":",");
+ const rows=[];let row=[],cell="",quoted=false;
+ for(let i=0;i<=text.length;i++) {
+  const ch=text[i];
+  if(ch==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++;}else quoted=!quoted;}
+  else if(!quoted&&(ch===sep||ch==="\n"||ch==="\r"||ch===undefined)) {
+   row.push(cell);cell="";
+   if(ch!==sep){if(row.some(v=>v.trim()))rows.push(row);row=[];if(ch==="\r"&&text[i+1]==="\n")i++;}
+  }else if(ch!==undefined)cell+=ch;
+ }
+ if(quoted)throw Error("Fichier CSV incomplet : guillemet non fermé.");
+ if(rows.length<2)throw Error("Le fichier doit contenir un en-tête et des opérations.");
+ if(rows.length>30001)throw Error("Import limité à 30 000 opérations par fichier.");
+ return {headers:rows[0].map(s=>s.trim()),rows:rows.slice(1),sep};
+}
+function guessColumns(headers) {
+ const names=headers.map(normalize);
+ const find=patterns=>names.findIndex(n=>patterns.some(p=>p.test(n)));
+ return {date:find([/^date$/, /^dateop$/, /date.*operation/,/date.*compta/,/completed date/,/booking date/]),
+ label:find([/libelle/,/description/,/^label$/,/intitule/]),amount:find([/^montant$/, /^amount$/, /montant.*eur/,/amount.*eur/]),
+ debit:find([/^debit$/]),credit:find([/^credit$/]),currency:find([/devise/,/currency/]),
+ reference:find([/^id.*transaction/,/^transaction.*id/,/^reference.*operation/,/^entry.reference$/]),
+ status:find([/^state$/, /^statut$/, /^status$/]),counterparty:find([/iban.*beneficiaire/,/iban.*contrepartie/,/counterparty.*iban/])};
+}
+function importRows(db,accountId,parsed,map,currency="EUR") {
+ const account=db.accounts.find(a=>a.id===accountId);if(!account)throw Error("Choisis un compte.");
+ if(account.sourceMode!=="csv")throw Error("Ce compte utilise la connexion bancaire. Choisis la source Fichiers dans sa fiche avant d’importer.");
+ if(map.date<0||map.label<0||(map.amount<0&&map.debit<0&&map.credit<0))throw Error("Associe la date, le libellé et le montant.");
+ const ready=[],errors=[];
+ for(let i=0;i<parsed.rows.length;i++) {
+  const r=parsed.rows[i];
+  try {
+   let amount;if(map.amount>=0)amount=money(r[map.amount]);else amount=(map.credit>=0&&r[map.credit]?.trim()?Math.abs(money(r[map.credit])):0)-(map.debit>=0&&r[map.debit]?.trim()?Math.abs(money(r[map.debit])):0);
+   const label=String(r[map.label]||"").trim().slice(0,2000);if(!label)throw Error("Libellé manquant.");
+   const cur=map.currency>=0?String(r[map.currency]||currency).trim().toUpperCase():currency;
+   if(!/^[A-Z]{3}$/.test(cur))throw Error("Devise invalide.");
+   const st=map.status>=0?normalize(r[map.status]):"book";
+   const status=["book","booked","completed","comptabilise","comptabilisee","termine","terminee",""].includes(st)?"BOOK":(["pending","en attente","pdng"].includes(st)?"PDNG":"OTHR");
+   ready.push({id:"",accountId,date:date(r[map.date]),dateBasis:"booking",amount,currency:cur,label,counterpartyIban:map.counterparty>=0?iban(r[map.counterparty]):"",entryRef:map.reference>=0?String(r[map.reference]||""):"",status,source:"csv",category:category(label)});
+  } catch(e){errors.push({line:i+2,message:e.message});}
+ }
+ if(errors.length)return {added:0,duplicates:0,errors};
+ const existing=new Set(db.transactions.map(t=>t.id)),occurrence=new Map();let added=0,duplicates=0;
+ for(const t of ready) {
+  const k=t.entryRef||hash(fingerprint(t)),n=(occurrence.get(k)||0)+1;occurrence.set(k,n);
+  t.id="csv:"+accountId+":"+k+(t.entryRef?"":":"+n);
+  if(existing.has(t.id)){duplicates++;continue;}
+  existing.add(t.id);db.transactions.push(t);added++;
+ }
+ return {added,duplicates,errors:[],withoutReference:ready.filter(t=>!t.entryRef).length};
+}
+function backup(db) {
+ const copy=JSON.parse(JSON.stringify(db));
+ copy.connections=[];copy.pendingAuth=null;copy.settings={appId:"",pem:"",redirect:"https://onbreax.github.io/mes-depenses-retour.html"};
+ for(const a of copy.accounts){delete a.apiUid;delete a.connectionId;delete a.sessionId;delete a.lastSync;}
+ return validate(copy);
+}
+function demo(month) {
+ const db=empty();
+ db.accounts=[
+ {id:"demo-bourso",name:"BoursoBank",bank:"BoursoBank",role:"current",sourceMode:"csv",iban:"DEMOBOURSO",currency:"EUR"},
+ {id:"demo-postale",name:"La Banque Postale",bank:"La Banque Postale",role:"current",sourceMode:"csv",iban:"DEMOPOSTALE",currency:"EUR"},
+ {id:"demo-revolut",name:"Revolut",bank:"Revolut",role:"current",sourceMode:"csv",iban:"DEMOREVOLUT",currency:"EUR"},
+ {id:"demo-savings",name:"Épargne (repère fictif)",bank:"Autre",role:"savings",sourceMode:"csv",iban:"DEMOEPARGNE",currency:"EUR"}];
+ const entries=[
+ ["demo-bourso",3,-80000,"Loyer","Logement"],["demo-bourso",5,-7635,"Monoprix","Courses"],
+ ["demo-revolut",6,-2490,"Restaurant","Restaurants"],["demo-postale",7,-8640,"Navigo","Transport"],
+ ["demo-bourso",8,-4500,"Électricité","Factures"],["demo-revolut",9,-1299,"Abonnement","Abonnements"],
+ ["demo-bourso",10,280000,"Virement salaire","Autres"],["demo-postale",11,-30000,"Virement vers BoursoBank","Autres","DEMOBOURSO"],
+ ["demo-bourso",11,30000,"Virement Banque Postale","Autres","DEMOPOSTALE"],
+ ["demo-bourso",12,-15000,"Versement épargne","Autres","DEMOEPARGNE"],
+ ["demo-bourso",13,-3500,"Achats","Achats"],["demo-bourso",14,1500,"Remboursement achats","Achats"],
+ ["demo-revolut",15,-1790,"Pharmacie","Santé"],["demo-postale",16,-400,"Frais de tenue de compte","Frais bancaires"]];
+ db.transactions=entries.map((e,i)=>({id:"demo:"+i,accountId:e[0],date:month+"-"+String(e[1]).padStart(2,"0"),dateBasis:"booking",amount:e[2],currency:"EUR",label:e[3],category:e[4],counterpartyIban:e[5]||"",status:"BOOK",source:"csv",entryRef:""}));
+ return db;
+}
+const api={categories,flows,normalize,iban,money,date,hash,category,empty,validate,visible,classify,candidates,summary,normalizeAPI,replaceAPI,csv,guessColumns,importRows,backup,demo};
+if(typeof module!=="undefined"&&module.exports)module.exports=api;else root.SpendingCore=api;
+})(typeof globalThis!=="undefined"?globalThis:this);
+</script><script>(function(root) {
+"use strict";
+const KEY="mesdepenses_vault_v1",iterations=310000;
+const encode=b=>{let s="";for(const c of new Uint8Array(b))s+=String.fromCharCode(c);return btoa(s);};
+const decode=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function derive(password,salt) {
+ const raw=await crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveKey"]);
+ return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations,hash:"SHA-256"},raw,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+async function encryptData(data,key,salt) {
+ const iv=crypto.getRandomValues(new Uint8Array(12));
+ const encrypted=await crypto.subtle.encrypt({name:"AES-GCM",iv,additionalData:new TextEncoder().encode("mes-depenses:1")},key,new TextEncoder().encode(JSON.stringify(data)));
+ return JSON.stringify({type:"mes-depenses-vault",version:1,kdf:"PBKDF2-SHA256",iterations,salt:encode(salt),iv:encode(iv),data:encode(encrypted)});
+}
+function envelope(text) {
+ if(text.length>20000000)throw Error("Sauvegarde trop volumineuse.");
+ const e=JSON.parse(text);
+ if(e.type!=="mes-depenses-vault"||e.version!==1||e.iterations!==iterations||e.kdf!=="PBKDF2-SHA256"||typeof e.salt!=="string"||typeof e.iv!=="string"||typeof e.data!=="string")throw Error("Sauvegarde chiffrée incompatible.");
+ if(decode(e.salt).length!==16||decode(e.iv).length!==12)throw Error("Sauvegarde invalide.");
+ return e;
+}
+async function decryptData(text,password) {
+ const e=envelope(text),salt=decode(e.salt),key=await derive(password,salt);
+ let bytes;
+ try{bytes=await crypto.subtle.decrypt({name:"AES-GCM",iv:decode(e.iv),additionalData:new TextEncoder().encode("mes-depenses:1")},key,decode(e.data));}
+ catch{throw Error("Mot de passe incorrect ou fichier altéré.");}
+ return {key,salt,data:JSON.parse(new TextDecoder().decode(bytes))};
+}
+class Vault {
+ constructor(storage){this.storage=storage;this.key=null;this.salt=null;this.last=storage.getItem(KEY);this.queue=Promise.resolve();}
+ exists(){return !!this.storage.getItem(KEY);}
+ get unlocked(){return !!this.key;}
+ async create(password,data){
+  if(password.length<10)throw Error("Choisis un mot de passe d’au moins 10 caractères.");
+  if(this.exists())throw Error("Un espace existe déjà. Déverrouille-le ou importe une sauvegarde.");
+  this.salt=crypto.getRandomValues(new Uint8Array(16));this.key=await derive(password,this.salt);
+  try{await this.save(data);}catch(e){this.lock();throw e;}
+ }
+ async unlock(password) {
+  const text=this.storage.getItem(KEY);if(!text)throw Error("Aucun espace enregistré.");
+  const opened=await decryptData(text,password);this.key=opened.key;this.salt=opened.salt;this.last=text;return opened.data;
+ }
+ save(data) {
+  const key=this.key,salt=this.salt;if(!key)throw Error("Déverrouille ton espace.");
+  const copy=JSON.parse(JSON.stringify(data));
+  const task=this.queue.catch(()=>{}).then(async()=>{
+   if(this.storage.getItem(KEY)!==this.last)throw Error("L’espace a changé dans une autre fenêtre. Déverrouille-le à nouveau.");
+   const sealed=await encryptData(copy,key,salt);
+   try{this.storage.setItem(KEY,sealed);}catch{throw Error("Stockage indisponible ou plein. Les modifications ne sont pas enregistrées.");}
+   this.last=sealed;
+  });
+  this.queue=task;return task;
+ }
+ async export(data,password) {
+  if(password.length<10)throw Error("Le mot de passe de sauvegarde doit comporter au moins 10 caractères.");
+  const salt=crypto.getRandomValues(new Uint8Array(16)),key=await derive(password,salt);
+  return encryptData(data,key,salt);
+ }
+ lock(){this.key=null;this.salt=null;}
+}
+const api={Vault,KEY,encryptData,decryptData};
+if(typeof module!=="undefined"&&module.exports)module.exports=api;else root.SpendingVault=api;
+})(typeof globalThis!=="undefined"?globalThis:this);
+</script><script>(function(root) {
+"use strict";
+const BASE="https://api.enablebanking.com",CALLBACK="https://onbreax.github.io/mes-depenses-retour.html";
+const idPattern=/^[a-zA-Z0-9_-]{1,150}$/;
+function allowed(path,method) {
+ if(method==="POST")return path==="/auth"||path==="/sessions";
+ if(method!=="GET")return false;
+ const p=path.split("?")[0];
+ return ["/application","/aspsps"].includes(p)||/^\/sessions\/[a-zA-Z0-9_-]{1,150}$/.test(p)||/^\/accounts\/[a-zA-Z0-9_-]{1,150}\/(balances|transactions)$/.test(p);
+}
+function b64url(bytes) {let s="";for(const b of new Uint8Array(bytes))s+=String.fromCharCode(b);return btoa(s).replace(/=/g,"").replace(/\+/g,"-").replace(/\//g,"_");}
+function utf8(s){return new TextEncoder().encode(s);}
+async function jwt(appId,pem,now=Date.now()) {
+ if(!/^[a-f0-9-]{36}$/i.test(appId))throw Error("L’identifiant de l’application Enable Banking est invalide.");
+ if(!pem.includes("-----BEGIN PRIVATE KEY-----"))throw Error("Importe la clé privée .pem générée par Enable Banking (format PKCS#8, BEGIN PRIVATE KEY).");
+ const data=pem.replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\s/g,"");
+ let key;try{key=await crypto.subtle.importKey("pkcs8",Uint8Array.from(atob(data),c=>c.charCodeAt(0)),{name:"RSASSA-PKCS1-v1_5",hash:"SHA-256"},false,["sign"]);}catch{throw Error("La clé privée n’a pas pu être lue.");}
+ const iat=Math.floor(now/1000),header=b64url(utf8(JSON.stringify({typ:"JWT",alg:"RS256",kid:appId}))),body=b64url(utf8(JSON.stringify({iss:"enablebanking.com",aud:"api.enablebanking.com",iat,exp:iat+900})));
+ const unsigned=header+"."+body,signature=await crypto.subtle.sign("RSASSA-PKCS1-v1_5",key,utf8(unsigned));
+ return unsigned+"."+b64url(signature);
+}
+function authParameters(bank,now=Date.now()) {
+ const maximum=Number(bank.maximum_consent_validity),seconds=Math.max(60,Math.min(Number.isFinite(maximum)&&maximum>0?maximum:86400,180*86400)-60);
+ return {access:{valid_until:new Date(now+seconds*1000).toISOString()},aspsp:{name:bank.name,country:bank.country},state:crypto.randomUUID(),redirect_url:CALLBACK,psu_type:"personal",language:"fr"};
+}
+function parseCallback(url) {
+ const u=new URL(url);
+ if(!((u.origin==="https://onbreax.github.io"&&u.pathname==="/mes-depenses-retour.html")||(u.protocol==="mesdepenses:"&&u.hostname==="retour")))throw Error("Ce lien n’est pas une adresse de retour de Mes dépenses.");
+ const error=u.searchParams.get("error");if(error)throw Error("Connexion non autorisée ou interrompue. Tu peux la recommencer.");
+ const code=u.searchParams.get("code"),state=u.searchParams.get("state");
+ if(!code||!state||code.length>12000||state.length>200)throw Error("Lien de retour incomplet.");
+ return {code,state};
+}
+class BankClient {
+ constructor({credentials,transport,core,now}){this.credentials=credentials;this.transport=transport;this.core=core;this.now=now||Date.now;}
+ async request(path,method="GET",body) {
+  if(!allowed(path,method))throw Error("Opération bancaire non autorisée.");
+  const credentials=this.credentials();if(!credentials)throw Error("Déverrouille ton espace.");
+  const token=await jwt(credentials.appId,credentials.pem,this.now());
+  if(this.credentials()!==credentials)throw Error("L’espace a été verrouillé ou remplacé.");
+  const response=await this.transport({path,method,token,body:body?JSON.stringify(body):null});
+  if(this.credentials()!==credentials)throw Error("L’espace a été verrouillé ou remplacé. La réponse n’est pas appliquée.");
+  if(!response||!Number.isInteger(response.status))throw Error("Réponse bancaire invalide.");
+  let data;try{data=JSON.parse(response.text||"{}");}catch{throw Error("Réponse bancaire illisible.");}
+  if(response.status<200||response.status>=300){
+   if(response.status===429)throw Error("Limite de requêtes atteinte. Les données précédentes sont conservées. Réessaie plus tard.");
+   if(response.status===401||response.status===403)throw Error("Accès refusé : vérifie l’application, son activation et les comptes liés chez Enable Banking.");
+   throw Error("Enable Banking : erreur "+response.status+" — "+String(data.message||data.error||"requête refusée").slice(0,200));
+  }
+  return data;
+ }
+ async verify() {
+  const data=await this.request("/application");
+  if(data.environment!=="PRODUCTION")throw Error("Cette application est en Sandbox. Pour tes vrais comptes, crée une application Production et lie tes comptes personnels.");
+  if(data.active!==true)throw Error("L’application n’est pas active. Active-la en liant tes propres comptes dans Enable Banking.");
+  if(!Array.isArray(data.services)||!data.services.includes("AIS"))throw Error("L’application ne dispose pas du service de lecture des comptes (AIS).");
+  if(!Array.isArray(data.redirect_urls)||!data.redirect_urls.includes(CALLBACK))throw Error("Ajoute l’adresse de retour indiquée dans Mes dépenses aux URL autorisées de l’application Enable Banking.");
+  return {name:String(data.name||"Application personnelle"),environment:data.environment,active:true,checkedAt:new Date(this.now()).toISOString()};
+ }
+ async banks() {
+  const data=await this.request("/aspsps?country=FR");
+  if(!Array.isArray(data.aspsps))throw Error("Liste des banques invalide.");
+  return data.aspsps.filter(b=>typeof b.name==="string"&&b.country==="FR"&&/boursorama|bourso|revolut|banque postale/i.test(b.name)&&(!Array.isArray(b.psu_types)||b.psu_types.includes("personal")));
+ }
+ async begin(bank) {
+  const parameters=authParameters(bank,this.now()),data=await this.request("/auth","POST",parameters);
+  let u;try{u=new URL(data.url);}catch{throw Error("Adresse d’autorisation invalide.");}
+  if(u.protocol!=="https:"||u.hostname!=="auth.enablebanking.com"||u.username||u.password||u.port)throw Error("Adresse d’autorisation inattendue.");
+  return {url:u.href,pending:{state:parameters.state,at:this.now(),aspsp:parameters.aspsp,validUntil:parameters.access.valid_until}};
+ }
+ async finish(url,pending) {
+  const callback=parseCallback(url);
+  if(!pending||callback.state!==pending.state)throw Error("Ce retour ne correspond pas à la connexion lancée depuis cet espace.");
+  if(this.now()-pending.at>20*60000||this.now()<pending.at-60000)throw Error("La connexion a expiré. Recommence l’autorisation.");
+  const data=await this.request("/sessions","POST",{code:callback.code});
+  if(!idPattern.test(data.session_id)||!Array.isArray(data.accounts))throw Error("Session bancaire invalide.");
+  if(!data.accounts.length)throw Error("Aucun compte autorisé. Lie chacun de tes comptes à cette application dans Enable Banking, puis reconnecte la banque.");
+  for(const a of data.accounts)if(!idPattern.test(a.uid))throw Error("Identifiant de compte invalide.");
+  return {session_id:data.session_id,access:data.access,accounts:data.accounts.map(a=>({uid:a.uid,name:a.name,product:a.product,currency:a.currency,cash_account_type:a.cash_account_type,account_id:{iban:a.account_id?.iban||""},identification_hash:a.identification_hash||""}))};
+ }
+ async transactions(uid,from,to) {
+  if(!idPattern.test(uid))throw Error("Compte invalide.");
+  this.core.date(from);this.core.date(to);
+  const rows=[],seen=new Set();let key="";
+  for(let page=0;page<80;page++) {
+   const query=new URLSearchParams({date_from:from,date_to:to});if(key)query.set("continuation_key",key);
+   const data=await this.request("/accounts/"+uid+"/transactions?"+query);
+   if(!Array.isArray(data.transactions))throw Error("Liste d’opérations invalide.");
+   rows.push(...data.transactions);if(rows.length>30000)throw Error("Trop d’opérations dans cette période. Choisis une période plus courte.");
+   const next=data.continuation_key;
+   if(!next)return rows;
+   if(typeof next!=="string"||next.length>5000||seen.has(next))throw Error("La pagination bancaire est incohérente. Aucune donnée de ce compte n’a été remplacée.");
+   seen.add(next);key=next;
+  }
+  throw Error("La pagination n’est pas terminée. Choisis une période plus courte.");
+ }
+ async balances(uid) {
+  if(!idPattern.test(uid))throw Error("Compte invalide.");
+  const data=await this.request("/accounts/"+uid+"/balances");
+  if(!Array.isArray(data.balances))throw Error("Solde invalide.");
+  return data.balances;
+ }
+}
+const api={BASE,CALLBACK,allowed,jwt,authParameters,parseCallback,BankClient};
+if(typeof module!=="undefined"&&module.exports)module.exports=api;else root.SpendingBank=api;
+})(typeof globalThis!=="undefined"?globalThis:this);
+</script><script>(function() {
+"use strict";
+const C=SpendingCore,V=SpendingVault,B=SpendingBank,$=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const euro=n=>new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR"}).format(n/100);
+const amount=t=>new Intl.NumberFormat("fr-FR",{style:"currency",currency:t.currency}).format(t.amount/100);
+const shortDate=d=>d.slice(8,10)+"/"+d.slice(5,7)+"/"+d.slice(0,4);
+const monthLabel=m=>new Intl.DateTimeFormat("fr-FR",{month:"long",year:"numeric"}).format(new Date(m+"-15T12:00:00"));
+const nowMonth=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");};
+let db=null,committedDB=null,epoch=0,view="month",month=nowMonth(),demo=false,busy=false,page=0,filterAccount="",filterFlow="",search="",pendingCSV=null,parsedFile=null,bankList=[],callbackURL="",bankAccountSelection=null,lastActivity=Date.now(),lastFocus=null;
+let storage;
+try{storage=localStorage;storage.getItem(V.KEY);}catch{storage={getItem:()=>null,setItem:()=>{throw Error("Stockage indisponible.");}};}
+const vault=new V.Vault(storage);
+let nativePort=null,nativeReady=false;const nativeRequests=new Map();
+function native(action,data={}) {
+ if(!nativePort)throw Error("Le transport Android n’est pas disponible.");
+ const id=crypto.randomUUID();
+ return new Promise((resolve,reject)=>{
+  const timer=setTimeout(()=>{nativeRequests.delete(id);reject(Error("Android n’a pas répondu à temps."));},90000);
+  nativeRequests.set(id,{resolve,reject,timer});
+  nativePort.postMessage(JSON.stringify({action,id,...data}));
+ });
+}
+window.addEventListener("message",event=>{
+ if(location.origin!=="https://appassets.androidplatform.net"||event.data!=="mes-depenses:bridge:1"||!event.ports?.[0])return;
+ nativePort=event.ports[0];nativeReady=true;
+ nativePort.onmessage=e=>{
+  let data;try{data=JSON.parse(e.data);}catch{return;}
+  if(data.type==="callback"){callbackURL=data.url;toast("Retour bancaire reçu. Déverrouille ton espace pour terminer.");if(db)showCallback();return;}
+  const p=nativeRequests.get(data.id);if(!p)return;
+  clearTimeout(p.timer);nativeRequests.delete(data.id);
+  if(data.ok)p.resolve(data.value);else p.reject(Error(data.error||"Action Android interrompue."));
+ };
+ nativePort.start();
+ native("ready").catch(()=>{});
+});
+const localServer=()=>["127.0.0.1","localhost"].includes(location.hostname)&&location.protocol==="http:";
+const transportAvailable=()=>nativeReady||localServer();
+async function transport(request) {
+ if(nativeReady)return native("http",request);
+ if(!localServer())throw Error("Pour connecter les banques, utilise l’APK Android ou la version ordinateur lancée avec le serveur local. Le HTML autonome permet les imports.");
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),65000);
+ try{const r=await fetch("/bank-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(request),signal:controller.signal,credentials:"omit"});if(!r.ok)throw Error("Le service local n’a pas pu joindre Enable Banking.");return r.json();}
+ finally{clearTimeout(timer);}
+}
+const bank=new B.BankClient({core:C,credentials:()=>db&&!demo&&vault.unlocked?db.settings:null,transport});
+function toast(text) {$("#toast").textContent=text;$("#toast").hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$("#toast").hidden=true,6000);}
+function authScreen() {
+ const exists=vault.exists();$("#app").hidden=true;$("#auth").hidden=false;
+ $("#auth-title").textContent=exists?"Retrouve ton espace.":"Ton mois, en clair.";
+ $("#auth-description").textContent=exists?"Déverrouille les données chiffrées enregistrées sur cet appareil.":"Crée un espace chiffré pour les dépenses de tes comptes courants. Conserve ce mot de passe : il est nécessaire pour relire tes données.";
+ $("#confirm-box").hidden=exists;$("#password").autocomplete=exists?"current-password":"new-password";
+ $("#auth-submit").textContent=exists?"Déverrouiller":"Créer mon espace";
+ $("#auth-error").textContent="";$("#password").value="";$("#password-confirm").value="";
+}
+async function persist() {C.validate(db);const saved=JSON.stringify(db),generation=epoch;if(!demo)await vault.save(db);if(generation===epoch)committedDB=saved;}
+async function perform(fn) {
+ if(busy){toast("Une opération est en cours.");return;}
+ busy=true;$("#busy").hidden=false;$("#status").innerHTML='<div class="progress"><span class="spinner"></span>Opération en cours…</div>';
+ const before=db?JSON.stringify(db):null,generation=epoch;
+ try{await fn();}
+ catch(e){
+  if(generation!==epoch)return;
+  if(before&&db)db=JSON.parse(committedDB||before);
+  const target=!$("#auth").hidden?$("#auth-error"):($("#modal").hidden?$("#status"):$("#modal-error"));
+  if(target.id==="status")target.innerHTML='<div class="notice" role="alert">'+esc(e.message)+'</div>';else target.textContent=e.message;
+  toast(e.message);
+ }finally{if(generation===epoch){busy=false;$("#busy").hidden=true;if($("#status").querySelector(".progress"))$("#status").innerHTML="";}}
+}
+function audit(text){db.audit.unshift({at:new Date().toISOString(),text});db.audit=db.audit.slice(0,80);}
+function showView(next) {view=next;page=0;render();window.scrollTo({top:0,behavior:"instant"});}
+function render() {
+ if(!db)return;
+ $("#auth").hidden=true;$("#app").hidden=false;$("#demo-banner").hidden=!demo;
+ document.querySelectorAll("[data-view]").forEach(el=>el.classList.toggle("active",el.dataset.view===view));
+ $("#main-content").innerHTML=view==="month"?renderMonth():view==="transactions"?renderTransactions():renderAccounts();
+ bindView();
+ measureNavigation();
+}
+function monthControl() {return '<div class="month-select"><button class="btn" data-month="-1" aria-label="Mois précédent">‹</button><input id="month" type="month" value="'+month+'" aria-label="Mois observé"><button class="btn" data-month="1" aria-label="Mois suivant">›</button></div>';}
+function heading(title,description) {return '<div class="view-head"><div><h1>'+title+'</h1><p>'+description+'</p></div>'+monthControl()+'</div>';}
+function renderMonth() {
+ const s=C.summary(db,month),rows=C.visible(db).filter(t=>t.date.startsWith(month));
+ const candidates=C.candidates(db),checks=rows.filter(t=>candidates.has(t.id)).length,hasData=rows.length>0;
+ const cats=Object.entries(s.categories).sort((a,b)=>b[1]-a[1]),max=Math.max(1,...cats.map(v=>Math.max(v[1],0)));
+ const past=[];
+ for(let i=5;i>=0;i--){const d=new Date(month+"-15T12:00:00Z");d.setUTCMonth(d.getUTCMonth()-i);const m=d.toISOString().slice(0,7),total=C.summary(db,m);past.push({m,total,data:C.visible(db).some(t=>t.date.startsWith(m))});}
+ const maxPast=Math.max(1,...past.map(v=>Math.max(0,v.total.net)));
+ let notice="";
+ if(s.pending)notice+='<div class="notice neutral">'+s.pending+' opération(s) en attente ou à statut non comptabilisé, exclue(s) du total.</div>';
+ if(s.otherCurrency)notice+='<div class="notice">'+s.otherCurrency+' opération(s) dans une autre devise. Le total affiche uniquement les euros, sans conversion estimée.</div>';
+ if(s.undated)notice+='<div class="notice">'+s.undated+' opération(s) sans date de comptabilisation fournie : la date d’opération est utilisée.</div>';
+ if(checks)notice+='<div class="notice">'+checks+' opération(s) pourraient être des virements internes. Elles restent comptées jusqu’à confirmation. <button class="btn small" id="review-transfers">Vérifier</button></div>';
+ return heading("Mon mois","Comprendre tes dépenses, toutes banques réunies.")+notice+
+ '<section class="panel hero-panel"><span class="hero-eyebrow">Dépenses nettes enregistrées · '+esc(monthLabel(month))+'</span><div class="hero-number">'+(hasData?euro(s.net):"—")+'</div><p class="muted" style="margin:0;font-size:13px">Dépenses moins remboursements identifiés. Les revenus, virements internes et mouvements d’épargne sont séparés.</p></section>'+
+ '<div class="metrics"><section class="panel metric"><small>Dépenses brutes</small><span class="value">'+(hasData?euro(s.gross):"—")+'</span><small>Paiements et sorties classés en dépenses</small></section><section class="panel metric"><small>Remboursements</small><span class="value credit">'+(hasData?euro(s.refunds):"—")+'</span><small>Remboursements identifiés ce mois</small></section><section class="panel metric"><small>Entrées externes</small><span class="value">'+(hasData?euro(s.incoming):"—")+'</span><small>Séparées des dépenses nettes</small></section></div>'+
+ '<div class="dashboard"><section class="panel"><div class="panel-heading"><h2>Où va ton argent ?</h2><span class="pill">'+s.unclassified+' à classer</span></div>'+
+ (cats.length?cats.map(([cat,n])=>'<div class="category-row"><span>'+esc(cat)+'</span><div class="category-track"><div class="category-bar" style="width:'+Math.max(0,n)/max*100+'%"></div></div><span class="amount">'+euro(n)+'</span></div>').join(""):'<div class="empty">Les catégories apparaîtront après un import ou une synchronisation.</div>')+
+ '</section><section class="panel"><div class="panel-heading"><h2>Au fil des mois</h2><span class="pill">6 mois</span></div><div class="chart" role="img" aria-label="Dépenses nettes enregistrées sur les six derniers mois">'+
+ past.map(v=>'<div class="chart-column"><span class="chart-value">'+(v.data?euro(v.total.net):"—")+'</span><div class="chart-bar" style="height:'+Math.max(2,Math.max(0,v.total.net)/maxPast*108)+'px"></div><span class="chart-label">'+new Intl.DateTimeFormat("fr-FR",{month:"short"}).format(new Date(v.m+"-15"))+'</span></div>').join("")+
+ '</div><p class="small-note" style="margin:18px 0 0">Une absence de données n’est pas une dépense nulle. L’historique dépend des opérations importées ou disponibles auprès des banques.</p></section>'+
+ '<section class="panel"><div class="panel-heading"><h2>Dernières opérations</h2><button class="btn small" data-open-operations>Toutes les opérations</button></div>'+
+ rows.sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5).map(t=>'<div class="recent-row" data-transaction="'+esc(t.id)+'" tabindex="0" role="button"><div><strong>'+esc(t.label)+'</strong><small>'+shortDate(t.date)+' · '+esc(accountName(t.accountId))+'</small></div><span class="amount '+(t.amount>0?"credit":"")+'">'+amount(t)+'</span></div>').join("")+
+ (!rows.length?'<div class="empty"><h3>Ton espace est prêt.</h3><p>Ajoute un compte puis importe ses opérations, ou configure Enable Banking.</p><button class="btn primary" data-open-accounts>Ajouter mes comptes</button></div>':"")+
+ '</section><section class="panel"><div class="panel-heading"><h2>À part, sans gonfler les dépenses</h2></div><ul class="mini-list"><li><span>Virements internes sortants</span><strong>'+euro(s.internalOut)+'</strong></li><li><span>Versements vers l’épargne</span><strong>'+euro(s.savingsOut)+'</strong></li><li><span>Retours depuis l’épargne</span><strong>'+euro(s.savingsIn)+'</strong></li></ul><div class="method">Le suivi de l’épargne n’est pas un bilan de patrimoine. Un compte d’épargne peut servir de repère pour reconnaître les transferts, sans être connecté.</div></section></div>';
+}
+function accountName(id){return db.accounts.find(a=>a.id===id)?.name||"Compte";}
+const flowLabel=f=>({expense:"Dépense",refund:"Remboursement",income:"Entrée externe",internal:"Virement interne",savings:"Épargne",auto:"Automatique"}[f]||f);
+function renderTransactions() {
+ const possible=C.candidates(db);
+ let rows=C.visible(db).filter(t=>t.date.startsWith(month)&&(!filterAccount||t.accountId===filterAccount)&&(!search||C.normalize(t.label+" "+accountName(t.accountId)).includes(C.normalize(search))));
+ if(filterFlow==="review")rows=rows.filter(t=>possible.has(t.id));
+ else if(filterFlow==="pending")rows=rows.filter(t=>t.status!=="BOOK");
+ else if(filterFlow)rows=rows.filter(t=>C.classify(db,t).flow===filterFlow);
+ rows.sort((a,b)=>b.date.localeCompare(a.date)||a.id.localeCompare(b.id));page=Math.min(page,Math.max(0,Math.ceil(rows.length/40)-1));
+ const list=rows.slice(page*40,page*40+40);
+ return heading("Opérations","Chaque ligne reste consultable, y compris les virements internes.")+
+ '<div class="filters"><input id="search" type="search" placeholder="Commerçant, libellé…" value="'+esc(search)+'" aria-label="Rechercher une opération"><select id="filter-account" aria-label="Filtrer par compte"><option value="">Tous les comptes courants</option>'+db.accounts.filter(a=>a.role==="current").map(a=>'<option value="'+esc(a.id)+'"'+(a.id===filterAccount?" selected":"")+'>'+esc(a.name)+'</option>').join("")+'</select><select id="filter-flow" aria-label="Filtrer par nature"><option value="">Toutes les opérations</option>'+["expense","refund","income","internal","savings","review","pending"].map(f=>'<option value="'+f+'"'+(f===filterFlow?" selected":"")+'>'+({review:"Transferts à confirmer",pending:"En attente / autres statuts"}[f]||flowLabel(f))+'</option>').join("")+'</select></div>'+
+ '<section class="panel table-panel"><table class="table"><thead><tr><th>Date</th><th>Opération</th><th>Compte</th><th>Nature</th><th style="text-align:right">Montant</th></tr></thead><tbody>'+list.map(t=>{
+ const c=C.classify(db,t);
+ return '<tr data-transaction="'+esc(t.id)+'" tabindex="0"><td>'+shortDate(t.date)+'</td><td><span class="transaction-label">'+esc(t.label)+'</span><span class="transaction-sub">'+esc(c.category)+' · '+(t.status==="BOOK"?flowLabel(c.flow):"Non comptabilisée")+(possible.has(t.id)?" · Transfert à confirmer":"")+'</span><span class="transaction-sub transaction-bank">'+esc(accountName(t.accountId))+'</span></td><td>'+esc(accountName(t.accountId))+'</td><td><span class="pill '+(c.flow==="internal"||c.flow==="savings"?"rose":"")+'">'+flowLabel(c.flow)+'</span></td><td class="amount '+(t.amount>0?"credit":"")+'">'+amount(t)+'</td></tr>';
+ }).join("")+'</tbody></table>'+(!list.length?'<div class="empty">Aucune opération pour cette période et ces filtres.</div>':"")+
+ '<div class="pagination"><span>'+rows.length+' opération(s) · page '+(page+1)+'</span><div class="actions"><button id="prev-page" class="btn small"'+(page===0?" disabled":"")+'>Précédente</button><button id="next-page" class="btn small"'+((page+1)*40>=rows.length?" disabled":"")+'>Suivante</button></div></div></section>';
+}
+function maskedIBAN(value){const s=C.iban(value);return s?s.slice(0,4)+" ···· "+s.slice(-4):"IBAN non renseigné";}
+function renderAccounts() {
+ const cards=db.accounts.map(a=>{
+ const balance=a.balance&&a.balance.currency==="EUR"?euro(a.balance.amount):"—";
+ return '<section class="panel account-card"><div class="bank-name">'+esc(a.bank)+'</div><h2>'+esc(a.name)+'</h2><small>'+esc(maskedIBAN(a.iban))+'</small><div class="balance">'+balance+'</div><small>'+(a.balance?"Dernier solde reçu · "+esc(a.balance.at.slice(0,10)):"Solde non fourni")+'</small><p style="margin:14px 0 0"><span class="pill '+(a.role==="current"?"":"rose")+'">'+({current:"Compte courant",savings:"Repère d’épargne",excluded:"Hors suivi"}[a.role])+'</span> <span class="pill">'+(a.sourceMode==="api"?"Enable Banking":"Fichiers")+'</span></p>'+
+ '<p class="small-note" style="margin:8px 0">'+(a.lastSync?"Opérations actualisées le "+esc(new Date(a.lastSync.at).toLocaleString("fr-FR"))+" · du "+shortDate(a.lastSync.from)+" au "+shortDate(a.lastSync.to):"Aucune synchronisation enregistrée.")+'</p>'+(a.balanceError?'<p class="error">'+esc(a.balanceError)+'</p>':'')+(a.lastSync?.undatedPending?'<p class="field-note">'+a.lastSync.undatedPending+' opérations non comptabilisées sans date fournie : hors total.</p>':'')+'<div class="actions"><button class="btn small" data-account="'+esc(a.id)+'">Modifier</button>'+(a.sourceMode==="csv"&&a.role==="current"?'<button class="btn small" data-import-account="'+esc(a.id)+'">Importer</button>':"")+(a.apiUid&&a.role==="current"?'<button class="btn small" data-sync-account="'+esc(a.id)+'">Actualiser la connexion</button>':"")+'</div></section>';
+ }).join("");
+ return '<div class="view-head"><div><h1>Mes comptes</h1><p>Trois banques, une lecture commune de tes dépenses.</p></div><div class="actions"><button class="btn" id="add-account">Ajouter un compte</button><button class="btn primary" data-action="settings">Connecter une banque</button></div></div>'+
+ '<div class="notice neutral">Sélectionne uniquement les comptes courants pour le budget. Un repère d’épargne sert à reconnaître les transferts : ses opérations sont hors dépenses.</div>'+
+ '<div class="accounts-grid">'+cards+'</div>'+
+ (!cards?'<section class="panel empty"><h3>Ajoute ton premier compte.</h3><p>Tu peux commencer avec un fichier CSV, puis connecter Enable Banking.</p><button class="btn primary" id="first-account">Ajouter un compte</button></section>':"")+
+ '<section class="panel" style="margin-top:18px"><h2>Les derniers changements</h2>'+(!db.audit.length?'<p class="muted">Les imports, synchronisations et confirmations apparaîtront ici.</p>':'<ul class="mini-list">'+db.audit.slice(0,8).map(e=>'<li><span>'+esc(e.text)+'</span><small>'+esc(new Date(e.at).toLocaleString("fr-FR"))+'</small></li>').join("")+'</ul>')+'</section>';
+}
+function bindView() {
+ document.querySelectorAll("[data-month]").forEach(el=>el.onclick=()=>{const d=new Date(month+"-15T12:00:00Z");d.setUTCMonth(d.getUTCMonth()+Number(el.dataset.month));month=d.toISOString().slice(0,7);page=0;render();});
+ if($("#month"))$("#month").onchange=e=>{if(/^\d{4}-(0[1-9]|1[012])$/.test(e.target.value)){month=e.target.value;page=0;render();}};
+ document.querySelectorAll("[data-transaction]").forEach(el=>{el.onclick=()=>transactionModal(el.dataset.transaction);el.onkeydown=e=>{if(e.key==="Enter")transactionModal(el.dataset.transaction);};});
+ document.querySelectorAll("[data-open-operations]").forEach(el=>el.onclick=()=>showView("transactions"));
+ document.querySelectorAll("[data-open-accounts]").forEach(el=>el.onclick=()=>showView("accounts"));
+ document.querySelectorAll("[data-account]").forEach(el=>el.onclick=()=>accountModal(el.dataset.account));
+ document.querySelectorAll("[data-import-account]").forEach(el=>el.onclick=()=>chooseCSV(el.dataset.importAccount));
+ document.querySelectorAll("[data-sync-account]").forEach(el=>el.onclick=()=>perform(()=>syncAccount(el.dataset.syncAccount)));
+ document.querySelectorAll('[data-action="settings"]').forEach(el=>el.onclick=settingsModal);
+ if($("#search"))$("#search").oninput=e=>{search=e.target.value;page=0;const position=e.target.selectionStart;render();$("#search").focus();$("#search").setSelectionRange(position,position);};
+ if($("#filter-account"))$("#filter-account").onchange=e=>{filterAccount=e.target.value;page=0;render();};
+ if($("#filter-flow"))$("#filter-flow").onchange=e=>{filterFlow=e.target.value;page=0;render();};
+ if($("#prev-page"))$("#prev-page").onclick=()=>{page--;render();};
+ if($("#next-page"))$("#next-page").onclick=()=>{page++;render();};
+ if($("#review-transfers"))$("#review-transfers").onclick=()=>{filterFlow="review";showView("transactions");};
+ ["add-account","first-account"].forEach(id=>{if($("#"+id))$("#"+id).onclick=()=>accountModal();});
+}
+function modal(title,html) {
+ lastFocus=document.activeElement;$("#modal-title").textContent=title;$("#modal-body").innerHTML=html;$("#modal-error").textContent="";
+ $("#modal").hidden=false;$("#app").inert=true;$("#auth").inert=true;$("#modal-close").focus({preventScroll:true});
+}
+function closeModal() {
+ $("#modal").hidden=true;$("#modal-body").innerHTML="";$("#app").inert=false;$("#auth").inert=false;
+ if(lastFocus?.isConnected)lastFocus.focus({preventScroll:true});
+}
+function transactionModal(id) {
+ const t=db.transactions.find(r=>r.id===id);if(!t)return;
+ const c=C.classify(db,t),pairId=C.candidates(db).get(id),pair=db.transactions.find(t=>t.id===pairId);
+ const options=t.amount<0?["auto","expense","internal","savings"]:["auto","income","refund","internal","savings"];
+ modal("Détail de l’opération",'<h3>'+esc(t.label)+'</h3><p class="hero-number" style="font-size:30px">'+amount(t)+'</p><p class="muted">'+shortDate(t.date)+' · '+esc(accountName(t.accountId))+' · '+(t.status==="BOOK"?"Comptabilisée":"Non comptabilisée : "+esc(t.status))+'</p>'+
+ '<label for="tx-flow">Nature de l’opération</label><select id="tx-flow">'+options.map(f=>'<option value="'+f+'"'+((db.overrides[id]?.flow||"auto")===f?" selected":"")+'>'+flowLabel(f)+'</option>').join("")+'</select>'+
+ '<p class="field-note">Classement actuel : '+esc(flowLabel(c.flow))+'. '+esc(c.reason)+'.</p><label for="tx-category">Catégorie</label><select id="tx-category">'+C.categories.map(cat=>'<option'+(cat===c.category?" selected":"")+'>'+esc(cat)+'</option>').join("")+'</select>'+
+ (pair?'<div class="notice neutral" style="margin-top:18px">Transfert possible avec <strong>'+esc(accountName(pair.accountId))+'</strong> : '+amount(pair)+' le '+shortDate(pair.date)+'.<br>Le rapprochement doit être confirmé par toi.<div class="actions"><button class="btn" id="confirm-transfer">Confirmer le virement interne</button></div></div>':"")+
+ '<label for="tx-fee">Frais inclus dans un transfert interne ou d’épargne (€)</label><input id="tx-fee" type="number" min="0" step="0.01" value="'+((db.overrides[id]?.fee||0)/100).toFixed(2)+'"><p class="field-note">Facultatif, uniquement si les frais sont inclus dans cette ligne. Une ligne de frais distincte est déjà comptée : ne la ressaisis pas ici.</p><label for="tx-note">Note personnelle</label><textarea id="tx-note" maxlength="2000">'+esc(db.overrides[id]?.note||"")+'</textarea><div class="actions"><button class="btn primary" id="tx-save">Enregistrer</button></div><p class="small-note" style="margin-top:18px">Source : '+(t.source==="api"?"Enable Banking":"fichier importé")+'. '+(t.dateBasis==="booking"?"La date utilisée est la date de comptabilisation.":"La banque ne fournit pas de date de comptabilisation pour cette ligne.")+'</p>');
+ $("#tx-save").onclick=()=>perform(async()=>{const fee=C.money($("#tx-fee").value||"0");if(fee<0||fee>Math.abs(t.amount))throw Error("Les frais doivent être compris entre zéro et le montant de l’opération.");db.overrides[id]={flow:$("#tx-flow").value,category:$("#tx-category").value,fee,note:$("#tx-note").value.slice(0,2000)};audit("Classement modifié : "+t.label.slice(0,80));await persist();closeModal();render();});
+ if(pair)$("#confirm-transfer").onclick=()=>perform(async()=>{for(const row of [t,pair])db.overrides[row.id]={flow:"internal",category:"Autres",note:db.overrides[row.id]?.note||""};audit("Virement interne confirmé entre "+accountName(t.accountId)+" et "+accountName(pair.accountId));await persist();closeModal();render();});
+}
+function validIBAN(value) {
+ const s=C.iban(value);if(!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(s))return false;
+ const n=(s.slice(4)+s.slice(0,4)).replace(/[A-Z]/g,c=>String(c.charCodeAt(0)-55));let r=0;for(const c of n)r=(r*10+Number(c))%97;return r===1;
+}
+function accountModal(id) {
+ const a=db.accounts.find(a=>a.id===id);
+ modal(a?"Mon compte":"Ajouter un compte",'<form id="account-form"><label for="account-bank">Banque</label><select id="account-bank">'+["BoursoBank","Revolut","La Banque Postale","Autre"].map(n=>'<option'+(a?.bank===n?" selected":"")+'>'+n+'</option>').join("")+'</select><label for="account-name">Nom du compte</label><input id="account-name" maxlength="100" required value="'+esc(a?.name||"")+'" placeholder="Ex. Mon compte courant"><label for="account-iban">IBAN personnel (facultatif pour les imports)</label><input id="account-iban" maxlength="45" value="'+esc(a?.iban||"")+'" placeholder="FR…"><p class="field-note">L’IBAN aide à identifier les virements entre tes comptes. Il reste chiffré dans ton espace.</p><label for="account-role">Rôle</label><select id="account-role">'+[["current","Compte courant · inclus dans les dépenses"],["savings","Épargne · repère pour les transferts"],["excluded","Hors suivi"]].map(([v,n])=>'<option value="'+v+'"'+(a?.role===v?" selected":"")+'>'+n+'</option>').join("")+'</select><label for="account-source">Source utilisée pour le budget</label><select id="account-source"><option value="csv">Fichiers importés</option><option value="api"'+(a?.sourceMode==="api"?" selected":"")+(a?.apiUid?"":" disabled")+'>Connexion Enable Banking</option></select><p class="field-note">Une seule source est comptée par compte. Les imports restent conservés lorsque tu choisis la connexion bancaire.</p><div class="actions"><button type="submit" class="btn primary">Enregistrer le compte</button></div></form>');
+ $("#account-form").onsubmit=e=>{e.preventDefault();perform(async()=>{
+  const name=$("#account-name").value.trim(),value=C.iban($("#account-iban").value);if(!name)throw Error("Nomme ce compte.");
+  if(value&&!demo&&!validIBAN(value))throw Error("L’IBAN ne semble pas valide. Vérifie-le ou laisse ce champ vide.");
+  if(value&&db.accounts.some(x=>x.id!==id&&C.iban(x.iban)===value))throw Error("Cet IBAN existe déjà dans ton espace.");
+  const item=a||{id:crypto.randomUUID(),currency:"EUR"};
+  Object.assign(item,{name,bank:$("#account-bank").value,iban:value,role:$("#account-role").value,sourceMode:$("#account-source").value});
+  if(!a)db.accounts.push(item);audit("Compte "+(a?"modifié":"ajouté")+" : "+name);await persist();closeModal();render();
+ });};
+}
+function chooseCSV(accountId) {
+ const eligible=db.accounts.filter(a=>a.role==="current"&&a.sourceMode==="csv");
+ if(!eligible.length){accountModal();toast("Ajoute un compte courant avec la source Fichiers, puis importe ses opérations.");return;}
+ pendingCSV=accountId||eligible[0].id;$("#csv-file").value="";$("#csv-file").click();
+}
+async function readFile(file) {
+ if(file.size>6*1024*1024)throw Error("Fichier limité à 6 Mo.");
+ const bytes=new Uint8Array(await file.arrayBuffer());
+ if(bytes[0]===255&&bytes[1]===254)return new TextDecoder("utf-16le").decode(bytes);
+ try{return new TextDecoder("utf-8",{fatal:true}).decode(bytes);}catch{return new TextDecoder("windows-1252").decode(bytes);}
+}
+function importModal(parsed,filename) {
+ parsedFile=parsed;
+ const guessed=C.guessColumns(parsed.headers),fields=[["date","Date de comptabilisation"],["label","Libellé"],["amount","Montant signé"],["debit","Débit (colonne séparée)"],["credit","Crédit (colonne séparée)"],["currency","Devise"],["reference","Identifiant unique d’opération"],["status","Statut"],["counterparty","IBAN de contrepartie"]];
+ modal("Importer les opérations",'<p class="muted">'+esc(filename)+' · '+parsed.rows.length+' lignes. Vérifie l’association des colonnes avant l’import.</p><label for="import-account">Compte concerné</label><select id="import-account">'+db.accounts.filter(a=>a.role==="current"&&a.sourceMode==="csv").map(a=>'<option value="'+esc(a.id)+'"'+(a.id===pendingCSV?" selected":"")+'>'+esc(a.name)+'</option>').join("")+'</select><div class="import-grid">'+fields.map(([key,label])=>'<div><label for="map-'+key+'">'+label+'</label><select id="map-'+key+'"><option value="-1">Non fourni</option>'+parsed.headers.map((h,i)=>'<option value="'+i+'"'+(guessed[key]===i?" selected":"")+'>'+esc(h)+'</option>').join("")+'</select></div>').join("")+'</div><label for="import-currency">Devise si le fichier ne l’indique pas</label><select id="import-currency"><option>EUR</option><option>USD</option><option>GBP</option><option>CHF</option></select><p class="field-note">Seules les opérations EUR entrent dans le total en euros. Sans statut, les lignes d’un relevé sont considérées comptabilisées. Associe un identifiant uniquement s’il est unique par opération.</p><h3 style="margin:20px 0 10px">Aperçu du fichier</h3><div class="preview"><table><thead><tr>'+parsed.headers.map(h=>'<th>'+esc(h)+'</th>').join("")+'</tr></thead><tbody>'+parsed.rows.slice(0,3).map(r=>'<tr>'+r.map(v=>'<td>'+esc(v)+'</td>').join("")+'</tr>').join("")+'</tbody></table></div><div class="actions"><button class="btn primary" id="do-import">Importer ces opérations</button></div>');
+ $("#do-import").onclick=()=>perform(async()=>{
+  const map={};for(const [key] of fields)map[key]=Number($("#map-"+key).value);
+  const result=C.importRows(db,$("#import-account").value,parsedFile,map,$("#import-currency").value);
+  if(result.errors.length)throw Error("Import non effectué. "+result.errors.slice(0,4).map(e=>"Ligne "+e.line+" : "+e.message).join("\n"));
+  audit("Import : "+result.added+" opérations ajoutées, "+result.duplicates+" doublons rapprochés.");
+  await persist();closeModal();render();toast(result.added+" opérations ajoutées. "+result.duplicates+" doublons rapprochés.");
+  if(result.withoutReference)$("#status").innerHTML='<div class="notice neutral">Certaines lignes n’ont pas d’identifiant unique. Le rapprochement utilise le contenu et le nombre d’occurrences ; vérifie les achats identiques le même jour.</div>';
+ });
+}
+let settingPEM="";
+function settingsModal() {
+ if(!db)return;
+ settingPEM=db.settings.pem;
+ const info=db.settings.verified,available=transportAvailable();
+ modal("Réglages et connexion",'<p class="muted">Lecture des comptes uniquement. Tes calculs restent locaux ; Enable Banking assure l’accès bancaire après ton autorisation.</p>'+
+ (demo?'<div class="notice">La démonstration utilise des données fictives. Quitte-la pour connecter tes comptes.</div>':"")+
+ (!available?'<div class="notice neutral">Connexion bancaire disponible dans l’APK Android ou avec le lanceur local sur ordinateur. Le HTML autonome peut importer et analyser des fichiers.</div>':"")+
+ '<h3>Enable Banking</h3><ol class="howto"><li>Crée une application <strong>Production</strong> dans <a href="https://enablebanking.com/cp/applications" target="_blank" rel="noopener noreferrer">Enable Banking</a>, puis active-la en liant chacun de tes propres comptes.</li><li>Ajoute cette adresse de retour aux URL autorisées :<br><strong style="overflow-wrap:anywhere">'+B.CALLBACK+'</strong></li><li>Renseigne l’identifiant et importe le fichier de clé privée généré par le service.</li></ol>'+
+ '<label for="enable-id">Identifiant de l’application</label><input id="enable-id" autocomplete="off" spellcheck="false" maxlength="36" value="'+esc(db.settings.appId)+'" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"><label>Clé privée locale (.pem)</label><div class="actions" style="margin:0"><button class="btn" id="choose-pem">Importer la clé .pem</button><span id="pem-state" class="small-note">'+(settingPEM?"Clé enregistrée dans l’espace chiffré":"Aucune clé")+'</span></div><p class="field-note">La clé sert à signer les requêtes sur ton appareil. Elle n’est pas envoyée au serveur de connexion et n’est pas incluse dans les sauvegardes d’opérations.</p>'+
+ '<div class="actions"><button class="btn primary" id="enable-verify"'+(!available||demo?" disabled":"")+'>Enregistrer et vérifier</button><button class="btn" id="enable-banks"'+(!available||demo?" disabled":"")+'>Choisir une banque</button></div><p id="enable-status" class="small-note">'+(info?'Accès vérifié le '+esc(new Date(info.checkedAt).toLocaleString("fr-FR"))+' · '+esc(info.name):"Accès pas encore vérifié")+'</p>'+
+ (db.pendingAuth?'<div class="notice neutral">Une autorisation bancaire a été lancée. <button class="btn small" id="complete-callback">Terminer avec le lien de retour</button></div>':"")+
+ '<hr class="separator"><h3>Actualisation</h3><p class="muted">L’actualisation récupère le mois observé et les cinq mois précédents, selon l’historique disponible auprès de chaque banque. Aucun appel IA.</p><button class="btn" id="sync-all"'+(demo||!available?" disabled":"")+'>Actualiser mes comptes connectés</button>'+
+ '<hr class="separator"><h3>Sauvegardes et exports</h3><p class="muted">La sauvegarde chiffrée contient les comptes et les opérations, avec leur classement. Les autorisations bancaires et la clé privée sont exclues.</p><div class="actions"><button class="btn" id="backup-export">Sauvegarde chiffrée</button><button class="btn" id="backup-restore">Restaurer</button><button class="btn" id="export-csv">Exporter le mois en CSV</button></div><p class="field-note">Le CSV est un fichier lisible, non chiffré.</p>'+
+ '<hr class="separator"><h3>Mode de calcul</h3><p class="small-note">Le total repose sur les opérations comptabilisées en euros. Les remboursements identifiés diminuent les dépenses. Les autres entrées, les virements internes et les transferts d’épargne sont séparés. Les opérations en attente et les autres devises sont signalées sans conversion automatique. Le classement local est toujours modifiable.</p>');
+ $("#choose-pem").onclick=()=>{if(demo){toast("La connexion est désactivée en démonstration.");return;}$("#pem-file").value="";$("#pem-file").click();};
+ $("#enable-verify").onclick=()=>perform(async()=>{
+  if(!transportAvailable())throw Error("Utilise l’APK ou le lanceur local.");
+  db.settings.appId=$("#enable-id").value.trim();db.settings.pem=settingPEM;delete db.settings.verified;
+  await persist();const verified=await bank.verify();db.settings.verified=verified;await persist();
+  $("#enable-status").textContent="Accès vérifié : "+verified.name+" · Production · AIS";toast("L’application Enable Banking est active et reconnue.");
+ });
+ $("#enable-banks").onclick=()=>perform(async()=>{
+  db.settings.appId=$("#enable-id").value.trim();db.settings.pem=settingPEM;await persist();
+  const verified=await bank.verify();db.settings.verified=verified;await persist();
+  bankList=await bank.banks();bankSelectionModal();
+ });
+ if($("#complete-callback"))$("#complete-callback").onclick=showCallback;
+ $("#sync-all").onclick=()=>perform(async()=>{
+  const accounts=db.accounts.filter(a=>a.role==="current"&&a.apiUid);
+  if(!accounts.length)throw Error("Connecte et sélectionne un compte courant.");
+  for(const a of accounts)await syncAccount(a.id);
+  closeModal();render();toast(accounts.length+" compte(s) actualisé(s).");
+ });
+ $("#backup-export").onclick=backupModal;
+ $("#backup-restore").onclick=()=>{$("#backup-file").value="";$("#backup-file").click();};
+ $("#export-csv").onclick=()=>perform(exportCSV);
+}
+function bankSelectionModal() {
+ if(!bankList.length)throw Error("Aucune des trois banques n’a été renvoyée pour la France. Vérifie la couverture et l’activation de ton application dans Enable Banking.");
+ modal("Choisir une banque",'<p class="muted">La banque demandera ton autorisation dans son propre parcours de connexion. Mes dépenses ne collecte pas tes identifiants bancaires.</p><div class="actions" style="display:grid">'+bankList.map((b,i)=>'<button class="btn" data-bank-index="'+i+'">'+esc(b.name)+'</button>').join("")+'</div>');
+ document.querySelectorAll("[data-bank-index]").forEach(el=>el.onclick=()=>perform(async()=>{
+  const result=await bank.begin(bankList[Number(el.dataset.bankIndex)]);
+  db.pendingAuth={...result.pending,url:result.url};audit("Autorisation lancée : "+result.pending.aspsp.name);await persist();
+  modal("Autoriser la connexion",'<p class="muted">Continue dans le navigateur pour autoriser la lecture de tes comptes auprès de '+esc(result.pending.aspsp.name)+'.</p><a class="btn primary" href="'+esc(result.url)+'" target="_blank" rel="noopener noreferrer">Continuer chez Enable Banking et ma banque</a><p class="small-note" style="margin-top:18px">Après l’autorisation, la page de retour permet de revenir dans l’APK ou de copier le lien dans Mes dépenses. L’autorisation reste à confirmer dans ton espace déverrouillé.</p><button class="btn" id="manual-callback">Coller le lien de retour</button>');
+  $("#manual-callback").onclick=showCallback;
+ }));
+}
+function showCallback() {
+ if(!db)return;
+ if(db.pendingAuth?.granted){bankAccountSelection={data:db.pendingAuth.granted,pending:db.pendingAuth};accountSelectionModal();return;}
+ modal("Terminer la connexion bancaire",'<p class="muted">Vérifie que l’autorisation a été lancée depuis cet espace. Le retour n’est accepté que pour la connexion en cours.</p><label for="callback-url">Lien de retour après autorisation</label><textarea id="callback-url" autocomplete="off" spellcheck="false">'+esc(callbackURL)+'</textarea><div class="actions"><button class="btn primary" id="finish-connection">Terminer la connexion</button></div>');
+ $("#finish-connection").onclick=()=>perform(async()=>{
+  if(demo)throw Error("Quitte la démonstration pour te connecter.");
+  const pending=db.pendingAuth,data=await bank.finish($("#callback-url").value.trim(),pending);
+  db.pendingAuth.granted=data;await persist();bankAccountSelection={data,pending};callbackURL="";accountSelectionModal();
+ });
+}
+function accountSelectionModal() {
+ const {data,pending}=bankAccountSelection;
+ const family=name=>/bourso/i.test(name)?"bourso":(/revolut/i.test(name)?"revolut":(/banque postale/i.test(name)?"postale":C.normalize(name)));
+ const matching=raw=>db.accounts.find(a=>(a.currency||"EUR")===(raw.currency||"EUR")&&((raw.account_id?.iban&&C.iban(a.iban)===C.iban(raw.account_id.iban))||(raw.identification_hash&&a.identification===raw.identification_hash)));
+ modal("Sélectionner mes comptes courants",'<p class="muted">'+esc(pending.aspsp.name)+' · '+data.accounts.length+' compte(s) autorisé(s). Les comptes d’épargne et les comptes cartes séparés ne sont pas sélectionnés par défaut.</p>'+
+ data.accounts.map((a,i)=>{
+  const known=matching(a),choices=db.accounts.filter(old=>old===known||((old.currency||"EUR")===(a.currency||"EUR")&&family(old.bank)===family(pending.aspsp.name))),defaultId=known?known.id:(choices.length?"":"new");
+  return '<div class="panel" style="padding:12px;margin:10px 0"><label style="margin:0;display:flex;align-items:center;gap:8px"><input type="checkbox" id="select-account-'+i+'"'+(a.cash_account_type==="CACC"&&(a.currency||"EUR")==="EUR"&&known?.role!=="excluded"?" checked":"")+'> '+esc(a.name||a.product||"Compte")+'</label><p class="small-note" style="margin:7px 0">'+esc(maskedIBAN(a.account_id?.iban))+' · '+esc(a.currency||"Devise non précisée")+' · '+esc(a.cash_account_type||"Type non précisé")+'</p><label for="select-existing-'+i+'">Associer à un compte de mon espace</label><select id="select-existing-'+i+'"><option value="" disabled'+(defaultId===""?" selected":"")+'>Choisir le compte déjà importé ou créer un compte distinct</option>'+choices.map(old=>'<option value="'+esc(old.id)+'"'+(defaultId===old.id?" selected":"")+'>'+esc(old.name)+'</option>').join("")+'<option value="new"'+(defaultId==="new"?" selected":"")+'>Créer un compte distinct</option></select><p class="field-note">Associe les imports et la connexion au même compte pour éviter un double comptage.</p><label for="select-role-'+i+'">Rôle dans Mes dépenses</label><select id="select-role-'+i+'"><option value="current">Compte courant</option><option value="savings"'+(a.cash_account_type==="SVGS"||known?.role==="savings"?" selected":"")+'>Repère d’épargne, sans synchronisation des opérations</option></select></div>';
+ }).join("")+
+ '<div class="notice neutral">Si une carte à débit différé a son propre compte, sélectionne uniquement le compte courant dans cette première version pour éviter de compter les achats et leur règlement mensuel deux fois.</div><div class="actions"><button class="btn primary" id="save-connected-accounts">Enregistrer et récupérer les opérations</button></div>');
+ $("#save-connected-accounts").onclick=()=>perform(async()=>{
+  const selected=data.accounts.map((a,i)=>({raw:a,include:$("#select-account-"+i).checked,role:$("#select-role-"+i).value,existing:$("#select-existing-"+i).value})).filter(a=>a.include);
+  if(!selected.length)throw Error("Sélectionne au moins un compte.");
+  if(selected.some(a=>a.raw.cash_account_type==="CARD"&&a.role==="current"))throw Error("Un compte carte séparé peut doubler le règlement de la carte. Sélectionne le compte courant associé dans cette version.");
+  if(selected.some(a=>!a.existing))throw Error("Associe chaque compte sélectionné à ses imports existants, ou choisis explicitement un compte distinct.");
+  const existingIds=selected.filter(a=>a.existing!=="new").map(a=>a.existing);
+  if(new Set(existingIds).size!==existingIds.length)throw Error("Deux comptes bancaires ne peuvent pas remplacer le même compte de ton espace.");
+  const connection={id:data.session_id,bank:pending.aspsp.name,aspsp:pending.aspsp,validUntil:data.access?.valid_until||pending.validUntil};
+  db.connections=db.connections.filter(c=>c.id!==connection.id);db.connections.push(connection);
+  const ids=[];
+  for(const {raw,role,existing} of selected){
+   const value=C.iban(raw.account_id?.iban),identification=raw.identification_hash||value||raw.uid;
+   let a=existing==="new"?matching(raw):db.accounts.find(a=>a.id===existing);
+   if(a&&a.iban&&value&&C.iban(a.iban)!==value)throw Error("Le compte choisi a un IBAN différent. Vérifie l’association.");
+   if(!a){a={id:crypto.randomUUID(),name:raw.name||pending.aspsp.name,bank:pending.aspsp.name,iban:value,role,sourceMode:"api",currency:raw.currency||"EUR"};db.accounts.push(a);}
+   Object.assign(a,{apiUid:raw.uid,identification,connectionId:connection.id,role,desiredSource:"api",iban:value||a.iban,currency:raw.currency||a.currency||"EUR"});
+   ids.push(a.id);
+  }
+  db.pendingAuth=null;audit("Connexion autorisée : "+connection.bank+" · "+selected.length+" compte(s) retenu(s).");await persist();
+  closeModal();view="accounts";render();
+  for(const id of ids)if(db.accounts.find(a=>a.id===id).role==="current")await syncAccount(id);
+  render();toast("Les comptes sélectionnés sont enregistrés.");
+ });
+}
+function syncRange() {
+ const today=new Date(),end=new Date(month+"-15T12:00:00Z"),start=new Date(month+"-01T12:00:00Z");
+ start.setUTCMonth(start.getUTCMonth()-5);end.setUTCMonth(end.getUTCMonth()+1,0);
+ const todayISO=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+ const to=end.toISOString().slice(0,10)<todayISO?end.toISOString().slice(0,10):todayISO;
+ if(month>todayISO.slice(0,7))throw Error("Ce mois est à venir. Choisis le mois courant ou un mois passé.");
+ return {from:start.toISOString().slice(0,10),to};
+}
+async function syncAccount(id) {
+ if(demo||!db||!vault.unlocked)throw Error("Déverrouille ton espace personnel pour actualiser.");
+ const a=db.accounts.find(a=>a.id===id);if(!a?.apiUid||a.role!=="current")throw Error("Ce compte courant n’est pas connecté.");
+ const connection=db.connections.find(c=>c.id===a.connectionId);
+ if(!connection||!Number.isFinite(Date.parse(connection.validUntil))||new Date(connection.validUntil).getTime()<Date.now())throw Error("L’autorisation bancaire a expiré ou n’est plus enregistrée. Reconnecte ce compte.");
+ const {from,to}=syncRange();
+ $("#status").innerHTML='<div class="progress"><span class="spinner"></span>'+esc(a.name)+' : récupération des opérations…</div>';
+ const raw=await bank.transactions(a.apiUid,from,to);
+ if(!db||!vault.unlocked)throw Error("Espace verrouillé. Aucun résultat n’a été enregistré.");
+ const undated=raw.filter(t=>!t.booking_date&&!t.transaction_date&&!t.value_date);
+ if(undated.some(t=>t.status==="BOOK"))throw Error("La banque renvoie des opérations comptabilisées sans date. Les données précédentes de ce compte sont conservées.");
+ const ready=raw.filter(t=>t.booking_date||t.transaction_date||t.value_date);
+ C.replaceAPI(db,id,ready,from,to);a.lastSync={at:new Date().toISOString(),from,to,count:ready.length,undatedPending:undated.length};
+ a.sourceMode="api";delete a.desiredSource;audit("Opérations actualisées : "+a.name+" · "+ready.length+" lignes reçues.");await persist();
+ try{
+  const balances=await bank.balances(a.apiUid),b=balances.find(b=>["CLBD","ITBD"].includes(b.balance_type))||balances.find(b=>["CLAV","ITAV"].includes(b.balance_type));
+  if(b&&db&&vault.unlocked){a.balance={amount:C.money(b.balance_amount.amount),currency:b.balance_amount.currency,at:new Date().toISOString(),type:b.balance_type};delete a.balanceError;await persist();}
+ }catch(e){if(db&&vault.unlocked){a.balanceError="Solde non actualisé : "+e.message;await persist();}}
+ render();
+}
+async function saveFile(name,type,text) {
+ if(nativeReady){await native("save",{name,type,text});return;}
+ const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function backupModal() {
+ modal("Sauvegarde chiffrée",'<p class="muted">Sauvegarde tes comptes, opérations et classements. Les clés et autorisations bancaires sont exclues. Une connexion bancaire devra être autorisée à nouveau après restauration.</p><label for="backup-password">Mot de passe de la sauvegarde</label><input id="backup-password" type="password" autocomplete="new-password" minlength="10"><label for="backup-confirm">Confirmer</label><input id="backup-confirm" type="password" autocomplete="new-password" minlength="10"><p class="field-note">Au moins 10 caractères. Conserve ce mot de passe pour relire le fichier.</p><div class="actions"><button class="btn primary" id="backup-do">Créer la sauvegarde</button></div>');
+ $("#backup-do").onclick=()=>perform(async()=>{
+  const p=$("#backup-password").value;if(p!==$("#backup-confirm").value)throw Error("Les deux mots de passe sont différents.");
+  const data=await vault.export(C.backup(db),p);await saveFile("mes-depenses-sauvegarde-"+new Date().toISOString().slice(0,10)+".json","application/json",data);
+  closeModal();toast("Sauvegarde chiffrée préparée.");
+ });
+}
+function csvCell(s) {s=String(s);if(/^[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
+async function exportCSV() {
+ const rows=C.visible(db).filter(t=>t.date.startsWith(month));
+ const header=["Date","Compte","Libellé","Montant","Devise","Catégorie","Nature","Statut"];
+ const text="\uFEFF"+header.map(csvCell).join(";")+"\r\n"+rows.map(t=>{const c=C.classify(db,t);return [csvCell(t.date),csvCell(accountName(t.accountId)),csvCell(t.label),(t.amount/100).toFixed(2),csvCell(t.currency),csvCell(c.category),csvCell(flowLabel(c.flow)),csvCell(t.status)].join(";");}).join("\r\n");
+ await saveFile("mes-depenses-"+month+".csv","text/csv",text);toast("CSV du mois préparé.");
+}
+function restoreModal(text,filename) {
+ const exists=!!db||vault.exists();
+ modal("Restaurer une sauvegarde",'<p class="muted">'+esc(filename)+'. La restauration remplace les comptes, opérations et classements de cet espace. Les accès bancaires devront être reconnectés.</p><label for="restore-password">Mot de passe de la sauvegarde</label><input id="restore-password" type="password" autocomplete="off">'+(!exists?'<p class="field-note">Ce mot de passe protégera aussi le nouvel espace local.</p>':"")+'<label style="display:flex;align-items:center;gap:8px"><input id="restore-agree" type="checkbox">Je veux restaurer ce fichier'+(exists?" et remplacer les opérations locales":"")+'.</label><div class="actions"><button class="btn primary" id="restore-do">Restaurer</button></div>');
+ $("#restore-do").onclick=()=>perform(async()=>{
+  if(!$("#restore-agree").checked)throw Error("Confirme la restauration.");
+  if(vault.exists()&&!vault.unlocked)throw Error("Déverrouille d’abord l’espace existant pour le remplacer.");
+  const password=$("#restore-password").value,opened=await V.decryptData(text,password),clean=C.backup(C.validate(opened.data));
+  if(vault.unlocked){const old=db?.settings;db=clean;if(old)db.settings=old;await persist();}
+  else{await vault.create(password,clean);db=clean;committedDB=JSON.stringify(db);}
+  demo=false;closeModal();render();toast("Sauvegarde restaurée. Les connexions bancaires restent à autoriser.");
+ });
+}
+async function lock() {
+ epoch++;busy=false;vault.lock();db=null;committedDB=null;demo=false;settingPEM="";bankList=[];bankAccountSelection=null;closeModal();$("#main-content").innerHTML="";$("#status").innerHTML="";$("#busy").hidden=true;authScreen();
+ $("#auth-submit").disabled=true;await vault.queue.catch(()=>{});$("#auth-submit").disabled=false;
+}
+function measureNavigation() {const h=$("#mobile-nav").getBoundingClientRect().height;if(h>0)document.documentElement.style.setProperty("--nav-height",h+"px");}
+$("#auth-form").onsubmit=e=>{e.preventDefault();perform(async()=>{
+ if(!crypto.subtle)throw Error("Le chiffrement nécessite un navigateur récent en HTTPS, le lanceur local ou l’APK.");
+ const password=$("#password").value;
+ if(vault.exists())db=C.validate(await vault.unlock(password));
+ else{if(password!==$("#password-confirm").value)throw Error("Les deux mots de passe sont différents.");const fresh=C.empty();await vault.create(password,fresh);db=fresh;}
+ demo=false;committedDB=JSON.stringify(db);lastActivity=Date.now();$("#password").value="";$("#password-confirm").value="";render();if(callbackURL)showCallback();
+ });};
+$("#demo-start").onclick=()=>{if(busy)return;demo=true;db=C.demo(month);committedDB=JSON.stringify(db);render();};
+$("#demo-exit").onclick=()=>{if(!busy)lock();};
+$("#lock").onclick=()=>lock();
+$("#modal-close").onclick=()=>{if(!busy)closeModal();};
+$("#modal").onclick=e=>{if(e.target===$("#modal")&&!busy)closeModal();};
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!busy&&!$("#modal").hidden)closeModal();});
+document.querySelectorAll("[data-view]").forEach(el=>el.onclick=()=>{if(db)showView(el.dataset.view);});
+document.querySelectorAll('[data-action="settings"]').forEach(el=>el.onclick=settingsModal);
+$("#global-import").onclick=()=>chooseCSV();
+$("#restore-auth").onclick=()=>{$("#backup-file").value="";$("#backup-file").click();};
+$("#csv-file").onchange=()=>perform(async()=>{const file=$("#csv-file").files[0];if(!file)return;const parsed=C.csv(await readFile(file));importModal(parsed,file.name);});
+$("#pem-file").onchange=()=>perform(async()=>{const file=$("#pem-file").files[0];if(!file)return;if(file.size>20000)throw Error("Fichier de clé privée trop volumineux.");settingPEM=await file.text();if(!settingPEM.includes("-----BEGIN PRIVATE KEY-----"))throw Error("Le fichier doit être une clé privée PEM PKCS#8.");if($("#pem-state"))$("#pem-state").textContent="Clé chargée : "+file.name+" · à enregistrer et vérifier";});
+$("#backup-file").onchange=()=>perform(async()=>{const file=$("#backup-file").files[0];if(!file)return;if(file.size>20*1024*1024)throw Error("Sauvegarde trop volumineuse.");restoreModal(await file.text(),file.name);});
+["pointerdown","keydown"].forEach(event=>document.addEventListener(event,()=>{lastActivity=Date.now();},{passive:true}));
+function idleLock(){if(db&&!demo&&Date.now()-lastActivity>5*60000)lock();}
+setInterval(idleLock,15000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")idleLock();});
+window.addEventListener("mes-depenses-resume",idleLock);
+window.addEventListener("storage",e=>{if(e.key===V.KEY&&db&&!demo){lock();toast("L’espace a changé dans une autre fenêtre. Déverrouille-le à nouveau.");}});
+if(window.ResizeObserver)new ResizeObserver(measureNavigation).observe($("#mobile-nav"));
+window.addEventListener("resize",measureNavigation);
+authScreen();
+})();
+</script>
+</body></html>

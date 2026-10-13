@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "fr.onbreax.mesdepenses",
+      "sha256_cert_fingerprints": ["84:B7:AC:1B:16:5B:70:24:9E:E6:49:0F:79:6B:FA:E4:E3:A1:69:37:F6:B7:46:D3:54:B9:6D:BF:01:CB:68:6B"]
+    }
+  }
+]

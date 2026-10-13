@@ -1,0 +1,74 @@
+const assert=require("node:assert/strict");
+const C=require("../mes-depenses/web/core.js");
+const account=(id,role="current",extra={})=>({id,name:id,bank:"Banque fictive",iban:"OWN"+id,role,sourceMode:"csv",currency:"EUR",...extra});
+const tx=(id,accountId,amount,extra={})=>({id,accountId,amount,date:"2026-10-12",dateBasis:"booking",currency:"EUR",status:"BOOK",label:"Achat fictif",source:"csv",counterpartyIban:"",category:"Autres",...extra});
+const raw=(amount="10.00",extra={})=>({transaction_amount:{amount,currency:"EUR"},credit_debit_indicator:"DBIT",status:"BOOK",booking_date:"2026-10-12",remittance_information:["Achat fictif"],...extra});
+
+assert.equal(C.money("0,10")+C.money("0.20"),30);
+assert.equal(C.money("-1 234,56"),-123456);
+assert.equal(C.money("(12.30)"),-1230);
+for(const bad of ["NaN","Infinity","1e3","1.001","","1,2,3"])assert.throws(()=>C.money(bad));
+assert.equal(C.date("12/10/2026"),"2026-10-12");
+assert.throws(()=>C.date("31/02/2026"));
+assert.throws(()=>C.summary(C.empty(),"2026-13"));
+let db=C.empty();db.accounts=[account("A"),account("B"),account("C"),account("S","savings")];
+let n=0;for(const from of ["A","B","C"])for(const to of ["A","B","C"])if(from!==to)db.transactions.push(tx("transfer-"+n++,from,-30000,{counterpartyIban:"OWN"+to,label:"Virement"}));
+assert.equal(C.summary(db,"2026-10").net,0,"all six outgoing internal directions excluded");
+assert.equal(C.summary(db,"2026-10").incoming,0);
+db.overrides[db.transactions[0].id]={flow:"internal",category:"Autres",fee:200};
+assert.equal(C.summary(db,"2026-10").net,200,"explicitly identified fees stay in expenses");
+db.overrides={};
+db.transactions=[
+ tx("purchase","A",-10000),tx("refund","A",2500,{label:"Remboursement achats"}),
+ tx("salary","B",300000,{label:"Virement salaire"}),tx("savings","C",-20000,{counterpartyIban:"OWNS"}),
+ tx("return","B",5000,{counterpartyIban:"OWNS"}),tx("pending","A",-50000,{status:"PDNG"}),
+ tx("cancel","A",-12000,{status:"CNCL"}),tx("dollars","B",-10000,{currency:"USD"}),tx("fee","A",-125,{category:"Frais bancaires"})
+];
+let sum=C.summary(db,"2026-10");
+assert.equal(sum.gross,10125);assert.equal(sum.refunds,2500);assert.equal(sum.net,7625);assert.equal(sum.incoming,300000);
+assert.equal(sum.savingsOut,20000);assert.equal(sum.savingsIn,5000);assert.equal(sum.pending,2);assert.equal(sum.otherCurrency,1);
+assert.equal(C.classify(db,tx("tax","A",10000,{label:"Remboursement impôt"})).flow,"income","tax refund is not automatically a card refund");
+db.transactions=[tx("out","A",-30000,{label:"Virement Revolut"}),tx("in","B",30000,{label:"Virement reçu"})];
+assert.equal(C.candidates(db).get("out"),"in");
+assert.equal(C.summary(db,"2026-10").net,30000,"unconfirmed pair not silently excluded");
+db.overrides.out={flow:"internal",category:"Autres"};db.overrides.in={flow:"internal",category:"Autres"};
+assert.equal(C.summary(db,"2026-10").net,0);
+db.overrides={};db.transactions=[tx("merchant","A",-30000),tx("gift","B",30000,{label:"Don"})];
+assert.equal(C.candidates(db).size,0,"same amounts from unrelated parties are not treated as transfers");
+db.accounts=[account("A","current",{sourceMode:"api"}),account("B","current",{sourceMode:"api"})];db.transactions=[];
+C.replaceAPI(db,"A",[raw("10.00",{entry_reference:"same"})],"2026-10-01","2026-10-31");
+C.replaceAPI(db,"B",[raw("10.00",{entry_reference:"same"})],"2026-10-01","2026-10-31");
+assert.equal(C.summary(db,"2026-10").net,2000,"entry references are scoped to the account");
+C.replaceAPI(db,"A",[raw("10.00",{entry_reference:"same",transaction_id:"changed"})],"2026-10-01","2026-10-31");
+assert.equal(db.transactions.length,2,"unstable transaction_id is not used for deduplication");
+C.replaceAPI(db,"A",[raw(),raw()],"2026-10-01","2026-10-31");
+assert.equal(db.transactions.filter(t=>t.accountId==="A").length,2,"two identical purchases are retained");
+C.replaceAPI(db,"A",[raw(),raw()],"2026-10-01","2026-10-31");
+assert.equal(db.transactions.filter(t=>t.accountId==="A").length,2,"refresh does not double identical purchases");
+C.replaceAPI(db,"A",[raw("20.00",{entry_reference:"lifecycle",status:"PDNG"}),raw("20.00",{entry_reference:"lifecycle",status:"BOOK"})],"2026-10-01","2026-10-31");
+assert.equal(db.transactions.find(t=>t.accountId==="A").status,"BOOK");
+const before=JSON.stringify(db);
+assert.throws(()=>C.replaceAPI(db,"A",[raw("5.00",{entry_reference:"conflict"}),raw("8.00",{entry_reference:"conflict"})],"2026-10-01","2026-10-31"));
+assert.equal(JSON.stringify(db),before,"contradictory snapshot leaves previous data intact");
+db.accounts[0].sourceMode="csv";db.transactions=[];
+const file=C.csv('Date;Libellé;Montant;Devise\r\n12/10/2026;"Achat ; avec ""citation""";-10,20;EUR\r\n12/10/2026;"Achat ; avec ""citation""";-10,20;EUR\r\n');
+const mapping=C.guessColumns(file.headers);
+let imported=C.importRows(db,"A",file,mapping);
+assert.equal(imported.added,2);assert.equal(C.summary(db,"2026-10").net,2040);
+imported=C.importRows(db,"A",file,mapping);assert.equal(imported.added,0);assert.equal(imported.duplicates,2);
+const old=JSON.stringify(db);
+const bad=C.csv("Date;Libellé;Montant\n31/02/2026;Achat;-1,00\n");
+assert.equal(C.importRows(db,"A",bad,C.guessColumns(bad.headers)).errors.length,1);
+assert.equal(JSON.stringify(db),old,"bad CSV line never causes a partial import");
+C.replaceAPI(db,"A",[raw("500.00",{entry_reference:"api"})],"2026-10-01","2026-10-31");
+assert.equal(C.summary(db,"2026-10").net,2040,"inactive source never contributes to totals");
+db.accounts[0].sourceMode="api";assert.equal(C.summary(db,"2026-10").net,50000);
+db.settings.appId="private-id";db.settings.pem="private-key";db.connections=[{id:"session-secret"}];db.pendingAuth={state:"state",at:Date.now(),aspsp:{name:"Bank",country:"FR"}};
+db.accounts[0].apiUid="api-account";db.accounts[0].connectionId="session-secret";
+const saved=C.backup(db);
+assert.equal(saved.settings.pem,"");assert.equal(saved.connections.length,0);assert.equal(saved.pendingAuth,null);assert.equal(saved.accounts[0].apiUid,undefined);
+assert.equal(saved.transactions.length,db.transactions.length,"backup keeps history");
+const invalid=JSON.parse(JSON.stringify(saved));invalid.accounts[0].balance={amount:"bad",currency:"EUR",at:{}};
+assert.throws(()=>C.validate(invalid),/Solde/);
+assert.equal(C.summary(C.demo("2026-10"),"2026-10").savingsOut,15000);
+console.log("Spending core: exact cents, six transfer directions, savings, refunds, statuses, currencies, CSV validation, source isolation, immutable IDs and snapshots passed.");
