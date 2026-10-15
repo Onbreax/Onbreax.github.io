@@ -1,0 +1,360 @@
+[
+  {
+    "postalCode": "75019",
+    "communes": [
+      {
+        "nom": "Paris",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.347,
+            48.8589
+          ]
+        },
+        "code": "75056",
+        "codesPostaux": [
+          "75001",
+          "75002",
+          "75003",
+          "75004",
+          "75005",
+          "75006",
+          "75007",
+          "75008",
+          "75009",
+          "75010",
+          "75011",
+          "75012",
+          "75013",
+          "75014",
+          "75015",
+          "75016",
+          "75017",
+          "75018",
+          "75019",
+          "75020",
+          "75116"
+        ]
+      }
+    ]
+  },
+  {
+    "postalCode": "95310",
+    "communes": [
+      {
+        "nom": "Saint-Ouen-l'Aumône",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.1293,
+            49.045
+          ]
+        },
+        "code": "95572",
+        "codesPostaux": [
+          "95310"
+        ]
+      }
+    ]
+  },
+  {
+    "postalCode": "95140",
+    "communes": [
+      {
+        "nom": "Garges-lès-Gonesse",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.4035,
+            48.9696
+          ]
+        },
+        "code": "95268",
+        "codesPostaux": [
+          "95140"
+        ]
+      }
+    ]
+  },
+  {
+    "postalCode": "91150",
+    "communes": [
+      {
+        "nom": "Abbéville-la-Rivière",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.197,
+            48.3369
+          ]
+        },
+        "code": "91001",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "Blandy",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.2576,
+            48.3205
+          ]
+        },
+        "code": "91067",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "Bois-Herpin",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.2393,
+            48.375
+          ]
+        },
+        "code": "91075",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "Boutervilliers",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.0512,
+            48.4542
+          ]
+        },
+        "code": "91098",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "Brières-les-Scellés",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.1427,
+            48.4646
+          ]
+        },
+        "code": "91109",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "Brouy",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.2927,
+            48.3268
+          ]
+        },
+        "code": "91112",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "Champmotteux",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.3161,
+            48.3431
+          ]
+        },
+        "code": "91137",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "Étampes",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.1524,
+            48.4227
+          ]
+        },
+        "code": "91223",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "La Forêt-Sainte-Croix",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.2308,
+            48.3832
+          ]
+        },
+        "code": "91248",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "Marolles-en-Beauce",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.2067,
+            48.3713
+          ]
+        },
+        "code": "91374",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "Mespuits",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.2802,
+            48.3574
+          ]
+        },
+        "code": "91399",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "Morigny-Champigny",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.2025,
+            48.4383
+          ]
+        },
+        "code": "91433",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "Ormoy-la-Rivière",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.1652,
+            48.4024
+          ]
+        },
+        "code": "91469",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "Puiselet-le-Marais",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.2635,
+            48.3947
+          ]
+        },
+        "code": "91508",
+        "codesPostaux": [
+          "91150"
+        ]
+      },
+      {
+        "nom": "Roinvilliers",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            2.2321,
+            48.3461
+          ]
+        },
+        "code": "91526",
+        "codesPostaux": [
+          "91150"
+        ]
+      }
+    ]
+  },
+  {
+    "postalCode": "44000",
+    "communes": [
+      {
+        "nom": "Nantes",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            -1.5603,
+            47.2382
+          ]
+        },
+        "code": "44109",
+        "codesPostaux": [
+          "44000",
+          "44100",
+          "44200",
+          "44300"
+        ]
+      }
+    ]
+  },
+  {
+    "postalCode": "85180",
+    "communes": [
+      {
+        "nom": "Les Sables-d'Olonne",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            -1.7611,
+            46.5264
+          ]
+        },
+        "code": "85194",
+        "codesPostaux": [
+          "85100",
+          "85180",
+          "85340"
+        ]
+      }
+    ]
+  },
+  {
+    "postalCode": "74000",
+    "communes": [
+      {
+        "nom": "Annecy",
+        "centre": {
+          "type": "Point",
+          "coordinates": [
+            6.1264,
+            45.9024
+          ]
+        },
+        "code": "74010",
+        "codesPostaux": [
+          "74000",
+          "74370",
+          "74600",
+          "74940",
+          "74960"
+        ]
+      }
+    ]
+  }
+]

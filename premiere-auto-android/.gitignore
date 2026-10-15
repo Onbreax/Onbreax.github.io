@@ -1,0 +1,7 @@
+build/
+.gradle/
+local.properties
+app/src/main/assets/index.html
+*.jks
+*.pem
+password*.txt

@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-15T18:34:49+00:00",
+  "listings": [
+    {
+      "id": "69119809697",
+      "url": "https://www.lacentrale.fr/auto-occasion-annonce-69119809697.html",
+      "brand": "Nissan",
+      "model": "Note II",
+      "version": "1.2 DIG-S 98 Acenta CVT",
+      "price": 9990,
+      "mileage": 72594,
+      "year": 2014,
+      "seller": "HARBOT AUTOMOBILES",
+      "sellerRole": "dealer",
+      "gearbox": "automatic",
+      "gearboxName": "CVT",
+      "energy": "Essence",
+      "postalCode": "95310",
+      "city": "Saint-Ouen-l'Aumône",
+      "coordinates": [
+        2.1293,
+        49.045
+      ],
+      "seats": 5,
+      "format": "compact",
+      "length": 4.1,
+      "specURL": "https://www.lacentrale.fr/fiche-technique-voiture-nissan-note-ii%2B1.2%2Bdig_s%2B98%2Bacenta%2Bcvt-2014.html",
+      "guaranteeMonths": 12,
+      "incident": null,
+      "equipment": {
+        "climate": null,
+        "bluetooth": null,
+        "parking": true,
+        "cruise": null
+      },
+      "notes": [
+        "Aide au stationnement signalée dans la sélection automatique du site : à confirmer sur le véhicule.",
+        "Historique et entretien de la boîte à demander."
+      ]
+    },
+    {
+      "id": "87103564467",
+      "url": "https://www.lacentrale.fr/auto-occasion-annonce-87103564467.html",
+      "brand": "Suzuki",
+      "model": "SX4 S-Cross",
+      "version": "1.6 VVT 120 Style AllGrip CVT",
+      "price": 7650,
+      "mileage": 166000,
+      "year": 2014,
+      "seller": "GTR FRANCE",
+      "sellerRole": "dealer",
+      "gearbox": "automatic",
+      "gearboxName": "CVT · AllGrip",
+      "energy": "Essence",
+      "postalCode": "95140",
+      "city": "Garges-lès-Gonesse",
+      "coordinates": [
+        2.4035,
+        48.9696
+      ],
+      "seats": 5,
+      "format": "suv",
+      "length": 4.3,
+      "specURL": "https://www.lacentrale.fr/fiche-technique-voiture-suzuki-sx4%2Bs_cross-1.6%2Bvvt%2B120%2Bstyle%2Ballgrip%2Bcvt-2014.html",
+      "guaranteeMonths": 3,
+      "incident": false,
+      "equipment": {
+        "climate": true,
+        "bluetooth": true,
+        "parking": null,
+        "cruise": null
+      },
+      "notes": [
+        "Usage professionnel antérieur signalé.",
+        "Kilométrage élevé : demander les factures et le suivi de la boîte."
+      ]
+    },
+    {
+      "id": "69120010429",
+      "url": "https://www.lacentrale.fr/auto-occasion-annonce-69120010429.html",
+      "brand": "Opel",
+      "model": "Mokka X",
+      "version": "1.4 Turbo 140 4x2 Auto Innovation",
+      "price": 10999,
+      "mileage": 71830,
+      "year": 2017,
+      "seller": "COFIA",
+      "sellerRole": "dealer",
+      "gearbox": "automatic",
+      "gearboxName": "Automatique · 6 rapports",
+      "energy": "Essence",
+      "postalCode": "44000",
+      "city": "Nantes",
+      "coordinates": [
+        -1.5603,
+        47.2382
+      ],
+      "seats": 5,
+      "format": "suv",
+      "length": 4.28,
+      "specURL": "https://www.lacentrale.fr/fiche-technique-voiture-opel-mokka%2Bx-1.4%2Bturbo%2B140%2B4x2%2Bauto%2Binnovation-2017.html",
+      "guaranteeMonths": 12,
+      "incident": null,
+      "equipment": {
+        "climate": true,
+        "bluetooth": null,
+        "parking": null,
+        "cruise": null
+      },
+      "notes": [
+        "Équipements affichés par le site à confirmer avec le vendeur.",
+        "Demander un devis d’assurance jeune conducteur avant de se déplacer."
+      ]
+    },
+    {
+      "id": "69118675215",
+      "url": "https://www.lacentrale.fr/auto-occasion-annonce-69118675215.html",
+      "brand": "Suzuki",
+      "model": "SX4 S-Cross",
+      "version": "1.6 VVT 120 Style AllGrip CVT",
+      "price": 11990,
+      "mileage": 122152,
+      "year": 2016,
+      "seller": "GARAGE SAINT PIERRE",
+      "sellerRole": "dealer",
+      "gearbox": "automatic",
+      "gearboxName": "CVT · AllGrip",
+      "energy": "Essence",
+      "postalCode": "91150",
+      "city": "Étampes",
+      "coordinates": [
+        2.1524,
+        48.4227
+      ],
+      "seats": 5,
+      "format": "suv",
+      "length": 4.3,
+      "specURL": "https://www.lacentrale.fr/fiche-technique-voiture-suzuki-sx4%2Bs_cross-1.6%2Bvvt%2B120%2Bstyle%2Ballgrip%2Bcvt-2014.html",
+      "guaranteeMonths": 6,
+      "incident": true,
+      "equipment": {
+        "climate": null,
+        "bluetooth": true,
+        "parking": null,
+        "cruise": null
+      },
+      "notes": [
+        "Expertise après sinistre signalée dans l’historique affiché : consulter le rapport et les factures.",
+        "Usage professionnel antérieur signalé."
+      ]
+    },
+    {
+      "id": "69117426779",
+      "url": "https://www.lacentrale.fr/auto-occasion-annonce-69117426779.html",
+      "brand": "Nissan",
+      "model": "Note II",
+      "version": "1.2 DIG-S 98 N-Connecta CVT",
+      "price": 10995,
+      "mileage": 63014,
+      "year": 2016,
+      "seller": "THOMAS AUTOMOBILES",
+      "sellerRole": "dealer",
+      "gearbox": "automatic",
+      "gearboxName": "CVT",
+      "energy": "Essence",
+      "postalCode": "85180",
+      "city": "Les Sables-d'Olonne",
+      "coordinates": [
+        -1.7611,
+        46.5264
+      ],
+      "seats": 5,
+      "format": "compact",
+      "length": 4.1,
+      "specURL": "https://www.lacentrale.fr/fiche-technique-voiture-nissan-note-ii%2B1.2%2Bdig_s%2B98%2Bacenta%2Bcvt-2014.html",
+      "guaranteeMonths": 12,
+      "incident": true,
+      "equipment": {
+        "climate": true,
+        "bluetooth": null,
+        "parking": null,
+        "cruise": true
+      },
+      "notes": [
+        "Expertise après sinistre signalée dans l’historique affiché : consulter le rapport et les factures."
+      ]
+    },
+    {
+      "id": "carpole-sx4-2014",
+      "url": "https://carpole-occasions-ile-de-france.espacevo.fr/cat-auto/marque-SUZUKI",
+      "brand": "Suzuki",
+      "model": "SX4 S-Cross",
+      "version": "1.6 VVT 120 Style AllGrip CVT",
+      "price": 14990,
+      "mileage": 13521,
+      "year": 2014,
+      "seller": "CARPOLE OCCASIONS",
+      "sellerRole": "dealer",
+      "gearbox": "automatic",
+      "gearboxName": "CVT · AllGrip",
+      "energy": "Essence",
+      "postalCode": "95310",
+      "city": "Saint-Ouen-l'Aumône",
+      "coordinates": [
+        2.1293,
+        49.045
+      ],
+      "seats": 5,
+      "format": "suv",
+      "length": 4.3,
+      "specURL": "https://www.lacentrale.fr/fiche-technique-voiture-suzuki-sx4%2Bs_cross-1.6%2Bvvt%2B120%2Bstyle%2Ballgrip%2Bcvt-2014.html",
+      "guaranteeMonths": null,
+      "incident": null,
+      "equipment": {
+        "climate": null,
+        "bluetooth": null,
+        "parking": null,
+        "cruise": null
+      },
+      "notes": [
+        "Le lien mène au stock Suzuki du vendeur : repérer la version et le kilométrage indiqués.",
+        "Faible kilométrage annoncé : demander l’historique chronologique et les justificatifs."
+      ]
+    }
+  ]
+}
