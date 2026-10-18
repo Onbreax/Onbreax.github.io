@@ -2,7 +2,11 @@ plugins { id 'com.android.application' }
 android {
  namespace 'fr.onbreax.matchwork'
  compileSdk 35
- defaultConfig { applicationId 'fr.onbreax.matchwork'; minSdk 26; targetSdk 35; versionCode 7; versionName '1.1.5' }
+ defaultConfig { applicationId 'fr.onbreax.matchwork'; minSdk 26; targetSdk 35; versionCode 8; versionName '1.1.6' }
  buildTypes { release { minifyEnabled false } }
  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
+dependencies { implementation 'com.google.android.gms:play-services-auth:21.6.0' }
+
+tasks.register("prepareSharedHtml", Exec) { workingDir rootProject.projectDir; commandLine "python3", "prepare.py" }
+tasks.named("preBuild").configure { dependsOn "prepareSharedHtml" }

@@ -115,6 +115,7 @@ public class MainActivity extends Activity {
  }
  @Override protected void onActivityResult(int request, int result, Intent data) {
   super.onActivityResult(request, result, data);
+  runtime.gmail.onActivityResult(request, result, data);
   if (request == 10 && picker != null) { picker.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result, data)); picker = null; }
   if (request == 11) {
    String text = pendingExport; pendingExport = null; choosingExport = false;

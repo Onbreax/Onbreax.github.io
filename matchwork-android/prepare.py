@@ -1,7 +1,8 @@
 """Package the shared HTML without personal data or a dependency on GitHub Pages."""
 from pathlib import Path
-import re, base64, urllib.request, hashlib
+import re, base64, urllib.request, hashlib, subprocess, sys
 root=Path(__file__).resolve().parent
+subprocess.run([sys.executable,str(root.parent/'matchwork/build-gmail.py')],check=True)
 html=(root.parent/'matchwork.html').read_text()
 html=html.replace('<head>', '<head>\n<meta name="matchwork-native" content="background-v1">', 1)
 assets=root/'app/src/main/assets'

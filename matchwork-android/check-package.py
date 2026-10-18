@@ -21,6 +21,9 @@ def check_package(apk, aapt):
             attribute = re.search(r"A: android:(\w+).*?=\(type 0x[\da-f]+\)(0x[\da-f]+)", line)
             if attribute:
                 current["attributes"][attribute[1]] = int(attribute[2], 16)
+            string_attribute = re.search(r'A: android:(\w+).*?="([^"]+)"', line)
+            if string_attribute:
+                current["attributes"][string_attribute[1]] = string_attribute[2]
     sdk_nodes = [e for e in elements if e["name"] == "uses-sdk"]
     app_nodes = [e for e in elements if e["name"] == "application"]
     assert len(sdk_nodes) == len(app_nodes) == 1, "One SDK and one application declaration required"
@@ -36,7 +39,9 @@ def check_package(apk, aapt):
     assert app["attributes"].get("hardwareAccelerated") == 0xFFFFFFFF, "WebView hardware rendering required"
     activities = [e for e in elements if e["name"] == "activity"]
     assert activities, "Missing activity"
-    for activity in activities:
+    main_activities = [e for e in activities if str(e["attributes"].get("name", "")).endswith(".MainActivity")]
+    assert len(main_activities) == 1, "One Matchwork main activity required"
+    for activity in main_activities:
         assert activity["attributes"].get("resizeableActivity") == 0xFFFFFFFF, "Activity must be resizable"
         assert "screenOrientation" not in activity["attributes"], "Fixed orientation restricts display sizes"
     for node in [app, *activities]:

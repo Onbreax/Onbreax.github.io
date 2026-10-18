@@ -23,13 +23,14 @@ final class MatchworkRuntime {
  final Handler main = new Handler(Looper.getMainLooper());
  final OperationState state = new OperationState();
  final NativeHttp http;
+ final GmailBridge gmail;
  WebView web;
  private MutableContextWrapper viewContext;
  MainActivity host;
  private WebMessagePort channel;
  private String startRequest;
  private boolean sent;
- private MatchworkRuntime(Context context) { this.context = context; http = new NativeHttp(this, context); }
+ private MatchworkRuntime(Context context) { this.context = context; http = new NativeHttp(this, context); gmail = new GmailBridge(this); }
  boolean trusted(Uri uri) {
   return "https".equals(uri.getScheme()) && "appassets.androidplatform.net".equals(uri.getHost())
    && (uri.getPort() == -1 || uri.getPort() == 443) && uri.getUserInfo() == null && "/assets/index.html".equals(uri.getPath());
@@ -132,6 +133,12 @@ final class MatchworkRuntime {
    if ("ready".equals(action)) {
     PowerManager power = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
     send(new JSONObject().put("type", "ready").put("batteryExempt", power.isIgnoringBatteryOptimizations(context.getPackageName())).put("receipts", http.pendingReceipts()));
+   } else if ("gmail-authorize".equals(action)) {
+    gmail.authorize(data);
+   } else if ("gmail-fetch".equals(action)) {
+    gmail.fetch(data);
+   } else if ("gmail-forget".equals(action)) {
+    gmail.forget(data.optString("profileId"));
    } else if ("begin".equals(action)) {
     if (host == null || !host.isVisible() || !state.begin(token)) { reply(id, null, "Une opération est déjà active ou Matchwork n’est pas visible."); return; }
     startRequest = id;

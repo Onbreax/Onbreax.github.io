@@ -1,3 +1,38 @@
+# Matchwork Android 1.1.6 — alertes Gmail par profil
+
+La version HTML partagée et l’APK ajoutent une connexion Gmail facultative à chaque profil. La recherche habituelle inclut les alertes de `jobalerts-noreply@linkedin.com`. Antériorité par défaut : 30 jours ; choix 7/30/90/180/365 jours. Rythme : chaque recherche, une fois par jour lors d’une recherche, ou manuel. Aucun polling lorsque l’application est fermée.
+
+Le guide utilisateur est dans [`../matchwork/gmail-setup.html`](../matchwork/gmail-setup.html) et dans la configuration du profil. Un projet Google OAuth doit être configuré avant le premier accès réel : Gmail API, consentement `gmail.readonly`, comptes de test si nécessaire, clients Web et Android. Aucun secret client n’est embarqué. Android utilise Google Identity Services ; le navigateur utilise Google Identity Services Web et des GET vers l’API Gmail.
+
+L’email associé, la période et le bilan sont stockés avec le profil. Les jetons Web restent en mémoire JS ; les jetons Android restent dans la mémoire du pont natif, indexés par profil et boîte vérifiée. Ils ne figurent pas dans les sauvegardes. Le filtre d’expéditeur est appliqué par l’application ; la permission Google de lecture couvre techniquement toute la boîte. Dissocier localement un profil n’effectue pas une révocation globale susceptible de toucher un autre profil.
+
+Le parseur MIME/UTF-8 extrait les offres sans IA. Les emails HTML sont lus dans un template inerte, sans être affichés. Les liens LinkedIn sont réduits à l’identifiant d’offre ; les paramètres de suivi ne sont pas conservés. Les doublons gardent notes et statut. La date reçue n’est pas une date de publication. L’indication de texte partiel est conservée ; la vérification automatique de ces fiches reste indéterminée et n’essaie pas de contourner LinkedIn. Les analyses IA restent explicites ou soumises aux options existantes et sont marquées provisoires sur une alerte partielle.
+
+Les lots sont limités à deux pages de 100 emails. La page et les messages déjà enregistrés sont sauvegardés progressivement. Une erreur ou un arrêt ne confirme pas le lot complet. Une reprise garde la requête d’origine et les doublons sont fusionnés. Les emails sans offre reconnue sont comptés dans le bilan.
+
+## Compilation
+
+`prepare.py` réintègre `matchwork/gmail-core.js` et `gmail-integration.js` dans le HTML autonome, puis génère l’asset Android. Le build Gradle utilise `com.google.android.gms:play-services-auth:21.6.0`. Le build SDK avec `build.sh` résout les mêmes bibliothèques à partir de Maven Google/Central avec les SHA-256 de `google-dependencies.lock.json` ; leurs ressources et manifestes sont fusionnés avant compilation. Aucun binaire Maven n’est versionné.
+
+```bash
+ANDROID_HOME=/chemin/sdk MATCHWORK_KEYSTORE=/chemin/prive/matchwork.jks MATCHWORK_PASSWORD_FILE=/chemin/prive/password.txt MATCHWORK_ECJ_JAR=/chemin/ecj.jar bash build.sh
+```
+
+Le package reste `fr.onbreax.matchwork`, versionCode 8, même certificat utilisateur que 1.1.5. Le contrôle binaire conserve `uses-sdk` avant `application` et vérifie la fenêtre redimensionnable de MainActivity pour préserver la correction de l’espace noir sur Android. L’ajout des activités internes Google n’altère pas les insets de la fenêtre Matchwork.
+
+## Vérifications de cette version
+
+- Suites UI, suivi et arrière-plan existantes conservées.
+- `tests/matchwork-gmail.cjs` : extraction, liens, profils, recherche habituelle sans clé IA, périodes, dédoublonnage, reprise, absence de jetons dans les sauvegardes, indices d’annonce partielle.
+- `tests/GmailPolicyTest.java` : liste exacte de GET Gmail, requête d’expéditeur imposée, absence d’envoi, d’édition, de pièces jointes et de redirection vers un autre hôte.
+- Compilation/signature/alignement et contenu de l’APK vérifiés. L’extracteur a aussi reconnu les deux offres d’une alerte de référence, hors des fixtures publiques.
+
+Pas de validation sur téléphone physique ni d’autorisation Google réelle tant que le projet OAuth n’est pas configuré.
+
+---
+
+## Notes des versions précédentes
+
 # Matchwork Android
 
 Application personnelle Android 8+ contenant le code de `../matchwork.html`.
