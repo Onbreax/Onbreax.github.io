@@ -16,7 +16,7 @@
  function parse(message,doc){
   if(sender(message)!==SENDER)return {offers:[],recognized:false,ignoredSender:true};
   const body=bodies(message),found=new Map(),ts=Number(message.internalDate||message.internal_date),receivedAt=Number.isFinite(ts)&&ts>0?new Date(ts).toISOString():"";
-  function add(id,f,text){if(!id||!f.titre||!f.employeur||f.titre.length>600||f.employeur.length>400)return;const o={titre:f.titre,employeur:f.employeur,lieu:f.lieu||"",url:"https://www.linkedin.com/jobs/view/"+id+"/",date:"",source:"LinkedIn · Gmail",description:clean(text).slice(0,5000),salaire:"",linkedinId:id,emailPartial:true,emailSource:{messageId:String(message.id||"").slice(0,200),sender:SENDER,receivedAt}};const previous=found.get(id);if(!previous||(o.description.length>previous.description.length&&o.lieu))found.set(id,o)}
+  function add(id,f,text){if(!id||!f.titre||!f.employeur||f.titre.length>600||f.employeur.length>400)return;const o={titre:f.titre,employeur:f.employeur,lieu:f.lieu||"",url:"https://www.linkedin.com/jobs/view/"+id+"/",date:"",source:"LinkedIn · Gmail",description:clean(text).replace(/https?:\/\/[^\s<>]+/g,u=>canonical(u)||"").slice(0,5000),salaire:"",linkedinId:id,emailPartial:true,emailSource:{messageId:String(message.id||"").slice(0,200),sender:SENDER,receivedAt}};const previous=found.get(id);if(!previous)found.set(id,o)}
   for(const plain of body.plain){for(const block of plain.split(/\n\s*[-–—]{5,}\s*\n/)){
    const links=[...block.matchAll(/https:\/\/[^\s<>"’]+/g)].map(m=>({value:m[0],at:m.index})).filter(x=>jobId(x.value));
    if(links.length!==1)continue;

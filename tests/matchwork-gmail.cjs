@@ -46,6 +46,10 @@ async function main(){
  await a.get('#gmail-sync').onclick();
  assert.equal(a.run('offers.length'),2);assert.equal(a.run('offers[0].notes'),'Mes notes');assert.equal(a.run('offers[0].statut'),'Entretien');assert.equal(a.run('offers[0].statusHistory.length'),1);
  assert.equal(a.run('offers[0].emailPartial'),undefined,'full existing description stays full');assert.equal(a.run('offers[1].emailPartial'),true);assert.equal(a.run('profile.gmail.lastRun.merged'),1);
+ for(const status of ['Écartée','Expirée','À creuser','Contactée','Candidature envoyée','Entretien']){
+  a.run('offers[0].statut='+JSON.stringify(status)+'; addOffers('+JSON.stringify(parsed.offers)+',"LinkedIn · Gmail");');
+  assert.equal(a.run('offers[0].statut'),status,'incoming Gmail must never change a personal status');assert.equal(a.run('offers[0].notes'),'Mes notes');
+ }
  assert.equal(a.run('costs.calls'),0);assert.equal(a.calls.filter(c=>/openrouter|jina/.test(c.url)).length,0);
  a.run('openDrawer(offers[1])');assert.equal(a.get('#d-email-info').hidden,false);assert.match(a.get('#d-email-info').textContent,/partielle/);
  await a.run('verifyOffer(offers[1],true)');assert.equal(a.calls.filter(c=>/openrouter|jina/.test(c.url)).length,0);assert.equal(a.run('offers[1].verif.etat'),'indeterminee');
