@@ -11,14 +11,24 @@ const mail1=message('aaa1','Votre alerte Emploi pour LCB-FT (Ville de Paris)\n'+
 const response=data=>({ok:true,status:200,json:async()=>data,text:async()=>JSON.stringify(data)});
 function app(seed={},handler){
  const errors=[],calls=[],alerts=[];const vc=new VirtualConsole();vc.on('jsdomError',e=>errors.push(e));
- const dom=new JSDOM(html,{url:'https://onbreax.github.io/matchwork.html',runScripts:'outside-only',pretendToBeVisual:true,virtualConsole:vc}),w=dom.window;
+ const dom=new JSDOM(html.replace('<head>','<head><meta name="matchwork-gmail-local" content="TEST-CSRF">'),{url:'http://127.0.0.1:8765/matchwork.html',runScripts:'outside-only',pretendToBeVisual:true,virtualConsole:vc}),w=dom.window;
  w.TextDecoder=TextDecoder;w.alert=x=>alerts.push(x);w.confirm=()=>true;w.Chart=class{destroy(){}};w.HTMLElement.prototype.scrollIntoView=function(){};
- let nextEmail='a@example.org',authorizationCount=0;
- w.google={accounts:{oauth2:{initTokenClient:options=>({requestAccessToken:()=>{authorizationCount++;options.callback({access_token:'TOKEN-'+nextEmail,scope:'https://www.googleapis.com/auth/gmail.readonly',expires_in:3600})}})}}};
- w.fetch=async(url,options={})=>{calls.push({url:String(url),options});if(String(url).endsWith('/profile'))return response({emailAddress:nextEmail});if(handler)return handler(String(url),options);throw new Error('Unexpected request '+url)};
+ let nextEmail='a@example.org',authorizationCount=0,connectHandler=null;
+ w.fetch=async(url,options={})=>{
+  if(!String(url).startsWith('/gmail/fetch'))calls.push({url:String(url),options});
+  if(String(url).startsWith('/gmail/')){
+   assert.equal(options.headers['X-Matchwork-Local'],'TEST-CSRF');assert.equal(options.method,'POST');
+   const data=JSON.parse(options.body);
+   if(String(url)==='/gmail/connect'){authorizationCount++;if(connectHandler)return connectHandler(data);return response({email:nextEmail})}
+   if(String(url)==='/gmail/forget')return response({});
+   url='https://gmail.test/gmail/v1/users/me/'+data.path;calls.push({url,options});
+  }
+  if(String(url).endsWith('/profile'))return response({emailAddress:nextEmail});
+  if(handler)return handler(String(url),options);throw new Error('Unexpected request '+url);
+ };
  for(const [k,v] of Object.entries(seed))w.localStorage.setItem(k,JSON.stringify(v));
- const context=dom.getInternalVMContext();vm.runInContext(source,context);
- return {w,get:s=>w.document.querySelector(s),run:s=>vm.runInContext(s,context),calls,alerts,setEmail:x=>nextEmail=x,auth:()=>authorizationCount,
+ const context=dom.getInternalVMContext();vm.runInContext(source,context);w.document.querySelector('#gmail-address').value=nextEmail;w.document.querySelector('#gmail-password').value='abcdefghijklmnop';
+ return {w,get:s=>w.document.querySelector(s),run:s=>vm.runInContext(s,context),calls,alerts,setEmail:x=>{nextEmail=x;w.document.querySelector('#gmail-address').value=x;w.document.querySelector('#gmail-password').value='abcdefghijklmnop'},setConnectHandler:x=>connectHandler=x,auth:()=>authorizationCount,
   close(){assert.equal(errors.length,0,errors.map(e=>e.stack).join('\n'));dom.window.close()}};
 }
 async function main(){
@@ -42,7 +52,7 @@ async function main(){
   if(url.includes('/messages/aaa1?'))return response(mail1);
   throw new Error('Unexpected '+url);
  });
- await a.get('#gmail-connect').onclick();assert.equal(a.run('profile.gmail.email'),'a@example.org');assert.equal(a.run('profile.gmail.enabled'),true);assert.equal(a.get('#gmail-sync').disabled,false);assert.equal(a.get('#gmail-enabled').disabled,false);
+ await a.get('#gmail-connect').onclick();assert.equal(a.run('profile.gmail.email'),'a@example.org');assert.equal(a.run('profile.gmail.enabled'),true);assert.equal(a.get('#gmail-password').value,'');assert.equal(a.get('#gmail-sync').disabled,false);assert.equal(a.get('#gmail-enabled').disabled,false);
  await a.get('#gmail-sync').onclick();
  assert.equal(a.run('offers.length'),2);assert.equal(a.run('offers[0].notes'),'Mes notes');assert.equal(a.run('offers[0].statut'),'Entretien');assert.equal(a.run('offers[0].statusHistory.length'),1);
  assert.equal(a.run('offers[0].emailPartial'),undefined,'full existing description stays full');assert.equal(a.run('offers[1].emailPartial'),true);assert.equal(a.run('profile.gmail.lastRun.merged'),1);
@@ -55,7 +65,7 @@ async function main(){
  await a.run('verifyOffer(offers[1],true)');assert.equal(a.calls.filter(c=>/openrouter|jina/.test(c.url)).length,0);assert.equal(a.run('offers[1].verif.etat'),'indeterminee');
  const before=a.calls.filter(c=>c.url.includes('/messages/')).length;
  await a.get('#gmail-sync').onclick();assert.equal(a.calls.filter(c=>c.url.includes('/messages/')).length,before,'processed emails are not fetched again');
- const backup=a.run('JSON.stringify(makeBackup())');assert.doesNotMatch(backup,/TOKEN-|access_token|SECRET-/);assert.doesNotMatch(JSON.stringify({...a.w.localStorage}),/TOKEN-|access_token|SECRET-/);
+ const backup=a.run('JSON.stringify(makeBackup())');assert.doesNotMatch(backup,/TOKEN-|access_token|SECRET-|abcdefghijklmnop/g);assert.doesNotMatch(JSON.stringify({...a.w.localStorage}),/TOKEN-|access_token|SECRET-|abcdefghijklmnop/g);
  a.run('switchProfile("p2")');assert.equal(a.run('gmailConfig().email'),'');assert.equal(a.run('offers.length'),0);assert.equal(a.get('#gmail-sync').disabled,true);
  a.setEmail('b@example.org');await a.get('#gmail-connect').onclick();assert.equal(a.run('profile.gmail.email'),'b@example.org');
  a.run('switchProfile("p1")');assert.equal(a.run('profile.gmail.email'),'a@example.org');assert.equal(a.run('offers.length'),2);
@@ -92,8 +102,9 @@ async function main(){
  await nw.document.querySelector('#gmail-connect').onclick();assert.equal(vm.runInContext('profile.gmail.email',nctx),'native@example.org');assert.doesNotMatch(nw.localStorage.getItem('vlcb_p1_profile'),/token/i);ndom.window.close();
  // Profile change during a late Google response cannot attach to another profile.
  a=app(seed);let finish;
- a.w.google.accounts.oauth2.initTokenClient=options=>({requestAccessToken:()=>{finish=()=>options.callback({access_token:'LATE',scope:'https://www.googleapis.com/auth/gmail.readonly',expires_in:3600})}});
+ a.setConnectHandler(()=>new Promise(resolve=>{finish=()=>resolve(response({email:'late@example.org'}))}));
  const pending=a.run('gmailAuthorize(true)');await Promise.resolve();a.run('switchProfile("p2")');finish();await assert.rejects(pending,/profil|compte Gmail a changé/);assert.equal(a.run('gmailConfig().email'),'');a.close();
- console.log('Gmail: MIME/UTF-8 extraction, canonical URLs, inert HTML, profile binding, regular search, daily periods, deduplication, retained notes/status, partial evidence, resumable failures and token-free backups passed.');
+ const remote=new JSDOM(html,{url:'https://onbreax.github.io/matchwork.html',runScripts:'outside-only'});remote.window.alert=()=>{};remote.window.Chart=class{destroy(){}};remote.window.HTMLElement.prototype.scrollIntoView=function(){};vm.runInContext(source,remote.getInternalVMContext());assert.equal(remote.window.document.querySelector('#gmail-connect').hidden,true);assert.equal(remote.window.document.querySelector('#gmail-browser-note').hidden,false);assert.equal(remote.window.document.querySelector('#gmail-sync').disabled,true);remote.window.close();
+ console.log('Gmail: local relay with CSRF, native bridge, secret clearing, browser limits, MIME/UTF-8 extraction, canonical URLs, inert HTML, profile binding, regular search, daily periods, deduplication, retained notes/status, partial evidence, resumable failures and token-free backups passed.');
 }
 main().catch(e=>{console.error(e);process.exitCode=1});

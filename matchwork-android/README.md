@@ -1,33 +1,33 @@
-# Matchwork Android 1.1.6 — alertes Gmail par profil
+# Matchwork Android 1.1.7
 
-La version HTML partagée et l’APK ajoutent une connexion Gmail facultative à chaque profil. La recherche habituelle inclut les alertes de `jobalerts-noreply@linkedin.com`. Antériorité par défaut : 30 jours ; choix 7/30/90/180/365 jours. Rythme : chaque recherche, une fois par jour lors d’une recherche, ou manuel. Aucun polling lorsque l’application est fermée.
+Gmail se connecte avec une adresse et un mot de passe d’application Google à 16 caractères. Aucun projet Google Cloud ni service Google Play n’est requis pour cette connexion. La validation en deux étapes doit être active et Google doit proposer les mots de passe d’application sur le compte.
 
-Le guide utilisateur est dans [`../matchwork/gmail-setup.html`](../matchwork/gmail-setup.html) et dans la configuration du profil. Un projet Google OAuth doit être configuré avant le premier accès réel : Gmail API, consentement `gmail.readonly`, comptes de test si nécessaire, clients Web et Android. Aucun secret client n’est embarqué. Android utilise Google Identity Services ; le navigateur utilise Google Identity Services Web et des GET vers l’API Gmail.
+L’APK ouvre une fenêtre Android pour saisir le code. Le code reste hors du WebView ; sa mémorisation facultative utilise Android Keystore et AES-GCM. Les identifiants sont séparés par profil et exclus des sauvegardes. Les permissions du code couvrent la messagerie : Matchwork restreint son usage à la lecture des alertes LinkedIn.
 
-L’email associé, la période et le bilan sont stockés avec le profil. Les jetons Web restent en mémoire JS ; les jetons Android restent dans la mémoire du pont natif, indexés par profil et boîte vérifiée. Ils ne figurent pas dans les sauvegardes. Le filtre d’expéditeur est appliqué par l’application ; la permission Google de lecture couvre techniquement toute la boîte. Dissocier localement un profil n’effectue pas une révocation globale susceptible de toucher un autre profil.
+Le client `GmailImap.java` contacte uniquement `imap.gmail.com:993` avec validation TLS du certificat et du nom d’hôte. `LIST` trouve le dossier `\All`, `EXAMINE` l’ouvre en lecture seule, `UID SEARCH X-GM-RAW` applique la requête d’expéditeur/période et `BODY.PEEK` lit le contenu sans marquer les emails comme lus. Le parseur MIME ignore les pièces jointes et limite les emails à 2 Mo. Aucun envoi, déplacement, suppression ou modification de drapeau n’est implémenté. Les lots, doublons et dates partielles suivent les règles existantes.
 
-Le parseur MIME/UTF-8 extrait les offres sans IA. Les emails HTML sont lus dans un template inerte, sans être affichés. Les liens LinkedIn sont réduits à l’identifiant d’offre ; les paramètres de suivi ne sont pas conservés. Les doublons gardent notes et statut. La date reçue n’est pas une date de publication. L’indication de texte partiel est conservée ; la vérification automatique de ces fiches reste indéterminée et n’essaie pas de contourner LinkedIn. Les analyses IA restent explicites ou soumises aux options existantes et sont marquées provisoires sur une alerte partielle.
+Le HTML seul explique la limite du navigateur. `matchwork/gmail-local.py` fournit la même connexion via un relais Python 3.9+ limité à `127.0.0.1:8765`. Il vérifie Host, Origin et un jeton par exécution, refuse les autres actions, ne journalise pas les requêtes et conserve les codes en mémoire uniquement. La version locale utilise un autre stockage navigateur : importer une sauvegarde web permet de reprendre ses données.
 
-Les lots sont limités à deux pages de 100 emails. La page et les messages déjà enregistrés sont sauvegardés progressivement. Une erreur ou un arrêt ne confirme pas le lot complet. Une reprise garde la requête d’origine et les doublons sont fusionnés. Les emails sans offre reconnue sont comptés dans le bilan.
+Guide : [`../matchwork/gmail-setup.html`](../matchwork/gmail-setup.html).
 
 ## Compilation
 
-`prepare.py` réintègre `matchwork/gmail-core.js` et `gmail-integration.js` dans le HTML autonome, puis génère l’asset Android. Le build Gradle utilise `com.google.android.gms:play-services-auth:21.6.0`. Le build SDK avec `build.sh` résout les mêmes bibliothèques à partir de Maven Google/Central avec les SHA-256 de `google-dependencies.lock.json` ; leurs ressources et manifestes sont fusionnés avant compilation. Aucun binaire Maven n’est versionné.
+`prepare.py` réintègre les modules Gmail et embarque le HTML ainsi que le lecteur PDF. Le client IMAP utilise les API Java/Android ; la dépendance Google Identity de la version 1.1.6 est supprimée. Le script `build.sh` utilise Android SDK 35, javac ou ECJ, d8, aapt2, zipalign et apksigner.
 
 ```bash
 ANDROID_HOME=/chemin/sdk MATCHWORK_KEYSTORE=/chemin/prive/matchwork.jks MATCHWORK_PASSWORD_FILE=/chemin/prive/password.txt MATCHWORK_ECJ_JAR=/chemin/ecj.jar bash build.sh
 ```
 
-Le package reste `fr.onbreax.matchwork`, versionCode 8, même certificat utilisateur que 1.1.5. Le contrôle binaire conserve `uses-sdk` avant `application` et vérifie la fenêtre redimensionnable de MainActivity pour préserver la correction de l’espace noir sur Android. L’ajout des activités internes Google n’altère pas les insets de la fenêtre Matchwork.
+Package `fr.onbreax.matchwork`, versionCode 9, versionName 1.1.7, certificat identique à la version 1.1.6. Le stockage WebView, les marges système et le service de recherche restent conservés.
 
-## Vérifications de cette version
+## Vérification
 
-- Suites UI, suivi et arrière-plan existantes conservées.
-- `tests/matchwork-gmail.cjs` : extraction, liens, profils, recherche habituelle sans clé IA, périodes, dédoublonnage, reprise, absence de jetons dans les sauvegardes, indices d’annonce partielle.
-- `tests/GmailPolicyTest.java` : liste exacte de GET Gmail, requête d’expéditeur imposée, absence d’envoi, d’édition, de pièces jointes et de redirection vers un autre hôte.
-- Compilation/signature/alignement et contenu de l’APK vérifiés. L’extracteur a aussi reconnu les deux offres d’une alerte de référence, hors des fixtures publiques.
+- Suites UI, suivi, arrière-plan et Gmail avec données fictives.
+- `GmailPolicyTest.java` et `GmailImapTest.java` : politiques, protocole à littéraux, limites, MIME, pièces jointes et rejet des injections de commande.
+- `test_gmail_local.py` : TLS/IMAP simulé, lecture seule, profils, décodage MIME, Host/Origin/jeton et exclusion des actions non autorisées.
+- Paquet Android, signature, alignement, certificat de mise à jour et UI de bureau/mobile.
 
-Pas de validation sur téléphone physique ni d’autorisation Google réelle tant que le projet OAuth n’est pas configuré.
+La connexion à un compte Gmail réel et l’exécution sur un téléphone physique ne sont pas vérifiées dans cet environnement.
 
 ---
 

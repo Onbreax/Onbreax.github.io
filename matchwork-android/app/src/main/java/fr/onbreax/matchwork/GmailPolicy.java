@@ -5,6 +5,8 @@ import java.util.*;
 
 /** Exact read-only Gmail paths. Tokens cannot be forwarded to arbitrary hosts. */
 final class GmailPolicy {
+ static boolean email(String value) { return value != null && value.length() <= 254 && value.matches("[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+"); }
+ static boolean password(String value) { return value != null && value.matches("[a-zA-Z0-9]{16}"); }
  static boolean profileId(String value) { return value != null && value.matches("p[a-zA-Z0-9_-]{1,100}"); }
  static boolean path(String path) {
   if (path == null || path.length() > 6000 || path.indexOf('#') >= 0 || path.indexOf('\r') >= 0 || path.indexOf('\n') >= 0) return false;
