@@ -60,6 +60,13 @@ object QuinteLogic {
 
     fun cleDate(date: LocalDate): String = date.format(dateApi)
 
+    /** Aujourd'hui et les six jours précédents, dans le calendrier de Paris. */
+    fun septDerniersJours(aujourdhui: LocalDate = LocalDate.now(PARIS)): List<LocalDate> =
+        (0L..6L).map(aujourdhui::minusDays)
+
+    fun ticketValide(numeros: List<Int>): Boolean =
+        numeros.size == 5 && numeros.toSet().size == 5 && numeros.all { it in 1..30 }
+
     fun urlProgramme(date: LocalDate) = "$BASE/${date.format(dateApi)}"
 
     fun urlParticipants(date: LocalDate, reunion: Int, course: Int) =
@@ -113,8 +120,10 @@ object QuinteLogic {
      * Null si les rapports du Quinté+ ne sont pas encore là.
      */
     fun gainTicket(ticket: List<Int>, rapports: List<RapportPari>): Gain? {
+        if (!ticketValide(ticket)) return null
         val quinte = rapports.firstOrNull { it.typePari == "E_QUINTE_PLUS" || it.typePari == "QUINTE_PLUS" }
             ?: return null
+        if (quinte.rapports.isEmpty() || quinte.rapports.any { it.dividendePourUneMiseDeBase == null }) return null
         val mise = quinte.miseBase ?: 200
         val meilleur = quinte.rapports
             .filter { ligne ->
@@ -133,8 +142,10 @@ object QuinteLogic {
      * dans l'ordre joué. Null si ce n'est pas un ticket valable.
      */
     fun lireTicketSaisi(texte: String): List<Int>? {
-        val numeros = Regex("\\d+").findAll(texte).map { it.value.toInt() }.toList()
-        return numeros.takeIf { it.size == 5 && it.toSet().size == 5 && it.all { n -> n in 1..30 } }
+        if (texte.any { !it.isDigit() && !it.isWhitespace() && it !in "-,;/" }) return null
+        val numeros = Regex("\\d+").findAll(texte).map { it.value }.toList()
+            .map { it.toIntOrNull() ?: return null }
+        return numeros.takeIf(::ticketValide)
     }
 
     fun heureDepart(course: Course): String =
