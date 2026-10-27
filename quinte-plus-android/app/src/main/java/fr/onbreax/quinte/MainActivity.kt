@@ -35,7 +35,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.saveable.rememberSaveable
+import java.time.LocalDate
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.Alignment
@@ -46,6 +52,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 private val Vert = Color(0xFF0B6E3B)
@@ -64,24 +72,66 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Ecran(vm: QuinteViewModel = viewModel()) {
-    val etat by vm.etat.collectAsStateWithLifecycle()
+    val ecran by vm.ecran.collectAsStateWithLifecycle()
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { vm.actualiserCalendrier() }
     Scaffold { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
-            when (val e = etat) {
-                Etat.Chargement -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-                is Etat.Erreur -> Column(
-                    Modifier.align(Alignment.Center).padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(e.message, textAlign = TextAlign.Center)
-                    Spacer(Modifier.size(16.dp))
-                    Button(onClick = vm::rafraichir) { Text("Réessayer") }
-                }
-                is Etat.Pret -> {
-                    val monTicket by vm.monTicket.collectAsStateWithLifecycle()
-                    Contenu(e.quinte, vm::rafraichir, monTicket) { vm.enregistrerMonTicket(e.quinte.cle, it) }
+        Column(Modifier.fillMaxSize().padding(padding)) {
+            ChoixDuJour(ecran, vm::choisirJour)
+            HorizontalDivider()
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                when (val e = ecran.etat) {
+                    Etat.Chargement -> Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator()
+                        Text("Chargement de la course…", modifier = Modifier.padding(16.dp))
+                    }
+                    is Etat.Erreur -> Column(
+                        Modifier.align(Alignment.Center).padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(e.message, textAlign = TextAlign.Center)
+                        Spacer(Modifier.size(16.dp))
+                        Button(onClick = vm::rafraichir) { Text("Réessayer cette date") }
+                    }
+                    is Etat.Pret -> key(e.quinte.cle) {
+                        Contenu(e.quinte, vm::rafraichir, ecran.monTicket, ecran.jour != ecran.jours.first()) {
+                            vm.enregistrerMonTicket(e.quinte.cle, it)
+                        }
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ChoixDuJour(ecran: EcranQuinte, onChoisir: (LocalDate) -> Unit) {
+    var ouvert by remember { mutableStateOf(false) }
+    val position = ecran.jours.indexOf(ecran.jour)
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Text("Quinté+ · historique sur 7 jours", style = MaterialTheme.typography.titleMedium)
+        Box {
+            OutlinedButton(onClick = { ouvert = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(QuinteLogic.dateEnFrancais(ecran.jour), modifier = Modifier.weight(1f), textAlign = TextAlign.Start)
+                Text("Choisir", modifier = Modifier.padding(start = 8.dp))
+            }
+            DropdownMenu(expanded = ouvert, onDismissRequest = { ouvert = false }) {
+                ecran.jours.forEachIndexed { index, jour ->
+                    DropdownMenuItem(
+                        text = {
+                            Column {
+                                Text(QuinteLogic.dateEnFrancais(jour), fontWeight = if (jour == ecran.jour) FontWeight.Bold else FontWeight.Normal)
+                                if (index <= 1) Text(if (index == 0) "Aujourd’hui" else "Hier", style = MaterialTheme.typography.bodySmall)
+                            }
+                        },
+                        onClick = { ouvert = false; onChoisir(jour) },
+                    )
+                }
+            }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            TextButton(enabled = position in 0 until ecran.jours.lastIndex, onClick = { onChoisir(ecran.jours[position + 1]) }) { Text("Précédent") }
+            TextButton(enabled = position > 0, onClick = { onChoisir(ecran.jours.first()) }) { Text("Aujourd’hui") }
+            TextButton(enabled = position > 0, onClick = { onChoisir(ecran.jours[position - 1]) }) { Text("Suivant") }
         }
     }
 }
@@ -91,18 +141,21 @@ private fun Contenu(
     q: QuinteDuJour,
     onRafraichir: () -> Unit,
     monTicket: List<Int>?,
+    historique: Boolean,
     onMonTicket: (List<Int>?) -> Unit,
 ) {
-    val numerosTicket = q.ticket.map { it.numero }.toSet()
+    val numerosFavoris = q.ticket.map { it.numero }.toSet()
+    val numerosTicket = monTicket?.toSet().orEmpty()
     LazyColumn(
         Modifier.fillMaxSize(),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { EnTete(q, onRafraichir) }
-        item { Ticket(q) }
+        item { EnTete(q, onRafraichir, historique) }
+        if (!historique) item { Ticket(q) }
         if (q.courseCourue || q.arrivee.isNotEmpty()) item { Resultat(q, numerosTicket) }
         item { MonTicket(q, monTicket, onMonTicket) }
+        if (historique) item { Ticket(q) }
         q.prochain?.let { prochain ->
             item {
                 Text(
@@ -120,17 +173,17 @@ private fun Contenu(
             )
         }
         items(q.chevaux, key = { it.numero }) { cheval ->
-            LigneCheval(cheval, favori = cheval.numero in numerosTicket)
+            LigneCheval(cheval, favori = cheval.numero in numerosFavoris)
             HorizontalDivider()
         }
     }
 }
 
 @Composable
-private fun EnTete(q: QuinteDuJour, onRafraichir: () -> Unit) {
+private fun EnTete(q: QuinteDuJour, onRafraichir: () -> Unit, historique: Boolean) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Quinté+ du jour", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+            Text(if (historique) "Course du jour choisi" else "Quinté+ du jour", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
             TextButton(onClick = onRafraichir) { Text("Actualiser") }
         }
         Text(q.date, style = MaterialTheme.typography.titleMedium)
@@ -169,10 +222,17 @@ private fun Ticket(q: QuinteDuJour) {
                 fontWeight = FontWeight.Bold,
             )
             Text("Les 5 plus petites cotes, de la plus jouée à la moins jouée.", style = MaterialTheme.typography.bodySmall)
+            if (q.arriveeDefinitive && q.ticket.none { !it.partant }) q.gain?.let { gain ->
+                Text(
+                    if (gain.libelle == null) "Résultat de cette sélection : aucun gain."
+                    else "Résultat de cette sélection : ${euros(gain.montant)} (${gain.libelle}, mise de ${euros(gain.mise)}).",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
             if (q.arrivee.isNotEmpty()) {
                 Text(
                     if (q.ticketFige) "Ticket enregistré avant le départ."
-                    else "Calculé avec les cotes finales : l'app n'était pas ouverte avant le départ.",
+                    else "Reconstitué avec les cotes disponibles après la course : ce n’est pas ton ticket joué.",
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
@@ -241,25 +301,11 @@ private fun Resultat(q: QuinteDuJour, numerosTicket: Set<Int>) {
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
             )
-            val bons = q.arrivee.take(5).flatten().count { it in numerosTicket }
-            Text("$bons de tes chevaux dans les 5 premiers (en vert).", style = MaterialTheme.typography.bodySmall)
-            Spacer(Modifier.size(12.dp))
-            val gain = q.gain
-            when {
-                gain == null -> Text("Les gains s'afficheront dès que le PMU publie les rapports.")
-                gain.libelle == null -> Text(
-                    "Ticket perdant (mise de ${euros(gain.mise)}).",
-                    fontWeight = FontWeight.Bold,
-                )
-                else -> {
-                    Text(
-                        "Gagné : ${euros(gain.montant)}",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Text("${gain.libelle}, pour ${euros(gain.mise)} joués au tabac.", style = MaterialTheme.typography.bodyMedium)
-                }
+            if (numerosTicket.isNotEmpty()) {
+                val bons = q.arrivee.take(5).flatten().count { it in numerosTicket }
+                Text("$bons numéros de ton ticket parmi les premières places (en vert).", style = MaterialTheme.typography.bodySmall)
+            } else {
+                Text("Renseigne ton ticket ci-dessous pour vérifier le résultat.", style = MaterialTheme.typography.bodySmall)
             }
         }
     }
@@ -268,54 +314,64 @@ private fun Resultat(q: QuinteDuJour, numerosTicket: Set<Int>) {
 private fun euros(centimes: Long): String =
     String.format(java.util.Locale.FRENCH, "%.2f €", centimes / 100.0)
 
-/** Petit encart discret pour noter le ticket vraiment joué, s'il n'est pas celui des favoris. */
+/** Le ticket personnel est toujours celui de la date affichée. */
 @Composable
 private fun MonTicket(q: QuinteDuJour, monTicket: List<Int>?, onMonTicket: (List<Int>?) -> Unit) {
-    var edition by remember(q.cle) { mutableStateOf(false) }
-    var texte by remember(q.cle) { mutableStateOf("") }
-    Column(Modifier.fillMaxWidth()) {
-        when {
-            edition -> {
-                val lu = QuinteLogic.lireTicketSaisi(texte)
-                OutlinedTextField(
-                    value = texte,
-                    onValueChange = { texte = it },
-                    label = { Text("Mon ticket : 5 numéros dans l'ordre joué") },
-                    placeholder = { Text("ex. 3 7 12 1 9") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                Row {
-                    TextButton(enabled = lu != null, onClick = { onMonTicket(lu); edition = false }) { Text("Enregistrer") }
-                    TextButton(onClick = { edition = false }) { Text("Annuler") }
-                }
-            }
-            monTicket == null -> TextButton(onClick = { texte = ""; edition = true }) {
-                Text("+ J'ai joué un autre ticket")
-            }
-            else -> {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        "Mon ticket : ${monTicket.joinToString(" - ")}",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.weight(1f),
+    var edition by rememberSaveable(q.cle) { mutableStateOf(false) }
+    var texte by rememberSaveable(q.cle) { mutableStateOf("") }
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Mon ticket joué", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(q.date, style = MaterialTheme.typography.bodySmall)
+            when {
+                edition -> {
+                    val lu = QuinteLogic.lireTicketSaisi(texte)
+                    val presentDansLaCourse = lu != null && lu.all { n -> q.chevaux.any { it.numero == n } }
+                    OutlinedTextField(
+                        value = texte,
+                        onValueChange = { texte = it.take(100) },
+                        label = { Text("5 numéros dans l’ordre joué") },
+                        placeholder = { Text("ex. 3 7 12 1 9") },
+                        supportingText = { Text("Cinq numéros différents figurant dans cette course.") },
+                        isError = texte.isNotBlank() && !presentDansLaCourse,
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        modifier = Modifier.fillMaxWidth(),
                     )
-                    TextButton(onClick = { texte = monTicket.joinToString(" "); edition = true }) { Text("Modifier") }
-                    TextButton(onClick = { onMonTicket(null) }) { Text("Effacer") }
+                    Row {
+                        Button(enabled = presentDansLaCourse, onClick = { onMonTicket(lu); edition = false }) { Text("Vérifier le ticket") }
+                        TextButton(onClick = { edition = false }) { Text("Annuler") }
+                    }
                 }
-                val gain = q.rapports?.let { QuinteLogic.gainTicket(monTicket, it) }
-                Text(
-                    when {
-                        gain == null -> "Gains affichés à l'arrivée officielle."
-                        gain.libelle == null -> "Perdant (mise de ${euros(gain.mise)})."
-                        else -> "Gagné : ${euros(gain.montant)} (${gain.libelle}, pour ${euros(gain.mise)})"
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = if (gain?.libelle != null) FontWeight.Bold else FontWeight.Normal,
-                    color = if (gain?.libelle != null) MaterialTheme.colorScheme.primary else Color.Unspecified,
-                )
+                monTicket == null -> {
+                    Text("Tu peux saisir le ticket réellement joué, même après la course.")
+                    Button(onClick = { texte = ""; edition = true }) { Text("Saisir mon ticket") }
+                }
+                else -> {
+                    Text(monTicket.joinToString(" - "), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                    val nonPartant = monTicket.any { n -> q.chevaux.any { it.numero == n && !it.partant } }
+                    val gain = if (q.arriveeDefinitive && !nonPartant) q.rapports?.let { QuinteLogic.gainTicket(monTicket, it) } else null
+                    Text(
+                        when {
+                            !q.arriveeDefinitive -> "Arrivée définitive non disponible : résultat du ticket en attente."
+                            nonPartant -> "Ticket avec non-partant : gain ou remboursement à vérifier auprès du PMU."
+                            gain == null -> "Rapports du Quinté+ indisponibles pour cette date. Actualise pour réessayer."
+                            gain.libelle == null -> "Aucun gain pour cette combinaison (mise de référence : ${euros(gain.mise)})."
+                            else -> "Gain : ${euros(gain.montant)} · ${gain.libelle}"
+                        },
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = if (gain?.libelle != null) MaterialTheme.colorScheme.primary else Color.Unspecified,
+                    )
+                    if (gain?.libelle != null) Text("Pour une mise de ${euros(gain.mise)}, mise incluse.", style = MaterialTheme.typography.bodySmall)
+                    Row {
+                        TextButton(onClick = { texte = monTicket.joinToString(" "); edition = true }) { Text("Modifier") }
+                        TextButton(onClick = { onMonTicket(null) }) { Text("Effacer ce ticket") }
+                    }
+                }
             }
+            Text("Ticket simple de 5 chevaux · rapports PMU points de vente. Hors Flexi, combiné, options et promotions.", style = MaterialTheme.typography.bodySmall)
+            Text("Les tickets sont conservés sur ce téléphone, séparément pour chaque date.", style = MaterialTheme.typography.bodySmall)
         }
     }
 }

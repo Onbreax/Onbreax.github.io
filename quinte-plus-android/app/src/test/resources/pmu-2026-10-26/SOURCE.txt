@@ -1,0 +1,5 @@
+Extraits du flux PMU points de vente, consultés le 27 octobre 2026.
+https://online.turfinfo.api.pmu.fr/rest/client/61/programme/26102026
+https://online.turfinfo.api.pmu.fr/rest/client/61/programme/26102026/R1/C4/participants?specialisation=OFFLINE
+https://online.turfinfo.api.pmu.fr/rest/client/61/programme/26102026/R1/C4/rapports-definitifs?specialisation=OFFLINE
+Seuls les champs utiles aux tests sont conservés.
