@@ -14,6 +14,10 @@ public final class BankPolicyTest {
   check(BankPolicy.callback(new URI("https://onbreax.github.io/mes-depenses-retour.html?code=fake&state=fake")),"HTTPS callback");
   check(BankPolicy.callback(new URI("mesdepenses://retour?code=fake&state=fake")),"APK fallback callback");
   check(!BankPolicy.callback(new URI("https://evil.example/mes-depenses-retour.html?code=fake")),"foreign callback refused");
+  check(BankPolicy.cryptoAllowed(new URI("https://wapi.crypto.com/v1/portfolio"),"GET"),"read Crypto.com portfolio");
+  for(String u:new String[]{"https://wapi.crypto.com/v1/order","https://wapi.crypto.com/v1/portfolio?x=1","https://wapi.crypto.com.evil/v1/portfolio","https://wapi.crypto.com/v1/%70ortfolio","https://secret@wapi.crypto.com/v1/portfolio"})
+   check(!BankPolicy.cryptoAllowed(new URI(u),"GET"),"refused crypto endpoint");
+  check(!BankPolicy.cryptoAllowed(new URI("https://wapi.crypto.com/v1/portfolio"),"POST"),"no crypto writes");
   System.out.println("Android read-only network and callback policy passed.");
  }
 }

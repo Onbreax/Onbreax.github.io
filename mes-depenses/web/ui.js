@@ -40,7 +40,7 @@ async function transport(request) {
  if(nativeReady)return native("http",request);
  if(!localServer())throw Error("Pour connecter les banques, utilise l’APK Android ou la version ordinateur lancée avec le serveur local. Le HTML autonome permet les imports.");
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),65000);
- try{const r=await fetch("/bank-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(request),signal:controller.signal,credentials:"omit"});if(!r.ok)throw Error("Le service local n’a pas pu joindre Enable Banking.");return r.json();}
+ try{const r=await fetch("/bank-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(request),signal:controller.signal,credentials:"omit"});if(!r.ok)throw Error("Le service local n’a pas pu joindre le fournisseur.");return r.json();}
  finally{clearTimeout(timer);}
 }
 const bank=new B.BankClient({core:C,credentials:()=>db&&!demo&&vault.unlocked?db.settings:null,transport});
@@ -48,7 +48,7 @@ function toast(text) {$("#toast").textContent=text;$("#toast").hidden=false;clea
 function authScreen() {
  const exists=vault.exists();$("#app").hidden=true;$("#auth").hidden=false;
  $("#auth-title").textContent=exists?"Retrouve ton espace.":"Ton mois, en clair.";
- $("#auth-description").textContent=exists?"Déverrouille les données chiffrées enregistrées sur cet appareil.":"Crée un espace chiffré pour les dépenses de tes comptes courants. Conserve ce mot de passe : il est nécessaire pour relire tes données.";
+ $("#auth-description").textContent=exists?"Déverrouille les données chiffrées enregistrées sur cet appareil.":"Crée un espace chiffré pour tes dépenses et tes avoirs. Conserve ce mot de passe : il est nécessaire pour relire tes données.";
  $("#confirm-box").hidden=exists;$("#password").autocomplete=exists?"current-password":"new-password";
  $("#auth-submit").textContent=exists?"Déverrouiller":"Créer mon espace";
  $("#auth-error").textContent="";$("#password").value="";$("#password-confirm").value="";
@@ -73,7 +73,7 @@ function render() {
  if(!db)return;
  $("#auth").hidden=true;$("#app").hidden=false;$("#demo-banner").hidden=!demo;
  document.querySelectorAll("[data-view]").forEach(el=>el.classList.toggle("active",el.dataset.view===view));
- $("#main-content").innerHTML=view==="month"?renderMonth():view==="transactions"?renderTransactions():renderAccounts();
+ $("#main-content").innerHTML=view==="month"?renderMonth():view==="transactions"?renderTransactions():view==="wealth"?renderWealth():renderAccounts();
  bindView();
  measureNavigation();
 }
@@ -94,7 +94,7 @@ function renderMonth() {
  return heading("Mon mois","Comprendre tes dépenses, toutes banques réunies.")+notice+
  '<section class="panel hero-panel"><span class="hero-eyebrow">Dépenses nettes enregistrées · '+esc(monthLabel(month))+'</span><div class="hero-number">'+(hasData?euro(s.net):"—")+'</div><p class="muted" style="margin:0;font-size:13px">Dépenses moins remboursements identifiés. Les revenus, virements internes et mouvements d’épargne sont séparés.</p></section>'+
  '<div class="metrics"><section class="panel metric"><small>Dépenses brutes</small><span class="value">'+(hasData?euro(s.gross):"—")+'</span><small>Paiements et sorties classés en dépenses</small></section><section class="panel metric"><small>Remboursements</small><span class="value credit">'+(hasData?euro(s.refunds):"—")+'</span><small>Remboursements identifiés ce mois</small></section><section class="panel metric"><small>Entrées externes</small><span class="value">'+(hasData?euro(s.incoming):"—")+'</span><small>Séparées des dépenses nettes</small></section></div>'+
- '<div class="dashboard"><section class="panel"><div class="panel-heading"><h2>Où va ton argent ?</h2><span class="pill">'+s.unclassified+' à classer</span></div>'+
+ renderBudget()+'<div class="dashboard"><section class="panel"><div class="panel-heading"><h2>Où va ton argent ?</h2><span class="pill">'+s.unclassified+' à classer</span></div>'+
  (cats.length?cats.map(([cat,n])=>'<div class="category-row"><span>'+esc(cat)+'</span><div class="category-track"><div class="category-bar" style="width:'+Math.max(0,n)/max*100+'%"></div></div><span class="amount">'+euro(n)+'</span></div>').join(""):'<div class="empty">Les catégories apparaîtront après un import ou une synchronisation.</div>')+
  '</section><section class="panel"><div class="panel-heading"><h2>Au fil des mois</h2><span class="pill">6 mois</span></div><div class="chart" role="img" aria-label="Dépenses nettes enregistrées sur les six derniers mois">'+
  past.map(v=>'<div class="chart-column"><span class="chart-value">'+(v.data?euro(v.total.net):"—")+'</span><div class="chart-bar" style="height:'+Math.max(2,Math.max(0,v.total.net)/maxPast*108)+'px"></div><span class="chart-label">'+new Intl.DateTimeFormat("fr-FR",{month:"short"}).format(new Date(v.m+"-15"))+'</span></div>').join("")+
@@ -125,21 +125,24 @@ function renderTransactions() {
 function maskedIBAN(value){const s=C.iban(value);return s?s.slice(0,4)+" ···· "+s.slice(-4):"IBAN non renseigné";}
 function renderAccounts() {
  const cards=db.accounts.map(a=>{
- const balance=a.balance&&a.balance.currency==="EUR"?euro(a.balance.amount):"—";
- return '<section class="panel account-card"><div class="bank-name">'+esc(a.bank)+'</div><h2>'+esc(a.name)+'</h2><small>'+esc(maskedIBAN(a.iban))+'</small><div class="balance">'+balance+'</div><small>'+(a.balance?"Dernier solde reçu · "+esc(a.balance.at.slice(0,10)):"Solde non fourni")+'</small><p style="margin:14px 0 0"><span class="pill '+(a.role==="current"?"":"rose")+'">'+({current:"Compte courant",savings:"Repère d’épargne",excluded:"Hors suivi"}[a.role])+'</span> <span class="pill">'+(a.sourceMode==="api"?"Enable Banking":"Fichiers")+'</span></p>'+
- '<p class="small-note" style="margin:8px 0">'+(a.lastSync?"Opérations actualisées le "+esc(new Date(a.lastSync.at).toLocaleString("fr-FR"))+" · du "+shortDate(a.lastSync.from)+" au "+shortDate(a.lastSync.to):"Aucune synchronisation enregistrée.")+'</p>'+(a.balanceError?'<p class="error">'+esc(a.balanceError)+'</p>':'')+(a.lastSync?.undatedPending?'<p class="field-note">'+a.lastSync.undatedPending+' opérations non comptabilisées sans date fournie : hors total.</p>':'')+'<div class="actions"><button class="btn small" data-account="'+esc(a.id)+'">Modifier</button>'+(a.sourceMode==="csv"&&a.role==="current"?'<button class="btn small" data-import-account="'+esc(a.id)+'">Importer</button>':"")+(a.apiUid&&a.role==="current"?'<button class="btn small" data-sync-account="'+esc(a.id)+'">Actualiser la connexion</button>':"")+'</div></section>';
+ const saved=C.wealth(db).items.find(i=>i.account.id===a.id)?.valuation;
+ const balance=C.assetRoles.includes(a.role)?(saved?euro(saved.value):"—"):(a.balance&&a.balance.currency==="EUR"?euro(a.balance.amount):"—");
+ return '<section class="panel account-card"><div class="bank-name">'+esc(a.bank)+'</div><h2>'+esc(a.name)+'</h2><small>'+esc(maskedIBAN(a.iban))+'</small><div class="balance">'+balance+'</div><small>'+(C.assetRoles.includes(a.role)?(saved?sourceName(saved.source)+" · "+shortDate(saved.date):"Aucune valorisation"):a.balance?(["CLAV","ITAV"].includes(a.balance.type)?"Solde disponible, hors total des avoirs · ":"Solde comptable reçu · ")+esc(a.balance.at.slice(0,10)):"Solde non fourni")+'</small><p style="margin:14px 0 0"><span class="pill '+(a.role==="current"?"":"rose")+'">'+roleName(a.role)+'</span> <span class="pill">'+(a.role!=="current"?"Valorisations":a.sourceMode==="api"?"Enable Banking":"Fichiers")+'</span></p>'+
+ '<p class="small-note" style="margin:8px 0">'+(a.lastSync?"Opérations actualisées le "+esc(new Date(a.lastSync.at).toLocaleString("fr-FR"))+" · du "+shortDate(a.lastSync.from)+" au "+shortDate(a.lastSync.to):C.assetRoles.includes(a.role)?"Suivi dans Mes avoirs.":"Aucune synchronisation enregistrée.")+'</p>'+(a.balanceError?'<p class="error">'+esc(a.balanceError)+'</p>':'')+(a.lastSync?.undatedPending?'<p class="field-note">'+a.lastSync.undatedPending+' opérations non comptabilisées sans date fournie : hors total.</p>':'')+'<div class="actions"><button class="btn small" data-account="'+esc(a.id)+'">Modifier</button>'+(C.assetRoles.includes(a.role)?'<button class="btn small" data-open-wealth>Voir les avoirs</button>':"")+(a.sourceMode==="csv"&&a.role==="current"?'<button class="btn small" data-import-account="'+esc(a.id)+'">Importer</button>':"")+(a.apiUid&&a.role==="current"?'<button class="btn small" data-sync-account="'+esc(a.id)+'">Actualiser la connexion</button>':"")+'</div></section>';
  }).join("");
- return '<div class="view-head"><div><h1>Mes comptes</h1><p>Trois banques, une lecture commune de tes dépenses.</p></div><div class="actions"><button class="btn" id="add-account">Ajouter un compte</button><button class="btn primary" data-action="settings">Connecter une banque</button></div></div>'+
- '<div class="notice neutral">Sélectionne uniquement les comptes courants pour le budget. Un repère d’épargne sert à reconnaître les transferts : ses opérations sont hors dépenses.</div>'+
+ return '<div class="view-head"><div><h1>Mes comptes</h1><p>Tes comptes courants et tes placements, avec leur mode de suivi.</p></div><div class="actions"><button class="btn" id="add-account">Ajouter un compte</button><button class="btn primary" data-action="settings">Connecter une banque</button></div></div>'+
+ '<div class="notice neutral">Les comptes courants alimentent les dépenses. Retrouve l’épargne et les placements dans Mes avoirs. Les transferts identifiés entre tes comptes restent séparés.</div>'+
  '<div class="accounts-grid">'+cards+'</div>'+
  (!cards?'<section class="panel empty"><h3>Ajoute ton premier compte.</h3><p>Tu peux commencer avec un fichier CSV, puis connecter Enable Banking.</p><button class="btn primary" id="first-account">Ajouter un compte</button></section>':"")+
  '<section class="panel" style="margin-top:18px"><h2>Les derniers changements</h2>'+(!db.audit.length?'<p class="muted">Les imports, synchronisations et confirmations apparaîtront ici.</p>':'<ul class="mini-list">'+db.audit.slice(0,8).map(e=>'<li><span>'+esc(e.text)+'</span><small>'+esc(new Date(e.at).toLocaleString("fr-FR"))+'</small></li>').join("")+'</ul>')+'</section>';
 }
 function bindView() {
+ bindWealth();
  document.querySelectorAll("[data-month]").forEach(el=>el.onclick=()=>{const d=new Date(month+"-15T12:00:00Z");d.setUTCMonth(d.getUTCMonth()+Number(el.dataset.month));month=d.toISOString().slice(0,7);page=0;render();});
  if($("#month"))$("#month").onchange=e=>{if(/^\d{4}-(0[1-9]|1[012])$/.test(e.target.value)){month=e.target.value;page=0;render();}};
  document.querySelectorAll("[data-transaction]").forEach(el=>{el.onclick=()=>transactionModal(el.dataset.transaction);el.onkeydown=e=>{if(e.key==="Enter")transactionModal(el.dataset.transaction);};});
  document.querySelectorAll("[data-open-operations]").forEach(el=>el.onclick=()=>showView("transactions"));
+ document.querySelectorAll("[data-open-wealth]").forEach(el=>el.onclick=()=>showView("wealth"));
  document.querySelectorAll("[data-open-accounts]").forEach(el=>el.onclick=()=>showView("accounts"));
  document.querySelectorAll("[data-account]").forEach(el=>el.onclick=()=>accountModal(el.dataset.account));
  document.querySelectorAll("[data-import-account]").forEach(el=>el.onclick=()=>chooseCSV(el.dataset.importAccount));
@@ -177,9 +180,12 @@ function validIBAN(value) {
  const s=C.iban(value);if(!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(s))return false;
  const n=(s.slice(4)+s.slice(0,4)).replace(/[A-Z]/g,c=>String(c.charCodeAt(0)-55));let r=0;for(const c of n)r=(r*10+Number(c))%97;return r===1;
 }
-function accountModal(id) {
- const a=db.accounts.find(a=>a.id===id);
- modal(a?"Mon compte":"Ajouter un compte",'<form id="account-form"><label for="account-bank">Banque</label><select id="account-bank">'+["BoursoBank","Revolut","La Banque Postale","Autre"].map(n=>'<option'+(a?.bank===n?" selected":"")+'>'+n+'</option>').join("")+'</select><label for="account-name">Nom du compte</label><input id="account-name" maxlength="100" required value="'+esc(a?.name||"")+'" placeholder="Ex. Mon compte courant"><label for="account-iban">IBAN personnel (facultatif pour les imports)</label><input id="account-iban" maxlength="45" value="'+esc(a?.iban||"")+'" placeholder="FR…"><p class="field-note">L’IBAN aide à identifier les virements entre tes comptes. Il reste chiffré dans ton espace.</p><label for="account-role">Rôle</label><select id="account-role">'+[["current","Compte courant · inclus dans les dépenses"],["savings","Épargne · repère pour les transferts"],["excluded","Hors suivi"]].map(([v,n])=>'<option value="'+v+'"'+(a?.role===v?" selected":"")+'>'+n+'</option>').join("")+'</select><label for="account-source">Source utilisée pour le budget</label><select id="account-source"><option value="csv">Fichiers importés</option><option value="api"'+(a?.sourceMode==="api"?" selected":"")+(a?.apiUid?"":" disabled")+'>Connexion Enable Banking</option></select><p class="field-note">Une seule source est comptée par compte. Les imports restent conservés lorsque tu choisis la connexion bancaire.</p><div class="actions"><button type="submit" class="btn primary">Enregistrer le compte</button></div></form>');
+function accountModal(id,bankName) {
+ const a=db.accounts.find(a=>a.id===id),selectedBank=a?.bank||bankName||"BoursoBank",selectedRole=a?.role||(["Esalia","Fédéral Finance"].includes(selectedBank)?"employee":selectedBank==="Crypto.com"?"crypto":"current");
+ modal(a?"Mon compte":"Ajouter un compte",'<form id="account-form"><label for="account-bank">Banque</label><select id="account-bank">'+[...new Set([...C.institutions,"Autre",selectedBank])].map(n=>'<option'+(selectedBank===n?" selected":"")+'>'+esc(n)+'</option>').join("")+'</select><label for="account-name">Nom du compte</label><input id="account-name" maxlength="100" required value="'+esc(a?.name||"")+'" placeholder="Ex. Mon compte courant"><label for="account-iban">IBAN personnel (facultatif pour les imports)</label><input id="account-iban" maxlength="45" value="'+esc(a?.iban||"")+'" placeholder="FR…"><p class="field-note">L’IBAN aide à identifier les virements entre tes comptes. Il reste chiffré dans ton espace.</p><label for="account-role">Rôle</label><select id="account-role">'+[["current","Compte courant · inclus dans les dépenses"],["savings","Épargne"],["crypto","Cryptoactifs · hors dépenses"],["employee","Épargne salariale · hors dépenses"],["excluded","Hors suivi"]].map(([v,n])=>'<option value="'+v+'"'+(selectedRole===v?" selected":"")+'>'+n+'</option>').join("")+'</select><label for="account-source">Source utilisée pour le budget</label><select id="account-source"><option value="csv">Fichiers importés</option><option value="api"'+(a?.sourceMode==="api"?" selected":"")+(a?.apiUid?"":" disabled")+'>Connexion Enable Banking</option></select><p class="field-note" id="account-source-note">Une seule source est comptée par compte. Les imports restent conservés lorsque tu choisis la connexion bancaire.</p><div class="actions"><button type="submit" class="btn primary">Enregistrer le compte</button></div></form>');
+ const sourceVisibility=()=>{const hidden=$("#account-role").value!=="current";$("#account-source").hidden=hidden;document.querySelector('label[for="account-source"]').hidden=hidden;$("#account-source-note").hidden=hidden;};
+ $("#account-role").onchange=sourceVisibility;sourceVisibility();
+ if(!a)$("#account-bank").onchange=()=>{$("#account-role").value=["Esalia","Fédéral Finance"].includes($("#account-bank").value)?"employee":$("#account-bank").value==="Crypto.com"?"crypto":"current";sourceVisibility();};
  $("#account-form").onsubmit=e=>{e.preventDefault();perform(async()=>{
   const name=$("#account-name").value.trim(),value=C.iban($("#account-iban").value);if(!name)throw Error("Nomme ce compte.");
   if(value&&!demo&&!validIBAN(value))throw Error("L’IBAN ne semble pas valide. Vérifie-le ou laisse ce champ vide.");
@@ -225,7 +231,7 @@ function settingsModal() {
  '<label for="enable-id">Identifiant de l’application</label><input id="enable-id" autocomplete="off" spellcheck="false" maxlength="36" value="'+esc(db.settings.appId)+'" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"><label>Clé privée locale (.pem)</label><div class="actions" style="margin:0"><button class="btn" id="choose-pem">Importer la clé .pem</button><span id="pem-state" class="small-note">'+(settingPEM?"Clé enregistrée dans l’espace chiffré":"Aucune clé")+'</span></div><p class="field-note">La clé sert à signer les requêtes sur ton appareil. Elle n’est pas envoyée au serveur de connexion et n’est pas incluse dans les sauvegardes d’opérations.</p>'+
  '<div class="actions"><button class="btn primary" id="enable-verify"'+(!available||demo?" disabled":"")+'>Enregistrer et vérifier</button><button class="btn" id="enable-banks"'+(!available||demo?" disabled":"")+'>Choisir une banque</button></div><p id="enable-status" class="small-note">'+(info?'Accès vérifié le '+esc(new Date(info.checkedAt).toLocaleString("fr-FR"))+' · '+esc(info.name):"Accès pas encore vérifié")+'</p>'+
  (db.pendingAuth?'<div class="notice neutral">Une autorisation bancaire a été lancée. <button class="btn small" id="complete-callback">Terminer avec le lien de retour</button></div>':"")+
- '<hr class="separator"><h3>Actualisation</h3><p class="muted">L’actualisation récupère le mois observé et les cinq mois précédents, selon l’historique disponible auprès de chaque banque. Aucun appel IA.</p><button class="btn" id="sync-all"'+(demo||!available?" disabled":"")+'>Actualiser mes comptes connectés</button>'+
+ '<hr class="separator"><h3>Actualisation</h3><p class="muted">L’actualisation récupère le mois observé et les cinq mois précédents, selon l’historique disponible auprès de chaque banque. Aucun appel IA.</p><button class="btn" id="sync-all"'+(demo||!available?" disabled":"")+'>Actualiser mes connexions</button>'+
  '<hr class="separator"><h3>Sauvegardes et exports</h3><p class="muted">La sauvegarde chiffrée contient les comptes et les opérations, avec leur classement. Les autorisations bancaires et la clé privée sont exclues.</p><div class="actions"><button class="btn" id="backup-export">Sauvegarde chiffrée</button><button class="btn" id="backup-restore">Restaurer</button><button class="btn" id="export-csv">Exporter le mois en CSV</button></div><p class="field-note">Le CSV est un fichier lisible, non chiffré.</p>'+
  '<hr class="separator"><h3>Mode de calcul</h3><p class="small-note">Le total repose sur les opérations comptabilisées en euros. Les remboursements identifiés diminuent les dépenses. Les autres entrées, les virements internes et les transferts d’épargne sont séparés. Les opérations en attente et les autres devises sont signalées sans conversion automatique. Le classement local est toujours modifiable.</p>');
  $("#choose-pem").onclick=()=>{if(demo){toast("La connexion est désactivée en démonstration.");return;}$("#pem-file").value="";$("#pem-file").click();};
@@ -241,12 +247,7 @@ function settingsModal() {
   bankList=await bank.banks();bankSelectionModal();
  });
  if($("#complete-callback"))$("#complete-callback").onclick=showCallback;
- $("#sync-all").onclick=()=>perform(async()=>{
-  const accounts=db.accounts.filter(a=>a.role==="current"&&a.apiUid);
-  if(!accounts.length)throw Error("Connecte et sélectionne un compte courant.");
-  for(const a of accounts)await syncAccount(a.id);
-  closeModal();render();toast(accounts.length+" compte(s) actualisé(s).");
- });
+ $("#sync-all").onclick=()=>perform(syncAll);
  $("#backup-export").onclick=backupModal;
  $("#backup-restore").onclick=()=>{$("#backup-file").value="";$("#backup-file").click();};
  $("#export-csv").onclick=()=>perform(exportCSV);
@@ -329,7 +330,7 @@ async function syncAccount(id) {
  a.sourceMode="api";delete a.desiredSource;audit("Opérations actualisées : "+a.name+" · "+ready.length+" lignes reçues.");await persist();
  try{
   const balances=await bank.balances(a.apiUid),b=balances.find(b=>["CLBD","ITBD"].includes(b.balance_type))||balances.find(b=>["CLAV","ITAV"].includes(b.balance_type));
-  if(b&&db&&vault.unlocked){a.balance={amount:C.money(b.balance_amount.amount),currency:b.balance_amount.currency,at:new Date().toISOString(),type:b.balance_type};delete a.balanceError;await persist();}
+  if(b&&db&&vault.unlocked){const next={amount:C.money(b.balance_amount.amount),currency:b.balance_amount.currency,at:new Date().toISOString(),type:b.balance_type};if(next.currency==="EUR"&&["CLBD","ITBD"].includes(next.type))C.recordValuation(db,{accountId:a.id,date:b.reference_date?C.date(b.reference_date):C.today(),value:next.amount,source:"bank",note:b.reference_date?"Solde à la date fournie par la banque":"Solde reçu aujourd’hui ; date de valeur non fournie"});a.balance=next;delete a.balanceError;await persist();}
  }catch(e){if(db&&vault.unlocked){a.balanceError="Solde non actualisé : "+e.message;await persist();}}
  render();
 }
@@ -339,7 +340,7 @@ async function saveFile(name,type,text) {
  a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function backupModal() {
- modal("Sauvegarde chiffrée",'<p class="muted">Sauvegarde tes comptes, opérations et classements. Les clés et autorisations bancaires sont exclues. Une connexion bancaire devra être autorisée à nouveau après restauration.</p><label for="backup-password">Mot de passe de la sauvegarde</label><input id="backup-password" type="password" autocomplete="new-password" minlength="10"><label for="backup-confirm">Confirmer</label><input id="backup-confirm" type="password" autocomplete="new-password" minlength="10"><p class="field-note">Au moins 10 caractères. Conserve ce mot de passe pour relire le fichier.</p><div class="actions"><button class="btn primary" id="backup-do">Créer la sauvegarde</button></div>');
+ modal("Sauvegarde chiffrée",'<p class="muted">Sauvegarde tes comptes, opérations, budgets et valorisations. Les clés et autorisations bancaires sont exclues. Une connexion bancaire devra être autorisée à nouveau après restauration.</p><label for="backup-password">Mot de passe de la sauvegarde</label><input id="backup-password" type="password" autocomplete="new-password" minlength="10"><label for="backup-confirm">Confirmer</label><input id="backup-confirm" type="password" autocomplete="new-password" minlength="10"><p class="field-note">Au moins 10 caractères. Conserve ce mot de passe pour relire le fichier.</p><div class="actions"><button class="btn primary" id="backup-do">Créer la sauvegarde</button></div>');
  $("#backup-do").onclick=()=>perform(async()=>{
   const p=$("#backup-password").value;if(p!==$("#backup-confirm").value)throw Error("Les deux mots de passe sont différents.");
   const data=await vault.export(C.backup(db),p);await saveFile("mes-depenses-sauvegarde-"+new Date().toISOString().slice(0,10)+".json","application/json",data);
@@ -355,7 +356,7 @@ async function exportCSV() {
 }
 function restoreModal(text,filename) {
  const exists=!!db||vault.exists();
- modal("Restaurer une sauvegarde",'<p class="muted">'+esc(filename)+'. La restauration remplace les comptes, opérations et classements de cet espace. Les accès bancaires devront être reconnectés.</p><label for="restore-password">Mot de passe de la sauvegarde</label><input id="restore-password" type="password" autocomplete="off">'+(!exists?'<p class="field-note">Ce mot de passe protégera aussi le nouvel espace local.</p>':"")+'<label style="display:flex;align-items:center;gap:8px"><input id="restore-agree" type="checkbox">Je veux restaurer ce fichier'+(exists?" et remplacer les opérations locales":"")+'.</label><div class="actions"><button class="btn primary" id="restore-do">Restaurer</button></div>');
+ modal("Restaurer une sauvegarde",'<p class="muted">'+esc(filename)+'. La restauration remplace les comptes, opérations, budgets et valorisations de cet espace. Les accès bancaires devront être reconnectés.</p><label for="restore-password">Mot de passe de la sauvegarde</label><input id="restore-password" type="password" autocomplete="off">'+(!exists?'<p class="field-note">Ce mot de passe protégera aussi le nouvel espace local.</p>':"")+'<label style="display:flex;align-items:center;gap:8px"><input id="restore-agree" type="checkbox">Je veux restaurer ce fichier'+(exists?" et remplacer les opérations locales":"")+'.</label><div class="actions"><button class="btn primary" id="restore-do">Restaurer</button></div>');
  $("#restore-do").onclick=()=>perform(async()=>{
   if(!$("#restore-agree").checked)throw Error("Confirme la restauration.");
   if(vault.exists()&&!vault.unlocked)throw Error("Déverrouille d’abord l’espace existant pour le remplacer.");
@@ -365,8 +366,9 @@ function restoreModal(text,filename) {
   demo=false;closeModal();render();toast("Sauvegarde restaurée. Les connexions bancaires restent à autoriser.");
  });
 }
+/* WEALTH */
 async function lock() {
- epoch++;busy=false;vault.lock();db=null;committedDB=null;demo=false;settingPEM="";bankList=[];bankAccountSelection=null;closeModal();$("#main-content").innerHTML="";$("#status").innerHTML="";$("#busy").hidden=true;authScreen();
+ epoch++;assetImportAccount="";busy=false;vault.lock();db=null;committedDB=null;demo=false;settingPEM="";bankList=[];bankAccountSelection=null;closeModal();$("#main-content").innerHTML="";$("#status").innerHTML="";$("#busy").hidden=true;authScreen();
  $("#auth-submit").disabled=true;await vault.queue.catch(()=>{});$("#auth-submit").disabled=false;
 }
 function measureNavigation() {const h=$("#mobile-nav").getBoundingClientRect().height;if(h>0)document.documentElement.style.setProperty("--nav-height",h+"px");}
@@ -386,6 +388,8 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!busy&&!$("#modal")
 document.querySelectorAll("[data-view]").forEach(el=>el.onclick=()=>{if(db)showView(el.dataset.view);});
 document.querySelectorAll('[data-action="settings"]').forEach(el=>el.onclick=settingsModal);
 $("#global-import").onclick=()=>chooseCSV();
+$("#global-sync").onclick=()=>perform(syncAll);
+$("#asset-file").onchange=()=>perform(async()=>{const file=$("#asset-file").files[0];if(!file)return;const generation=epoch,parsed=C.csv(await readFile(file));if(generation!==epoch||!db)return;assetImportModal(parsed,file.name);});
 $("#restore-auth").onclick=()=>{$("#backup-file").value="";$("#backup-file").click();};
 $("#csv-file").onchange=()=>perform(async()=>{const file=$("#csv-file").files[0];if(!file)return;const parsed=C.csv(await readFile(file));importModal(parsed,file.name);});
 $("#pem-file").onchange=()=>perform(async()=>{const file=$("#pem-file").files[0];if(!file)return;if(file.size>20000)throw Error("Fichier de clé privée trop volumineux.");settingPEM=await file.text();if(!settingPEM.includes("-----BEGIN PRIVATE KEY-----"))throw Error("Le fichier doit être une clé privée PEM PKCS#8.");if($("#pem-state"))$("#pem-state").textContent="Clé chargée : "+file.name+" · à enregistrer et vérifier";});

@@ -152,14 +152,26 @@ public class MainActivity extends Activity {
  private void request(JSONObject data,String id) {
   HttpURLConnection connection=null;
   try {
-   String path=data.getString("path"),method=data.optString("method","GET"),token=data.getString("token");
-   URI uri=new URI("https://api.enablebanking.com"+path);
-   if (!BankPolicy.allowed(uri,method) || token.length()>20000 || !token.matches("[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+")) throw new IOException();
+   String path=data.getString("path"),method=data.optString("method","GET"),provider=data.optString("provider","bank");
+   boolean cryptoProvider="crypto".equals(provider);
+   if(!cryptoProvider && !"bank".equals(provider))throw new IOException();
+   URI uri=new URI((cryptoProvider?"https://wapi.crypto.com":"https://api.enablebanking.com")+path);
+   if(cryptoProvider ? !BankPolicy.cryptoAllowed(uri,method) : !BankPolicy.allowed(uri,method))throw new IOException();
    connection=(HttpURLConnection)uri.toURL().openConnection();
    connection.setInstanceFollowRedirects(false);connection.setRequestMethod(method);
    connection.setConnectTimeout(15000);connection.setReadTimeout(45000);
-   connection.setRequestProperty("Authorization","Bearer "+token);connection.setRequestProperty("Accept","application/json");
-   connection.setRequestProperty("User-Agent","MesDepenses/1.0.0");
+   if(cryptoProvider){
+    JSONObject headers=data.getJSONObject("headers");
+    String key=headers.getString("Cdc-Api-Key"),stamp=headers.getString("Cdc-Api-Timestamp"),sig=headers.getString("Cdc-Api-Signature");
+    if(!key.matches("[!-~]{1,500}") || !stamp.matches("[0-9]{13}") || !sig.matches("[a-zA-Z0-9+/]{43}="))throw new IOException();
+    connection.setRequestProperty("Cdc-Api-Key",key);connection.setRequestProperty("Cdc-Api-Timestamp",stamp);connection.setRequestProperty("Cdc-Api-Signature",sig);
+   }else{
+    String token=data.getString("token");
+    if(token.length()>20000 || !token.matches("[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+"))throw new IOException();
+    connection.setRequestProperty("Authorization","Bearer "+token);
+   }
+   connection.setRequestProperty("Accept","application/json");
+   connection.setRequestProperty("User-Agent","MesDepenses/1.1.0");
    if ("POST".equals(method)) {
     byte[] body=data.optString("body","{}").getBytes(StandardCharsets.UTF_8);
     if(body.length>100000)throw new IOException();
