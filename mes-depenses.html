@@ -5,19 +5,23 @@
 @media(max-width:900px){.shell{display:block}.side{display:none}.mobile-brand{display:flex;gap:8px;align-items:center;font-weight:750}.mobile-brand .mark{width:29px;height:29px;font-size:20px}.topbar-title{display:none}.content{padding:17px 18px calc(var(--nav-height) + 18px)}.topbar{margin-bottom:24px}.mobile-nav{display:grid;position:fixed;bottom:0;left:0;right:0;grid-template-columns:repeat(3,1fr);z-index:30;background:#fff;border-top:1px solid #bec9d8;padding:3px 7px max(3px,env(safe-area-inset-bottom));box-shadow:0 -3px 12px #17253608}.mobile-nav button{display:flex;justify-content:center;align-items:center;gap:7px;border:0;border-radius:8px;background:transparent;color:var(--muted);padding:8px 3px;min-height:48px;font-size:13px;font-weight:600}.mobile-nav button.active{background:var(--soft);color:#982445}.view-head{align-items:flex-start}.view-head h1{font-size:28px}.view-head p{font-size:13px}.accounts-grid{grid-template-columns:1fr 1fr}.topbar-actions .text-desktop{display:none}.modal{padding:10px}.modal-card{max-height:calc(100dvh - 20px);padding:20px}.hero-number{font-size:39px}.table td,.table th{padding:11px 12px}.table td:first-child,.table th:first-child{width:85px}.table td:nth-child(3),.table th:nth-child(3){display:none}.table td:nth-child(4),.table th:nth-child(4){display:none}.table .transaction-sub{display:block!important}}
 @media(min-width:901px){.mobile-nav{display:none}.table td:nth-child(2) .transaction-bank{display:none}}
 @media(max-width:600px){.dashboard{grid-template-columns:1fr}.content{padding:14px 12px calc(var(--nav-height) + 14px)}.view-head{display:block}.view-head .month-select{margin-top:15px}.month-select input{flex:1;width:auto}.panel{padding:18px}.metrics{gap:8px}.metric .value{font-size:18px}.metric small{font-size:11px}.metrics .metric{padding:14px 10px}.accounts-grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}.filters input{grid-column:1/-1}.topbar{gap:5px}.topbar-actions{gap:4px}.topbar-actions .btn{padding:7px 10px;font-size:12px}.topbar-actions .btn.primary{display:none}.mobile-brand{font-size:17px}.category-row{grid-template-columns:110px 1fr 75px;gap:8px}.table td:nth-child(2){max-width:210px}.table td:first-child{width:66px;font-size:12px}.table .amount{font-size:13px;padding-left:5px}.row{grid-template-columns:1fr}.auth-card{padding:25px}.demo-banner{font-size:12px;padding:7px 12px}.demo-banner .btn{font-size:12px}.hero-number{font-size:38px}.import-grid{grid-template-columns:1fr 1fr}.modal-head h2{font-size:18px}.pagination{gap:8px;font-size:12px}.pagination .btn{font-size:12px}.toast{bottom:calc(var(--nav-height) + 12px)}}
+.budget-panel{margin-top:18px}.budget-row{padding:12px 0}.budget-row .panel-heading{font-size:13px;margin-bottom:8px}.budget-row small{font-size:12px}.wealth-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.wealth-grid{margin-top:18px}.wealth-note{margin:20px 0}.empty-account{border-style:dashed;background:#f8fafc}.check-label{display:flex;align-items:flex-start;gap:10px;margin:18px 0}.check-label input{flex-shrink:0}.value-history{border-bottom:1px solid var(--line);padding:14px 0}.value-history summary{display:flex;justify-content:space-between;gap:12px;cursor:pointer;font-size:13px}.value-history .recent-row{font-size:13px}.account-card,.metric,.panel{min-width:0}.account-card h2,.bank-name,.recent-row span,.small-note{overflow-wrap:anywhere}.pill{white-space:normal}.topbar-actions{justify-content:flex-end}
+@media(max-width:900px){.mobile-nav{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:600px){.topbar{flex-wrap:wrap;align-items:center}.mobile-brand{width:100%;margin-bottom:7px}.topbar-actions{width:100%;justify-content:space-between;gap:4px}.topbar-actions .btn{padding:7px 8px}.wealth-metrics .value{font-size:20px}.value-history summary{flex-wrap:wrap}.category-row .amount{font-size:12px}.chart{gap:5px}.chart-value{font-size:10px}.budget-row .panel-heading{align-items:flex-start;flex-wrap:wrap}.mobile-nav button{font-size:12px}}
+.side-footer button{background:transparent}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style></head>
 <body>
-<section id="auth" class="auth-screen"><div class="auth-card"><div class="brand"><span class="mark">m</span>Mes dépenses</div><h1 id="auth-title">Ton mois, en clair.</h1><p id="auth-description">Réunis tes comptes courants et comprends tes dépenses. Ton espace est chiffré sur cet appareil.</p><form id="auth-form"><label for="password">Mot de passe de ton espace</label><input id="password" type="password" autocomplete="new-password" minlength="10" required><div id="confirm-box"><label for="password-confirm">Confirmer le mot de passe</label><input id="password-confirm" type="password" autocomplete="new-password" minlength="10"></div><p id="auth-error" class="error" role="alert"></p><div class="actions"><button id="auth-submit" class="btn primary" type="submit">Créer mon espace</button><button id="demo-start" class="btn" type="button">Découvrir avec des données fictives</button><button id="restore-auth" class="btn ghost" type="button">Restaurer une sauvegarde</button></div></form><p class="small-note" style="margin:20px 0 0">Mes dépenses 1.0.0 · Sans IA · Aucun mot de passe bancaire n’est demandé par l’application.</p></div></section>
+<section id="auth" class="auth-screen"><div class="auth-card"><div class="brand"><span class="mark">m</span>Mes dépenses</div><h1 id="auth-title">Ton mois, en clair.</h1><p id="auth-description">Réunis tes comptes courants et comprends tes dépenses. Ton espace est chiffré sur cet appareil.</p><form id="auth-form"><label for="password">Mot de passe de ton espace</label><input id="password" type="password" autocomplete="new-password" minlength="10" required><div id="confirm-box"><label for="password-confirm">Confirmer le mot de passe</label><input id="password-confirm" type="password" autocomplete="new-password" minlength="10"></div><p id="auth-error" class="error" role="alert"></p><div class="actions"><button id="auth-submit" class="btn primary" type="submit">Créer mon espace</button><button id="demo-start" class="btn" type="button">Découvrir avec des données fictives</button><button id="restore-auth" class="btn ghost" type="button">Restaurer une sauvegarde</button></div></form><p class="small-note" style="margin:20px 0 0">Mes dépenses 1.1.0 · Sans IA · Aucun mot de passe bancaire n’est demandé par l’application.</p></div></section>
 <section id="app" hidden>
 <div id="demo-banner" class="demo-banner" hidden><span>Démonstration · chiffres et comptes fictifs</span><button class="btn small" id="demo-exit">Mon espace personnel</button></div>
-<div class="shell"><aside class="side"><div class="brand"><span class="mark">m</span>Mes dépenses</div><nav class="main-nav" aria-label="Navigation principale"><button data-view="month" class="active"><span class="nav-icon">▥</span>Vue mensuelle</button><button data-view="transactions"><span class="nav-icon">≡</span>Opérations</button><button data-view="accounts"><span class="nav-icon">○</span>Comptes</button></nav><div class="side-footer"><button class="btn" data-action="settings">Réglages et connexion</button>Mes dépenses 1.0.0<br>Comptes courants · calculs locaux<br>Stockage chiffré sur cet appareil</div></aside>
-<main class="content"><header class="topbar"><div class="topbar-title">ESPACE PERSONNEL · COMPTES COURANTS</div><div class="mobile-brand"><span class="mark">m</span>Mes dépenses</div><div class="topbar-actions"><button class="btn small" id="global-import">Importer<span class="text-desktop"> des opérations</span></button><button class="btn small" data-action="settings" aria-label="Réglages et connexion">Réglages</button><button class="btn small" id="lock">Verrouiller</button></div></header><div id="status" aria-live="polite"></div><div id="main-content"></div></main></div>
-<nav id="mobile-nav" class="mobile-nav" aria-label="Navigation mobile"><button data-view="month" class="active">Mon mois</button><button data-view="transactions">Opérations</button><button data-view="accounts">Comptes</button></nav>
+<div class="shell"><aside class="side"><div class="brand"><span class="mark">m</span>Mes dépenses</div><nav class="main-nav" aria-label="Navigation principale"><button data-view="month" class="active"><span class="nav-icon">▥</span>Vue mensuelle</button><button data-view="transactions"><span class="nav-icon">≡</span>Opérations</button><button data-view="wealth"><span class="nav-icon">◫</span>Mes avoirs</button><button data-view="accounts"><span class="nav-icon">○</span>Comptes</button></nav><div class="side-footer"><button class="btn" data-action="settings">Réglages et connexion</button>Mes dépenses 1.1.0<br>Dépenses et avoirs · calculs locaux<br>Stockage chiffré sur cet appareil</div></aside>
+<main class="content"><header class="topbar"><div class="topbar-title">ESPACE PERSONNEL · DÉPENSES ET AVOIRS</div><div class="mobile-brand"><span class="mark">m</span>Mes dépenses</div><div class="topbar-actions"><button class="btn small" id="global-sync">Actualiser</button><button class="btn small" id="global-import">Importer<span class="text-desktop"> des opérations</span></button><button class="btn small" data-action="settings" aria-label="Réglages et connexion">Réglages</button><button class="btn small" id="lock">Verrouiller</button></div></header><div id="status" aria-live="polite"></div><div id="main-content"></div></main></div>
+<nav id="mobile-nav" class="mobile-nav" aria-label="Navigation mobile"><button data-view="month" class="active">Mon mois</button><button data-view="transactions">Opérations</button><button data-view="wealth">Avoirs</button><button data-view="accounts">Comptes</button></nav>
 </section>
 <div id="modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-card"><div class="modal-head"><h2 id="modal-title"></h2><button class="btn small" id="modal-close" aria-label="Fermer la fenêtre">Fermer</button></div><div id="modal-body"></div><p id="modal-error" class="error" role="alert"></p></div></div>
 <div id="toast" class="toast" role="status" hidden></div><div id="busy" class="busy-indicator" hidden></div>
-<input id="csv-file" type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values" hidden><input id="pem-file" type="file" accept=".pem" hidden><input id="backup-file" type="file" accept=".json,application/json" hidden>
+<input id="asset-file" type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values" hidden><input id="csv-file" type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values" hidden><input id="pem-file" type="file" accept=".pem" hidden><input id="backup-file" type="file" accept=".json,application/json" hidden>
 <script>(function(root) {
 "use strict";
 const categories=["À classer","Courses","Restaurants","Transport","Logement","Factures","Abonnements","Santé","Achats","Loisirs","Frais bancaires","Autres"];
@@ -67,12 +71,13 @@ function category(label,mcc) {
  if(["5812","5814"].includes(String(mcc)))return "Restaurants";
  return "À classer";
 }
-function empty() {return {schema:1,accounts:[],transactions:[],overrides:{},connections:[],settings:{appId:"",pem:"",redirect:"https://onbreax.github.io/mes-depenses-retour.html"},pendingAuth:null,audit:[]};}
+function empty() {return {schema:2,accounts:[],transactions:[],overrides:{},connections:[],settings:{appId:"",pem:"",redirect:"https://onbreax.github.io/mes-depenses-retour.html"},pendingAuth:null,audit:[],valuations:[],budgets:{},cryptoSettings:{key:"",secret:"",accountId:""}};}
 function validate(db) {
- if(!db||db.schema!==1||!Array.isArray(db.accounts)||!Array.isArray(db.transactions)||db.accounts.length>100||db.transactions.length>60000)throw Error("Données incompatibles ou trop volumineuses.");
+ if(!db||![1,2].includes(db.schema)||!Array.isArray(db.accounts)||!Array.isArray(db.transactions)||db.accounts.length>100||db.transactions.length>60000)throw Error("Données incompatibles ou trop volumineuses.");
+ if(db.schema===1){db.valuations=[];db.budgets={};db.cryptoSettings={key:"",secret:"",accountId:""};db.schema=2;}
  const ids=new Set(),byId=new Map();
  for(const a of db.accounts){
-  if(!a||typeof a.id!=="string"||!a.id||a.id.length>200||ids.has(a.id)||typeof a.name!=="string"||a.name.length>200||typeof a.bank!=="string"||typeof a.iban!=="string"||!["current","savings","excluded"].includes(a.role)||!["csv","api"].includes(a.sourceMode))throw Error("Compte invalide.");
+  if(!a||typeof a.id!=="string"||!a.id||a.id.length>200||ids.has(a.id)||typeof a.name!=="string"||a.name.length>200||typeof a.bank!=="string"||a.bank.length>200||typeof a.iban!=="string"||!["current","savings","crypto","employee","excluded"].includes(a.role)||!["csv","api"].includes(a.sourceMode))throw Error("Compte invalide.");
   if(a.balance&&(!Number.isSafeInteger(a.balance.amount)||typeof a.balance.currency!=="string"||!/^[A-Z]{3}$/.test(a.balance.currency)||typeof a.balance.at!=="string"||!Number.isFinite(Date.parse(a.balance.at))))throw Error("Solde enregistré invalide.");
   if(a.lastSync){date(a.lastSync.from);date(a.lastSync.to);if(!Number.isFinite(Date.parse(a.lastSync.at)))throw Error("Date de synchronisation invalide.");}
   ids.add(a.id);
@@ -88,6 +93,7 @@ function validate(db) {
  if(!db.settings||typeof db.settings.appId!=="string"||typeof db.settings.pem!=="string"||db.settings.pem.length>20000)throw Error("Paramètres invalides.");
  if(!Array.isArray(db.audit)||db.audit.length>80||db.audit.some(a=>!a||typeof a.text!=="string"||a.text.length>3000||!Number.isFinite(Date.parse(a.at))))throw Error("Historique local invalide.");
  if(db.pendingAuth!==null&&(!db.pendingAuth||typeof db.pendingAuth.state!=="string"||!Number.isFinite(db.pendingAuth.at)||!db.pendingAuth.aspsp))throw Error("Autorisation invalide.");
+ validateWealth(db,ids);
  return db;
 }
 function visible(db) {
@@ -100,7 +106,7 @@ function classify(db,t) {
  const cat=override?.category||t.category||category(t.label,t.mcc);
  let flow=override?.flow||"auto",reason="Classement local";
  if(flow==="auto") {
-  if(own){flow=own.role==="savings"?"savings":"internal";reason="Compte destinataire ou émetteur identifié parmi tes comptes";}
+  if(own){flow=["savings","crypto","employee"].includes(own.role)?"savings":"internal";reason="Compte destinataire ou émetteur identifié parmi tes comptes";}
   else if(t.amount<0)flow="expense";
   else if(/\brefund\b|\bremb(?:oursement)? (?:cb|carte|achats?)\b/.test(normalize(t.label)))flow="refund";
   else flow="income";
@@ -223,8 +229,90 @@ function importRows(db,accountId,parsed,map,currency="EUR") {
 function backup(db) {
  const copy=JSON.parse(JSON.stringify(db));
  copy.connections=[];copy.pendingAuth=null;copy.settings={appId:"",pem:"",redirect:"https://onbreax.github.io/mes-depenses-retour.html"};
+ copy.cryptoSettings={key:"",secret:"",accountId:""};
  for(const a of copy.accounts){delete a.apiUid;delete a.connectionId;delete a.sessionId;delete a.lastSync;}
  return validate(copy);
+}
+const institutions=["La Banque Postale","Revolut","BoursoBank","Crypto.com","Esalia","Fédéral Finance"];
+const assetRoles=["savings","crypto","employee"];
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
+function validValue(n){return Number.isSafeInteger(n)&&Math.abs(n)<=100000000000;}
+function checkValuation(v,ids){
+ if(!v||typeof v.id!=="string"||!v.id||!ids.has(v.accountId)||!validValue(v.value)||!["manual","csv","bank","crypto"].includes(v.source)||typeof v.note!=="string"||v.note.length>2000)throw Error("Valorisation invalide.");
+ if(date(v.date)!==v.date)throw Error("La date de valorisation doit être une date civile.");
+ if(v.available!==null&&(!validValue(v.available)||v.available<0||v.available>v.value))throw Error("Le montant disponible doit être compris entre zéro et la valeur totale.");
+ if(!Array.isArray(v.details)||v.details.length>500)throw Error("Détail de valorisation invalide.");
+ for(const p of v.details)if(!p||typeof p.label!=="string"||p.label.length>200||!validValue(p.value)||p.value<0||(p.available!==null&&(!validValue(p.available)||p.available<0||p.available>p.value)))throw Error("Support de placement invalide.");
+ if(v.details.length&&v.details.reduce((s,p)=>s+p.value,0)!==v.value)throw Error("Le total des supports diffère du montant déclaré.");
+ if(v.details.length&&v.available!==null&&(v.details.some(p=>p.available===null)||v.details.reduce((s,p)=>s+p.available,0)!==v.available))throw Error("Disponibilité des supports incohérente.");
+}
+function validateWealth(db,ids){
+ if(!Array.isArray(db.valuations)||db.valuations.length>10000)throw Error("Historique des avoirs invalide.");
+ const keys=new Set(),valuationIds=new Set();
+ for(const v of db.valuations){
+  checkValuation(v,ids);const k=v.accountId+":"+v.date;
+  if(keys.has(k)||valuationIds.has(v.id))throw Error("Valorisation dupliquée.");
+  keys.add(k);valuationIds.add(v.id);
+  if(v.value<0&&db.accounts.find(a=>a.id===v.accountId).role!=="current")throw Error("Une valorisation de placement ne peut pas être négative.");
+ }
+ if(!db.budgets||typeof db.budgets!=="object"||Array.isArray(db.budgets)||Object.keys(db.budgets).length>600)throw Error("Budgets invalides.");
+ for(const [m,b] of Object.entries(db.budgets)){
+  if(!/^\d{4}-(0[1-9]|1[012])$/.test(m)||!b||(b.total!==null&&(!validValue(b.total)||b.total<0))||!b.categories||typeof b.categories!=="object"||Array.isArray(b.categories))throw Error("Budget mensuel invalide.");
+  for(const [c,n] of Object.entries(b.categories))if(!categories.includes(c)||!validValue(n)||n<0)throw Error("Budget de catégorie invalide.");
+ }
+ const c=db.cryptoSettings;
+ if(!c||typeof c.key!=="string"||c.key.length>500||typeof c.secret!=="string"||c.secret.length>2000||typeof c.accountId!=="string"||(c.accountId&&!ids.has(c.accountId)))throw Error("Paramètres Crypto.com invalides.");
+}
+function recordValuation(db,input){
+ const a=db.accounts.find(a=>a.id===input.accountId);if(!a||a.role==="excluded")throw Error("Choisis un compte suivi.");
+ const v={id:input.accountId+":"+date(input.date),accountId:input.accountId,date:date(input.date),value:input.value,available:input.available??null,source:input.source||"manual",note:input.note||"",details:input.details||[]};
+ checkValuation(v,new Set(db.accounts.map(a=>a.id)));
+ if(v.date>today())throw Error("Une valorisation doit être datée d’aujourd’hui ou d’un jour passé.");
+ if(v.value<0&&a.role!=="current")throw Error("La valeur d’un placement ne peut pas être négative.");
+ db.valuations=db.valuations.filter(old=>old.accountId!==v.accountId||old.date!==v.date);db.valuations.push(v);
+ return v;
+}
+function wealth(db,asOf=today()){
+ date(asOf);
+ const items=db.accounts.filter(a=>a.role!=="excluded").map(account=>{
+  let valuation=db.valuations.filter(v=>v.accountId===account.id&&v.date<=asOf).sort((a,b)=>b.date.localeCompare(a.date))[0]||null;
+  const b=account.balance;
+  if(!valuation&&b?.currency==="EUR"&&["CLBD","ITBD"].includes(b.type)&&date(b.at)<=asOf)valuation={date:date(b.at),value:b.amount,available:null,source:"bank",details:[],note:""};
+  return {account,valuation,stale:!!valuation&&(Date.parse(asOf)-Date.parse(valuation.date))/86400000>30};
+ });
+ const known=items.filter(i=>i.valuation);
+ const sum=fn=>{const n=known.filter(fn).reduce((s,i)=>s+i.valuation.value,0);if(!Number.isSafeInteger(n))throw Error("Total des avoirs hors limite.");return n;};
+ return {items,total:sum(()=>true),bank:sum(i=>i.account.role==="current"),invested:sum(i=>assetRoles.includes(i.account.role)),missing:items.length-known.length,known:known.length,stale:items.filter(i=>i.stale).length};
+}
+function valuationCSV(db,accountId,parsed,map){
+ if(!db.accounts.some(a=>a.id===accountId&&a.role!=="excluded"))throw Error("Choisis un compte.");
+ if(map.date<0||map.label<0||map.value<0)throw Error("Associe Date, Support et Valeur en EUR.");
+ if(!parsed.rows.length||parsed.rows.length>500)throw Error("Le relevé doit contenir entre 1 et 500 supports.");
+ for(const index of parsed.headers.map((h,i)=>/^(compte|account|etablissement)$/.test(normalize(h))?i:-1).filter(i=>i>=0)){
+  if(new Set(parsed.rows.map(r=>normalize(r[index]))).size>1)throw Error("Le fichier contient plusieurs comptes ou établissements. Sépare les relevés avant de choisir le compte destinataire.");
+ }
+ const groups=new Map();
+ for(let i=0;i<parsed.rows.length;i++){
+  const r=parsed.rows[i];
+  try{
+   const day=date(r[map.date]),label=String(r[map.label]||"").trim();
+   if(!label||label.length>200)throw Error("Support manquant ou trop long.");
+   if(map.currency>=0&&String(r[map.currency]).trim().toUpperCase()!=="EUR")throw Error("Seules les valorisations EUR sont acceptées.");
+   const value=money(r[map.value]),available=map.available>=0&&String(r[map.available]||"").trim()?money(r[map.available]):null;
+   if(value<0||available!==null&&(available<0||available>value))throw Error("Valeur ou disponibilité incohérente.");
+   if(day>today())throw Error("Date à venir.");
+   if(!groups.has(day))groups.set(day,[]);
+   const details=groups.get(day);
+   if(details.some(p=>normalize(p.label)===normalize(label)))throw Error("Support répété pour la même date : distingue les lignes ou retire le doublon.");
+   details.push({label,value,available});
+  }catch(e){throw Error("Ligne "+(i+2)+" : "+e.message);}
+ }
+ return [...groups].map(([day,details])=>({accountId,date:day,value:details.reduce((s,p)=>s+p.value,0),available:details.every(p=>p.available!==null)?details.reduce((s,p)=>s+p.available,0):null,source:"csv",note:"Relevé de valorisation importé",details}));
+}
+function budgetSummary(db,month){
+ const totals=summary(db,month),b=db.budgets[month]||{total:null,categories:{}};
+ const line=(limit,spent)=>({limit,spent:Math.max(0,spent),remaining:limit===null?null:limit-Math.max(0,spent),ratio:limit===null||limit===0?null:Math.max(0,spent)/limit});
+ return {total:line(b.total,totals.net),categories:Object.entries(b.categories).map(([category,limit])=>({category,...line(limit,totals.categories[category]||0)}))};
 }
 function demo(month) {
  const db=empty();
@@ -243,9 +331,14 @@ function demo(month) {
  ["demo-bourso",13,-3500,"Achats","Achats"],["demo-bourso",14,1500,"Remboursement achats","Achats"],
  ["demo-revolut",15,-1790,"Pharmacie","Santé"],["demo-postale",16,-400,"Frais de tenue de compte","Frais bancaires"]];
  db.transactions=entries.map((e,i)=>({id:"demo:"+i,accountId:e[0],date:month+"-"+String(e[1]).padStart(2,"0"),dateBasis:"booking",amount:e[2],currency:"EUR",label:e[3],category:e[4],counterpartyIban:e[5]||"",status:"BOOK",source:"csv",entryRef:""}));
+ for(const [i,bank] of ["Crypto.com","Esalia","Fédéral Finance"].entries()){
+  const a={id:"demo-asset-"+i,name:["Portefeuille crypto","Épargne salariale","Épargne salariale"][i],bank,role:i===0?"crypto":"employee",sourceMode:"csv",iban:"",currency:"EUR"};db.accounts.push(a);
+  recordValuation(db,{accountId:a.id,date:today(),value:[123450,856000,432100][i],available:i===0?null:[0,250000,100000][i],source:"manual",note:"Donnée fictive"});
+ }
+ db.budgets[month]={total:160000,categories:{Courses:30000,Restaurants:10000}};
  return db;
 }
-const api={categories,flows,normalize,iban,money,date,hash,category,empty,validate,visible,classify,candidates,summary,normalizeAPI,replaceAPI,csv,guessColumns,importRows,backup,demo};
+const api={categories,flows,normalize,iban,money,date,hash,category,empty,validate,visible,classify,candidates,summary,normalizeAPI,replaceAPI,csv,guessColumns,importRows,backup,demo,institutions,assetRoles,today,recordValuation,wealth,valuationCSV,budgetSummary};
 if(typeof module!=="undefined"&&module.exports)module.exports=api;else root.SpendingCore=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
 </script><script>(function(root) {
@@ -417,6 +510,61 @@ class BankClient {
 const api={BASE,CALLBACK,allowed,jwt,authParameters,parseCallback,BankClient};
 if(typeof module!=="undefined"&&module.exports)module.exports=api;else root.SpendingBank=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
+</script><script>(function(root){
+"use strict";
+// Read-only protocol, based on Crypto.com's published App API signing implementation.
+const paths=["/v1/portfolio","/v1/crypto-account","/v1/fiat-account"];
+const allowed=(path,method)=>method==="GET"&&paths.includes(path);
+async function signedRequest(credentials,path,now=Date.now()){
+ if(!allowed(path,"GET"))throw Error("Lecture Crypto.com non autorisée.");
+ if(!credentials||!credentials.key||!credentials.secret||credentials.key.length>500||credentials.secret.length>2000||/[\r\n]/.test(credentials.key))throw Error("Renseigne la clé API et la clé secrète Crypto.com App.");
+ const timestamp=String(now),key=await crypto.subtle.importKey("raw",new TextEncoder().encode(credentials.secret),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
+ const bytes=await crypto.subtle.sign("HMAC",key,new TextEncoder().encode(timestamp+"GET"+path));
+ let binary="";for(const byte of new Uint8Array(bytes))binary+=String.fromCharCode(byte);
+ return {provider:"crypto",path,method:"GET",headers:{"Cdc-Api-Key":credentials.key,"Cdc-Api-Timestamp":timestamp,"Cdc-Api-Signature":btoa(binary)}};
+}
+function decimal(value){
+ const s=String(value??"");if(!/^-?\d+(?:\.\d{1,18})?$/.test(s)||s.length>60)throw Error("Montant Crypto.com illisible.");
+ return s;
+}
+function cents(value){
+ const s=decimal(value),negative=s[0]==="-",parts=(negative?s.slice(1):s).split(".");
+ const frac=(parts[1]||"").padEnd(3,"0"),n=BigInt(parts[0])*100n+BigInt(frac.slice(0,2))+(Number(frac[2])>=5?1n:0n);
+ if(n>100000000000n)throw Error("Valeur Crypto.com hors limite.");
+ return Number(n)*(negative?-1:1);
+}
+function portfolio(data){
+ if(!Array.isArray(data.products)||!data.products.length)throw Error("La valorisation du portefeuille n’a pas été fournie. Les anciens montants sont conservés.");
+ if(data.products.length>200)throw Error("Portefeuille trop volumineux.");
+ const details=data.products.map((p,i)=>{
+  const price=p.price_native;
+  // Never infer a currency or silently convert a USD valuation into EUR.
+  if(!price||price.currency!=="EUR")throw Error("Crypto.com ne fournit pas toutes les valorisations en EUR. Choisis l’euro dans Crypto.com ou saisis une valorisation datée.");
+  const value=cents(price.amount);if(value<0)throw Error("Valeur de produit Crypto.com négative.");
+  return {label:String(p.name||p.product_type||p.type||p.id||"Produit "+(i+1)).slice(0,200),value,available:null};
+ });
+ const value=details.reduce((s,p)=>s+p.value,0);
+ if(!Number.isSafeInteger(value)||value>100000000000)throw Error("Total Crypto.com hors limite.");
+ return {value,available:null,details};
+}
+class Client{
+ constructor({credentials,transport,now}){this.credentials=credentials;this.transport=transport;this.now=now||Date.now;}
+ async request(path){
+  const c=this.credentials();if(!c)throw Error("Déverrouille ton espace.");
+  const request=await signedRequest(c,path,this.now());
+  if(this.credentials()!==c)throw Error("Espace verrouillé ou remplacé.");
+  const response=await this.transport(request);
+  if(this.credentials()!==c)throw Error("Espace verrouillé ou remplacé. La réponse n’est pas appliquée.");
+  if(response?.status===429)throw Error("Crypto.com limite les requêtes. Réessaie dans une minute.");
+  let data;try{data=JSON.parse(response.text);}catch{throw Error("Réponse Crypto.com illisible.");}
+  if(response.status!==200||data.ok!==true)throw Error("Connexion Crypto.com refusée ou indisponible. Vérifie la clé App, sa validité et les autorisations de lecture.");
+  return data;
+ }
+ async snapshot(){return portfolio(await this.request("/v1/portfolio"));}
+}
+const api={paths,allowed,signedRequest,decimal,cents,portfolio,Client};
+if(typeof module!=="undefined"&&module.exports)module.exports=api;else root.SpendingCrypto=api;
+})(typeof globalThis!=="undefined"?globalThis:this);
 </script><script>(function() {
 "use strict";
 const C=SpendingCore,V=SpendingVault,B=SpendingBank,$=s=>document.querySelector(s);
@@ -459,7 +607,7 @@ async function transport(request) {
  if(nativeReady)return native("http",request);
  if(!localServer())throw Error("Pour connecter les banques, utilise l’APK Android ou la version ordinateur lancée avec le serveur local. Le HTML autonome permet les imports.");
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),65000);
- try{const r=await fetch("/bank-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(request),signal:controller.signal,credentials:"omit"});if(!r.ok)throw Error("Le service local n’a pas pu joindre Enable Banking.");return r.json();}
+ try{const r=await fetch("/bank-api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(request),signal:controller.signal,credentials:"omit"});if(!r.ok)throw Error("Le service local n’a pas pu joindre le fournisseur.");return r.json();}
  finally{clearTimeout(timer);}
 }
 const bank=new B.BankClient({core:C,credentials:()=>db&&!demo&&vault.unlocked?db.settings:null,transport});
@@ -467,7 +615,7 @@ function toast(text) {$("#toast").textContent=text;$("#toast").hidden=false;clea
 function authScreen() {
  const exists=vault.exists();$("#app").hidden=true;$("#auth").hidden=false;
  $("#auth-title").textContent=exists?"Retrouve ton espace.":"Ton mois, en clair.";
- $("#auth-description").textContent=exists?"Déverrouille les données chiffrées enregistrées sur cet appareil.":"Crée un espace chiffré pour les dépenses de tes comptes courants. Conserve ce mot de passe : il est nécessaire pour relire tes données.";
+ $("#auth-description").textContent=exists?"Déverrouille les données chiffrées enregistrées sur cet appareil.":"Crée un espace chiffré pour tes dépenses et tes avoirs. Conserve ce mot de passe : il est nécessaire pour relire tes données.";
  $("#confirm-box").hidden=exists;$("#password").autocomplete=exists?"current-password":"new-password";
  $("#auth-submit").textContent=exists?"Déverrouiller":"Créer mon espace";
  $("#auth-error").textContent="";$("#password").value="";$("#password-confirm").value="";
@@ -492,7 +640,7 @@ function render() {
  if(!db)return;
  $("#auth").hidden=true;$("#app").hidden=false;$("#demo-banner").hidden=!demo;
  document.querySelectorAll("[data-view]").forEach(el=>el.classList.toggle("active",el.dataset.view===view));
- $("#main-content").innerHTML=view==="month"?renderMonth():view==="transactions"?renderTransactions():renderAccounts();
+ $("#main-content").innerHTML=view==="month"?renderMonth():view==="transactions"?renderTransactions():view==="wealth"?renderWealth():renderAccounts();
  bindView();
  measureNavigation();
 }
@@ -513,7 +661,7 @@ function renderMonth() {
  return heading("Mon mois","Comprendre tes dépenses, toutes banques réunies.")+notice+
  '<section class="panel hero-panel"><span class="hero-eyebrow">Dépenses nettes enregistrées · '+esc(monthLabel(month))+'</span><div class="hero-number">'+(hasData?euro(s.net):"—")+'</div><p class="muted" style="margin:0;font-size:13px">Dépenses moins remboursements identifiés. Les revenus, virements internes et mouvements d’épargne sont séparés.</p></section>'+
  '<div class="metrics"><section class="panel metric"><small>Dépenses brutes</small><span class="value">'+(hasData?euro(s.gross):"—")+'</span><small>Paiements et sorties classés en dépenses</small></section><section class="panel metric"><small>Remboursements</small><span class="value credit">'+(hasData?euro(s.refunds):"—")+'</span><small>Remboursements identifiés ce mois</small></section><section class="panel metric"><small>Entrées externes</small><span class="value">'+(hasData?euro(s.incoming):"—")+'</span><small>Séparées des dépenses nettes</small></section></div>'+
- '<div class="dashboard"><section class="panel"><div class="panel-heading"><h2>Où va ton argent ?</h2><span class="pill">'+s.unclassified+' à classer</span></div>'+
+ renderBudget()+'<div class="dashboard"><section class="panel"><div class="panel-heading"><h2>Où va ton argent ?</h2><span class="pill">'+s.unclassified+' à classer</span></div>'+
  (cats.length?cats.map(([cat,n])=>'<div class="category-row"><span>'+esc(cat)+'</span><div class="category-track"><div class="category-bar" style="width:'+Math.max(0,n)/max*100+'%"></div></div><span class="amount">'+euro(n)+'</span></div>').join(""):'<div class="empty">Les catégories apparaîtront après un import ou une synchronisation.</div>')+
  '</section><section class="panel"><div class="panel-heading"><h2>Au fil des mois</h2><span class="pill">6 mois</span></div><div class="chart" role="img" aria-label="Dépenses nettes enregistrées sur les six derniers mois">'+
  past.map(v=>'<div class="chart-column"><span class="chart-value">'+(v.data?euro(v.total.net):"—")+'</span><div class="chart-bar" style="height:'+Math.max(2,Math.max(0,v.total.net)/maxPast*108)+'px"></div><span class="chart-label">'+new Intl.DateTimeFormat("fr-FR",{month:"short"}).format(new Date(v.m+"-15"))+'</span></div>').join("")+
@@ -544,21 +692,24 @@ function renderTransactions() {
 function maskedIBAN(value){const s=C.iban(value);return s?s.slice(0,4)+" ···· "+s.slice(-4):"IBAN non renseigné";}
 function renderAccounts() {
  const cards=db.accounts.map(a=>{
- const balance=a.balance&&a.balance.currency==="EUR"?euro(a.balance.amount):"—";
- return '<section class="panel account-card"><div class="bank-name">'+esc(a.bank)+'</div><h2>'+esc(a.name)+'</h2><small>'+esc(maskedIBAN(a.iban))+'</small><div class="balance">'+balance+'</div><small>'+(a.balance?"Dernier solde reçu · "+esc(a.balance.at.slice(0,10)):"Solde non fourni")+'</small><p style="margin:14px 0 0"><span class="pill '+(a.role==="current"?"":"rose")+'">'+({current:"Compte courant",savings:"Repère d’épargne",excluded:"Hors suivi"}[a.role])+'</span> <span class="pill">'+(a.sourceMode==="api"?"Enable Banking":"Fichiers")+'</span></p>'+
- '<p class="small-note" style="margin:8px 0">'+(a.lastSync?"Opérations actualisées le "+esc(new Date(a.lastSync.at).toLocaleString("fr-FR"))+" · du "+shortDate(a.lastSync.from)+" au "+shortDate(a.lastSync.to):"Aucune synchronisation enregistrée.")+'</p>'+(a.balanceError?'<p class="error">'+esc(a.balanceError)+'</p>':'')+(a.lastSync?.undatedPending?'<p class="field-note">'+a.lastSync.undatedPending+' opérations non comptabilisées sans date fournie : hors total.</p>':'')+'<div class="actions"><button class="btn small" data-account="'+esc(a.id)+'">Modifier</button>'+(a.sourceMode==="csv"&&a.role==="current"?'<button class="btn small" data-import-account="'+esc(a.id)+'">Importer</button>':"")+(a.apiUid&&a.role==="current"?'<button class="btn small" data-sync-account="'+esc(a.id)+'">Actualiser la connexion</button>':"")+'</div></section>';
+ const saved=C.wealth(db).items.find(i=>i.account.id===a.id)?.valuation;
+ const balance=C.assetRoles.includes(a.role)?(saved?euro(saved.value):"—"):(a.balance&&a.balance.currency==="EUR"?euro(a.balance.amount):"—");
+ return '<section class="panel account-card"><div class="bank-name">'+esc(a.bank)+'</div><h2>'+esc(a.name)+'</h2><small>'+esc(maskedIBAN(a.iban))+'</small><div class="balance">'+balance+'</div><small>'+(C.assetRoles.includes(a.role)?(saved?sourceName(saved.source)+" · "+shortDate(saved.date):"Aucune valorisation"):a.balance?(["CLAV","ITAV"].includes(a.balance.type)?"Solde disponible, hors total des avoirs · ":"Solde comptable reçu · ")+esc(a.balance.at.slice(0,10)):"Solde non fourni")+'</small><p style="margin:14px 0 0"><span class="pill '+(a.role==="current"?"":"rose")+'">'+roleName(a.role)+'</span> <span class="pill">'+(a.role!=="current"?"Valorisations":a.sourceMode==="api"?"Enable Banking":"Fichiers")+'</span></p>'+
+ '<p class="small-note" style="margin:8px 0">'+(a.lastSync?"Opérations actualisées le "+esc(new Date(a.lastSync.at).toLocaleString("fr-FR"))+" · du "+shortDate(a.lastSync.from)+" au "+shortDate(a.lastSync.to):C.assetRoles.includes(a.role)?"Suivi dans Mes avoirs.":"Aucune synchronisation enregistrée.")+'</p>'+(a.balanceError?'<p class="error">'+esc(a.balanceError)+'</p>':'')+(a.lastSync?.undatedPending?'<p class="field-note">'+a.lastSync.undatedPending+' opérations non comptabilisées sans date fournie : hors total.</p>':'')+'<div class="actions"><button class="btn small" data-account="'+esc(a.id)+'">Modifier</button>'+(C.assetRoles.includes(a.role)?'<button class="btn small" data-open-wealth>Voir les avoirs</button>':"")+(a.sourceMode==="csv"&&a.role==="current"?'<button class="btn small" data-import-account="'+esc(a.id)+'">Importer</button>':"")+(a.apiUid&&a.role==="current"?'<button class="btn small" data-sync-account="'+esc(a.id)+'">Actualiser la connexion</button>':"")+'</div></section>';
  }).join("");
- return '<div class="view-head"><div><h1>Mes comptes</h1><p>Trois banques, une lecture commune de tes dépenses.</p></div><div class="actions"><button class="btn" id="add-account">Ajouter un compte</button><button class="btn primary" data-action="settings">Connecter une banque</button></div></div>'+
- '<div class="notice neutral">Sélectionne uniquement les comptes courants pour le budget. Un repère d’épargne sert à reconnaître les transferts : ses opérations sont hors dépenses.</div>'+
+ return '<div class="view-head"><div><h1>Mes comptes</h1><p>Tes comptes courants et tes placements, avec leur mode de suivi.</p></div><div class="actions"><button class="btn" id="add-account">Ajouter un compte</button><button class="btn primary" data-action="settings">Connecter une banque</button></div></div>'+
+ '<div class="notice neutral">Les comptes courants alimentent les dépenses. Retrouve l’épargne et les placements dans Mes avoirs. Les transferts identifiés entre tes comptes restent séparés.</div>'+
  '<div class="accounts-grid">'+cards+'</div>'+
  (!cards?'<section class="panel empty"><h3>Ajoute ton premier compte.</h3><p>Tu peux commencer avec un fichier CSV, puis connecter Enable Banking.</p><button class="btn primary" id="first-account">Ajouter un compte</button></section>':"")+
  '<section class="panel" style="margin-top:18px"><h2>Les derniers changements</h2>'+(!db.audit.length?'<p class="muted">Les imports, synchronisations et confirmations apparaîtront ici.</p>':'<ul class="mini-list">'+db.audit.slice(0,8).map(e=>'<li><span>'+esc(e.text)+'</span><small>'+esc(new Date(e.at).toLocaleString("fr-FR"))+'</small></li>').join("")+'</ul>')+'</section>';
 }
 function bindView() {
+ bindWealth();
  document.querySelectorAll("[data-month]").forEach(el=>el.onclick=()=>{const d=new Date(month+"-15T12:00:00Z");d.setUTCMonth(d.getUTCMonth()+Number(el.dataset.month));month=d.toISOString().slice(0,7);page=0;render();});
  if($("#month"))$("#month").onchange=e=>{if(/^\d{4}-(0[1-9]|1[012])$/.test(e.target.value)){month=e.target.value;page=0;render();}};
  document.querySelectorAll("[data-transaction]").forEach(el=>{el.onclick=()=>transactionModal(el.dataset.transaction);el.onkeydown=e=>{if(e.key==="Enter")transactionModal(el.dataset.transaction);};});
  document.querySelectorAll("[data-open-operations]").forEach(el=>el.onclick=()=>showView("transactions"));
+ document.querySelectorAll("[data-open-wealth]").forEach(el=>el.onclick=()=>showView("wealth"));
  document.querySelectorAll("[data-open-accounts]").forEach(el=>el.onclick=()=>showView("accounts"));
  document.querySelectorAll("[data-account]").forEach(el=>el.onclick=()=>accountModal(el.dataset.account));
  document.querySelectorAll("[data-import-account]").forEach(el=>el.onclick=()=>chooseCSV(el.dataset.importAccount));
@@ -596,9 +747,12 @@ function validIBAN(value) {
  const s=C.iban(value);if(!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(s))return false;
  const n=(s.slice(4)+s.slice(0,4)).replace(/[A-Z]/g,c=>String(c.charCodeAt(0)-55));let r=0;for(const c of n)r=(r*10+Number(c))%97;return r===1;
 }
-function accountModal(id) {
- const a=db.accounts.find(a=>a.id===id);
- modal(a?"Mon compte":"Ajouter un compte",'<form id="account-form"><label for="account-bank">Banque</label><select id="account-bank">'+["BoursoBank","Revolut","La Banque Postale","Autre"].map(n=>'<option'+(a?.bank===n?" selected":"")+'>'+n+'</option>').join("")+'</select><label for="account-name">Nom du compte</label><input id="account-name" maxlength="100" required value="'+esc(a?.name||"")+'" placeholder="Ex. Mon compte courant"><label for="account-iban">IBAN personnel (facultatif pour les imports)</label><input id="account-iban" maxlength="45" value="'+esc(a?.iban||"")+'" placeholder="FR…"><p class="field-note">L’IBAN aide à identifier les virements entre tes comptes. Il reste chiffré dans ton espace.</p><label for="account-role">Rôle</label><select id="account-role">'+[["current","Compte courant · inclus dans les dépenses"],["savings","Épargne · repère pour les transferts"],["excluded","Hors suivi"]].map(([v,n])=>'<option value="'+v+'"'+(a?.role===v?" selected":"")+'>'+n+'</option>').join("")+'</select><label for="account-source">Source utilisée pour le budget</label><select id="account-source"><option value="csv">Fichiers importés</option><option value="api"'+(a?.sourceMode==="api"?" selected":"")+(a?.apiUid?"":" disabled")+'>Connexion Enable Banking</option></select><p class="field-note">Une seule source est comptée par compte. Les imports restent conservés lorsque tu choisis la connexion bancaire.</p><div class="actions"><button type="submit" class="btn primary">Enregistrer le compte</button></div></form>');
+function accountModal(id,bankName) {
+ const a=db.accounts.find(a=>a.id===id),selectedBank=a?.bank||bankName||"BoursoBank",selectedRole=a?.role||(["Esalia","Fédéral Finance"].includes(selectedBank)?"employee":selectedBank==="Crypto.com"?"crypto":"current");
+ modal(a?"Mon compte":"Ajouter un compte",'<form id="account-form"><label for="account-bank">Banque</label><select id="account-bank">'+[...new Set([...C.institutions,"Autre",selectedBank])].map(n=>'<option'+(selectedBank===n?" selected":"")+'>'+esc(n)+'</option>').join("")+'</select><label for="account-name">Nom du compte</label><input id="account-name" maxlength="100" required value="'+esc(a?.name||"")+'" placeholder="Ex. Mon compte courant"><label for="account-iban">IBAN personnel (facultatif pour les imports)</label><input id="account-iban" maxlength="45" value="'+esc(a?.iban||"")+'" placeholder="FR…"><p class="field-note">L’IBAN aide à identifier les virements entre tes comptes. Il reste chiffré dans ton espace.</p><label for="account-role">Rôle</label><select id="account-role">'+[["current","Compte courant · inclus dans les dépenses"],["savings","Épargne"],["crypto","Cryptoactifs · hors dépenses"],["employee","Épargne salariale · hors dépenses"],["excluded","Hors suivi"]].map(([v,n])=>'<option value="'+v+'"'+(selectedRole===v?" selected":"")+'>'+n+'</option>').join("")+'</select><label for="account-source">Source utilisée pour le budget</label><select id="account-source"><option value="csv">Fichiers importés</option><option value="api"'+(a?.sourceMode==="api"?" selected":"")+(a?.apiUid?"":" disabled")+'>Connexion Enable Banking</option></select><p class="field-note" id="account-source-note">Une seule source est comptée par compte. Les imports restent conservés lorsque tu choisis la connexion bancaire.</p><div class="actions"><button type="submit" class="btn primary">Enregistrer le compte</button></div></form>');
+ const sourceVisibility=()=>{const hidden=$("#account-role").value!=="current";$("#account-source").hidden=hidden;document.querySelector('label[for="account-source"]').hidden=hidden;$("#account-source-note").hidden=hidden;};
+ $("#account-role").onchange=sourceVisibility;sourceVisibility();
+ if(!a)$("#account-bank").onchange=()=>{$("#account-role").value=["Esalia","Fédéral Finance"].includes($("#account-bank").value)?"employee":$("#account-bank").value==="Crypto.com"?"crypto":"current";sourceVisibility();};
  $("#account-form").onsubmit=e=>{e.preventDefault();perform(async()=>{
   const name=$("#account-name").value.trim(),value=C.iban($("#account-iban").value);if(!name)throw Error("Nomme ce compte.");
   if(value&&!demo&&!validIBAN(value))throw Error("L’IBAN ne semble pas valide. Vérifie-le ou laisse ce champ vide.");
@@ -644,7 +798,7 @@ function settingsModal() {
  '<label for="enable-id">Identifiant de l’application</label><input id="enable-id" autocomplete="off" spellcheck="false" maxlength="36" value="'+esc(db.settings.appId)+'" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"><label>Clé privée locale (.pem)</label><div class="actions" style="margin:0"><button class="btn" id="choose-pem">Importer la clé .pem</button><span id="pem-state" class="small-note">'+(settingPEM?"Clé enregistrée dans l’espace chiffré":"Aucune clé")+'</span></div><p class="field-note">La clé sert à signer les requêtes sur ton appareil. Elle n’est pas envoyée au serveur de connexion et n’est pas incluse dans les sauvegardes d’opérations.</p>'+
  '<div class="actions"><button class="btn primary" id="enable-verify"'+(!available||demo?" disabled":"")+'>Enregistrer et vérifier</button><button class="btn" id="enable-banks"'+(!available||demo?" disabled":"")+'>Choisir une banque</button></div><p id="enable-status" class="small-note">'+(info?'Accès vérifié le '+esc(new Date(info.checkedAt).toLocaleString("fr-FR"))+' · '+esc(info.name):"Accès pas encore vérifié")+'</p>'+
  (db.pendingAuth?'<div class="notice neutral">Une autorisation bancaire a été lancée. <button class="btn small" id="complete-callback">Terminer avec le lien de retour</button></div>':"")+
- '<hr class="separator"><h3>Actualisation</h3><p class="muted">L’actualisation récupère le mois observé et les cinq mois précédents, selon l’historique disponible auprès de chaque banque. Aucun appel IA.</p><button class="btn" id="sync-all"'+(demo||!available?" disabled":"")+'>Actualiser mes comptes connectés</button>'+
+ '<hr class="separator"><h3>Actualisation</h3><p class="muted">L’actualisation récupère le mois observé et les cinq mois précédents, selon l’historique disponible auprès de chaque banque. Aucun appel IA.</p><button class="btn" id="sync-all"'+(demo||!available?" disabled":"")+'>Actualiser mes connexions</button>'+
  '<hr class="separator"><h3>Sauvegardes et exports</h3><p class="muted">La sauvegarde chiffrée contient les comptes et les opérations, avec leur classement. Les autorisations bancaires et la clé privée sont exclues.</p><div class="actions"><button class="btn" id="backup-export">Sauvegarde chiffrée</button><button class="btn" id="backup-restore">Restaurer</button><button class="btn" id="export-csv">Exporter le mois en CSV</button></div><p class="field-note">Le CSV est un fichier lisible, non chiffré.</p>'+
  '<hr class="separator"><h3>Mode de calcul</h3><p class="small-note">Le total repose sur les opérations comptabilisées en euros. Les remboursements identifiés diminuent les dépenses. Les autres entrées, les virements internes et les transferts d’épargne sont séparés. Les opérations en attente et les autres devises sont signalées sans conversion automatique. Le classement local est toujours modifiable.</p>');
  $("#choose-pem").onclick=()=>{if(demo){toast("La connexion est désactivée en démonstration.");return;}$("#pem-file").value="";$("#pem-file").click();};
@@ -660,12 +814,7 @@ function settingsModal() {
   bankList=await bank.banks();bankSelectionModal();
  });
  if($("#complete-callback"))$("#complete-callback").onclick=showCallback;
- $("#sync-all").onclick=()=>perform(async()=>{
-  const accounts=db.accounts.filter(a=>a.role==="current"&&a.apiUid);
-  if(!accounts.length)throw Error("Connecte et sélectionne un compte courant.");
-  for(const a of accounts)await syncAccount(a.id);
-  closeModal();render();toast(accounts.length+" compte(s) actualisé(s).");
- });
+ $("#sync-all").onclick=()=>perform(syncAll);
  $("#backup-export").onclick=backupModal;
  $("#backup-restore").onclick=()=>{$("#backup-file").value="";$("#backup-file").click();};
  $("#export-csv").onclick=()=>perform(exportCSV);
@@ -748,7 +897,7 @@ async function syncAccount(id) {
  a.sourceMode="api";delete a.desiredSource;audit("Opérations actualisées : "+a.name+" · "+ready.length+" lignes reçues.");await persist();
  try{
   const balances=await bank.balances(a.apiUid),b=balances.find(b=>["CLBD","ITBD"].includes(b.balance_type))||balances.find(b=>["CLAV","ITAV"].includes(b.balance_type));
-  if(b&&db&&vault.unlocked){a.balance={amount:C.money(b.balance_amount.amount),currency:b.balance_amount.currency,at:new Date().toISOString(),type:b.balance_type};delete a.balanceError;await persist();}
+  if(b&&db&&vault.unlocked){const next={amount:C.money(b.balance_amount.amount),currency:b.balance_amount.currency,at:new Date().toISOString(),type:b.balance_type};if(next.currency==="EUR"&&["CLBD","ITBD"].includes(next.type))C.recordValuation(db,{accountId:a.id,date:b.reference_date?C.date(b.reference_date):C.today(),value:next.amount,source:"bank",note:b.reference_date?"Solde à la date fournie par la banque":"Solde reçu aujourd’hui ; date de valeur non fournie"});a.balance=next;delete a.balanceError;await persist();}
  }catch(e){if(db&&vault.unlocked){a.balanceError="Solde non actualisé : "+e.message;await persist();}}
  render();
 }
@@ -758,7 +907,7 @@ async function saveFile(name,type,text) {
  a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function backupModal() {
- modal("Sauvegarde chiffrée",'<p class="muted">Sauvegarde tes comptes, opérations et classements. Les clés et autorisations bancaires sont exclues. Une connexion bancaire devra être autorisée à nouveau après restauration.</p><label for="backup-password">Mot de passe de la sauvegarde</label><input id="backup-password" type="password" autocomplete="new-password" minlength="10"><label for="backup-confirm">Confirmer</label><input id="backup-confirm" type="password" autocomplete="new-password" minlength="10"><p class="field-note">Au moins 10 caractères. Conserve ce mot de passe pour relire le fichier.</p><div class="actions"><button class="btn primary" id="backup-do">Créer la sauvegarde</button></div>');
+ modal("Sauvegarde chiffrée",'<p class="muted">Sauvegarde tes comptes, opérations, budgets et valorisations. Les clés et autorisations bancaires sont exclues. Une connexion bancaire devra être autorisée à nouveau après restauration.</p><label for="backup-password">Mot de passe de la sauvegarde</label><input id="backup-password" type="password" autocomplete="new-password" minlength="10"><label for="backup-confirm">Confirmer</label><input id="backup-confirm" type="password" autocomplete="new-password" minlength="10"><p class="field-note">Au moins 10 caractères. Conserve ce mot de passe pour relire le fichier.</p><div class="actions"><button class="btn primary" id="backup-do">Créer la sauvegarde</button></div>');
  $("#backup-do").onclick=()=>perform(async()=>{
   const p=$("#backup-password").value;if(p!==$("#backup-confirm").value)throw Error("Les deux mots de passe sont différents.");
   const data=await vault.export(C.backup(db),p);await saveFile("mes-depenses-sauvegarde-"+new Date().toISOString().slice(0,10)+".json","application/json",data);
@@ -774,7 +923,7 @@ async function exportCSV() {
 }
 function restoreModal(text,filename) {
  const exists=!!db||vault.exists();
- modal("Restaurer une sauvegarde",'<p class="muted">'+esc(filename)+'. La restauration remplace les comptes, opérations et classements de cet espace. Les accès bancaires devront être reconnectés.</p><label for="restore-password">Mot de passe de la sauvegarde</label><input id="restore-password" type="password" autocomplete="off">'+(!exists?'<p class="field-note">Ce mot de passe protégera aussi le nouvel espace local.</p>':"")+'<label style="display:flex;align-items:center;gap:8px"><input id="restore-agree" type="checkbox">Je veux restaurer ce fichier'+(exists?" et remplacer les opérations locales":"")+'.</label><div class="actions"><button class="btn primary" id="restore-do">Restaurer</button></div>');
+ modal("Restaurer une sauvegarde",'<p class="muted">'+esc(filename)+'. La restauration remplace les comptes, opérations, budgets et valorisations de cet espace. Les accès bancaires devront être reconnectés.</p><label for="restore-password">Mot de passe de la sauvegarde</label><input id="restore-password" type="password" autocomplete="off">'+(!exists?'<p class="field-note">Ce mot de passe protégera aussi le nouvel espace local.</p>':"")+'<label style="display:flex;align-items:center;gap:8px"><input id="restore-agree" type="checkbox">Je veux restaurer ce fichier'+(exists?" et remplacer les opérations locales":"")+'.</label><div class="actions"><button class="btn primary" id="restore-do">Restaurer</button></div>');
  $("#restore-do").onclick=()=>perform(async()=>{
   if(!$("#restore-agree").checked)throw Error("Confirme la restauration.");
   if(vault.exists()&&!vault.unlocked)throw Error("Déverrouille d’abord l’espace existant pour le remplacer.");
@@ -784,8 +933,126 @@ function restoreModal(text,filename) {
   demo=false;closeModal();render();toast("Sauvegarde restaurée. Les connexions bancaires restent à autoriser.");
  });
 }
+// Included inside ui.js's private scope by build-web.py.
+const roleName=r=>({current:"Compte courant",savings:"Épargne",crypto:"Cryptoactifs",employee:"Épargne salariale",excluded:"Hors suivi"}[r]);
+const sourceName=s=>({manual:"Saisie",csv:"Import",bank:"Banque",crypto:"Crypto.com App"}[s]||"Source inconnue");
+let assetImportAccount="";
+const cryptoClient=new SpendingCrypto.Client({credentials:()=>db&&!demo&&vault.unlocked?db.cryptoSettings:null,transport});
+function renderBudget(){
+ const b=C.budgetSummary(db,month),configured=b.total.limit!==null||b.categories.length;
+ const row=(name,v)=>'<div class="budget-row"><div class="panel-heading"><strong>'+esc(name)+'</strong><span class="'+(v.remaining<0?"danger":"")+'">'+(v.remaining<0?"Dépassement : ":"Reste : ")+euro(Math.abs(v.remaining))+'</span></div><div class="category-track"><div class="category-bar" style="width:'+Math.min(100,v.limit===0?(v.spent>0?100:0):v.spent/v.limit*100)+'%"></div></div><small>'+euro(v.spent)+' dépensés sur '+euro(v.limit)+'</small></div>';
+ return '<section class="panel budget-panel"><div class="panel-heading"><div><h2>Mon budget du mois</h2><small>'+esc(monthLabel(month))+'</small></div><button class="btn small" id="edit-budget">'+(configured?"Modifier":"Définir")+'</button></div>'+
+ (configured?(b.total.limit!==null?row("Budget global",b.total):"")+b.categories.map(c=>row(c.category,c)).join(""):'<p class="muted">Fixe un montant pour le mois ou pour certaines catégories. Les virements internes et l’épargne restent à part.</p>')+
+ '<p class="field-note">Dépenses nettes comptabilisées, après remboursements. Aucun report automatique des budgets. Les opérations non importées ne sont pas connues.</p></section>';
+}
+function budgetModal(){
+ const b=db.budgets[month]||{total:null,categories:{}};
+ modal("Budget · "+monthLabel(month),'<form id="budget-form"><p class="muted">Un champ vide signifie « sans limite ». Zéro fixe un budget de 0 €. Les limites par catégorie et la limite globale sont indépendantes.</p><label for="budget-total">Budget global en EUR</label><input id="budget-total" inputmode="decimal" value="'+(b.total===null?"":b.total/100)+'"><div class="import-grid">'+C.categories.map((c,i)=>'<div><label for="budget-'+i+'">'+esc(c)+'</label><input id="budget-'+i+'" inputmode="decimal" value="'+(b.categories[c]===undefined?"":b.categories[c]/100)+'"></div>').join("")+'</div><div class="actions"><button class="btn primary" type="submit">Enregistrer ce mois</button></div></form>');
+ $("#budget-form").onsubmit=e=>{e.preventDefault();perform(async()=>{
+  const limit=id=>{const s=$(id).value.trim();if(!s)return null;const n=C.money(s);if(n<0)throw Error("Le budget ne peut pas être négatif.");return n;};
+  const item={total:limit("#budget-total"),categories:{}};
+  C.categories.forEach((c,i)=>{const n=limit("#budget-"+i);if(n!==null)item.categories[c]=n;});
+  db.budgets[month]=item;await persist();closeModal();render();toast("Budget du mois enregistré.");
+ });};
+}
+function sameBank(a,b){const n=C.normalize(a),m=C.normalize(b);return /bourso/.test(n)&&/bourso/.test(m)||n===m;}
+function renderWealth(){
+ const s=C.wealth(db),card=({account:a,valuation:v,stale})=>'<section class="panel account-card"><div class="bank-name">'+esc(a.bank)+'</div><h2>'+esc(a.name)+'</h2><span class="pill">'+roleName(a.role)+'</span><div class="balance">'+(v?euro(v.value):"À renseigner")+'</div><small>'+(v?sourceName(v.source)+' · '+shortDate(v.date):"Aucune valeur enregistrée")+'</small>'+
+ (stale?'<p class="field-note danger">Valeur datant de plus de 30 jours</p>':"")+
+ (v?.available!==null&&v?.available!==undefined?'<p class="small-note">Disponible déclaré : '+euro(v.available)+'<br>Non disponible déclaré : '+euro(v.value-v.available)+'</p>':(C.assetRoles.includes(a.role)?'<p class="small-note">Disponibilité non renseignée</p>':""))+
+ '<div class="actions"><button class="btn small" data-value="'+esc(a.id)+'">Saisir une valeur</button><button class="btn small" data-asset-history="'+esc(a.id)+'">Historique</button>'+(C.assetRoles.includes(a.role)?'<button class="btn small" data-asset-import="'+esc(a.id)+'">Importer un relevé CSV</button>':"")+(a.role==="crypto"&&sameBank(a.bank,"Crypto.com")?'<button class="btn small" data-crypto-settings>Connexion Crypto.com</button>':"")+'</div></section>';
+ const absent=C.institutions.filter(bank=>!db.accounts.some(a=>sameBank(a.bank,bank)&&a.role!=="excluded"));
+ return '<div class="view-head"><div><h1>Mes avoirs</h1><p>Comptes, cryptoactifs et épargne salariale, dans une seule vue.</p></div><button class="btn" id="wealth-export">Exporter les valeurs</button></div>'+
+ '<section class="panel hero-panel"><span class="hero-eyebrow">Total des valeurs connues · EUR</span><div class="hero-number">'+(s.known?euro(s.total):"—")+'</div><p class="muted">'+s.known+' compte(s) valorisé(s) sur '+s.items.length+' suivi(s). '+s.missing+' sans valeur. '+s.stale+' valeur(s) de plus de 30 jours.</p><p class="field-note">Dernière valeur connue de chaque compte : les dates peuvent différer. Total indicatif des comptes suivis, sans les crédits ni les avoirs non renseignés.</p></section>'+
+ '<div class="metrics wealth-metrics"><section class="panel metric"><small>Soldes des comptes courants connus</small><span class="value">'+(s.items.some(i=>i.account.role==="current"&&i.valuation)?euro(s.bank):"—")+'</span></section><section class="panel metric"><small>Épargne et placements connus</small><span class="value">'+(s.items.some(i=>C.assetRoles.includes(i.account.role)&&i.valuation)?euro(s.invested):"—")+'</span></section></div>'+
+ '<div class="accounts-grid wealth-grid">'+s.items.map(card).join("")+absent.map(bank=>'<section class="panel account-card empty-account"><div class="bank-name">'+esc(bank)+'</div><h2>À ajouter</h2><p class="small-note">'+(["Esalia","Fédéral Finance"].includes(bank)?"Saisie datée ou import de valorisations CSV. Pas de connexion automatique intégrée.":bank==="Crypto.com"?"Connexion App en lecture seule, ou valorisation saisie / importée.":"Connexion Enable Banking ou import CSV des opérations.")+'</p><button class="btn small" data-add-bank="'+esc(bank)+'">Ajouter ce compte</button></section>').join("")+'</div>'+
+ '<p class="small-note wealth-note">Les variations de valeur peuvent venir des versements, retraits et marchés : elles ne constituent pas une mesure de performance. Les montants d’épargne sont ceux du relevé, sans estimation des prélèvements à la sortie.</p>';
+}
+function valuationModal(id){
+ const a=db.accounts.find(a=>a.id===id);if(!a)return;
+ const v=C.wealth(db).items.find(i=>i.account.id===id)?.valuation;
+ modal("Valorisation · "+a.name,'<form id="valuation-form"><p class="muted">Recopie la valeur totale du compte à la date du relevé. Une valorisation ne crée aucune dépense ni aucun revenu.</p><label for="value-date">Date de la valeur</label><input id="value-date" type="date" required max="'+C.today()+'" value="'+C.today()+'"><label for="value-total">Valeur totale en EUR</label><input id="value-total" inputmode="decimal" required placeholder="Ex. 1 234,56" value=""><label for="value-available">Part disponible en EUR (facultatif)</label><input id="value-available" inputmode="decimal"><p class="field-note">Vide = inconnue. Zéro = aucun montant déclaré disponible.</p><label for="value-note">Précision (facultatif)</label><textarea id="value-note" maxlength="2000" placeholder="Ex. Relevé PEE, valeur avant prélèvements"></textarea>'+
+ (v?'<p class="small-note">Dernière valeur : '+euro(v.value)+' au '+shortDate(v.date)+'.</p>':"")+
+ '<label class="check-label"><input id="value-replace" type="checkbox">Remplacer la valeur de cette date si elle existe déjà.</label><div class="actions"><button class="btn primary" type="submit">Enregistrer la valeur</button></div></form>');
+ $("#valuation-form").onsubmit=e=>{e.preventDefault();perform(async()=>{
+  const day=$("#value-date").value;if(db.valuations.some(v=>v.accountId===id&&v.date===day)&&!$("#value-replace").checked)throw Error("Une valeur existe déjà à cette date. Confirme son remplacement.");
+  C.recordValuation(db,{accountId:id,date:day,value:C.money($("#value-total").value),available:$("#value-available").value.trim()?C.money($("#value-available").value):null,note:$("#value-note").value.trim()});
+  audit("Valorisation enregistrée : "+a.name);await persist();closeModal();render();toast("Valeur datée enregistrée.");
+ });};
+}
+function assetHistory(id){
+ const a=db.accounts.find(a=>a.id===id),rows=db.valuations.filter(v=>v.accountId===id).sort((a,b)=>b.date.localeCompare(a.date));
+ modal("Historique · "+a.name,'<p class="muted">Une valeur par date, sans extrapolation. Les variations incluent les versements et retraits éventuels.</p>'+
+ (rows.length?rows.map(v=>'<details class="value-history"><summary><span>'+shortDate(v.date)+' · '+sourceName(v.source)+'</span><strong>'+euro(v.value)+'</strong></summary><p class="small-note">'+esc(v.note)+(v.available===null?"":" · Disponible déclaré : "+euro(v.available))+'</p>'+v.details.map(p=>'<div class="recent-row"><span>'+esc(p.label)+'</span><span>'+euro(p.value)+'</span></div>').join("")+'<button class="btn small danger" data-delete-value="'+esc(v.id)+'">Supprimer cette valeur</button></details>').join(""):'<p class="muted">Aucun relevé daté enregistré.</p>'));
+ document.querySelectorAll("[data-delete-value]").forEach(el=>el.onclick=()=>{
+  const vid=el.dataset.deleteValue;
+  modal("Supprimer une valorisation",'<p>Cette suppression concerne uniquement la valeur datée sélectionnée.</p><button id="delete-value-confirm" class="btn danger">Confirmer la suppression</button>');
+  $("#delete-value-confirm").onclick=()=>perform(async()=>{db.valuations=db.valuations.filter(v=>v.id!==vid);await persist();render();assetHistory(id);});
+ });
+}
+function assetImportModal(parsed,filename){
+ const fields=[["date","Date du relevé"],["label","Support / placement"],["value","Valeur en EUR"],["available","Disponible en EUR (facultatif)"],["currency","Devise (facultatif)"]];
+ const match={date:/date/,label:/support|placement|libelle|label/,value:/valeur|valuation|montant|value/,available:/disponible|available/,currency:/devise|currency/};
+ modal("Importer des valorisations",'<p class="muted">'+esc(filename)+' · '+parsed.rows.length+' ligne(s). Le fichier doit décrire les supports complets du compte pour chaque date, sans ligne de total. Un historique de transactions Crypto.com ne constitue pas un relevé de valorisation.</p><div class="import-grid">'+fields.map(([k,label])=>'<div><label for="asset-map-'+k+'">'+label+'</label><select id="asset-map-'+k+'"><option value="-1">Non fourni</option>'+parsed.headers.map((h,i)=>'<option value="'+i+'"'+(parsed.headers.findIndex(h=>match[k].test(C.normalize(h)))===i?" selected":"")+'>'+esc(h)+'</option>').join("")+'</select></div>').join("")+'</div><label class="check-label"><input type="checkbox" id="asset-complete">Les valeurs sont en EUR et chaque date couvre la totalité de ce compte.</label><button class="btn primary" id="asset-preview">Vérifier les montants</button>');
+ $("#asset-preview").onclick=()=>perform(async()=>{
+  if(!$("#asset-complete").checked)throw Error("Confirme la devise et le périmètre du relevé.");
+  const map=Object.fromEntries(fields.map(([k])=>[k,Number($("#asset-map-"+k).value)])),rows=C.valuationCSV(db,assetImportAccount,parsed,map);
+  const replacements=rows.filter(v=>db.valuations.some(old=>old.accountId===v.accountId&&old.date===v.date)).length;
+  modal("Confirmer les valorisations",'<p class="muted">'+rows.length+' date(s) · '+replacements+' valeur(s) existante(s) seront remplacées. Les autres dates seront conservées.</p>'+rows.map(v=>'<div class="recent-row"><span>'+shortDate(v.date)+' · '+v.details.length+' support(s)</span><strong>'+euro(v.value)+'</strong></div>').join("")+'<div class="actions"><button class="btn primary" id="asset-apply">Enregistrer ces valeurs'+(replacements?" et remplacer les dates existantes":"")+'</button></div>');
+  $("#asset-apply").onclick=()=>perform(async()=>{
+   const copy=JSON.parse(JSON.stringify(db));for(const row of rows)C.recordValuation(copy,row);C.validate(copy);
+   db=copy;await persist();closeModal();render();toast("Valorisations importées.");
+  });
+ });
+}
+async function exportWealth(){
+ const header=["Compte","Établissement","Date","Valeur EUR","Disponible EUR","Source","Support"];
+ const rows=db.valuations.flatMap(v=>{const a=db.accounts.find(a=>a.id===v.accountId);return (v.details.length?v.details:[{label:"Total du compte",value:v.value,available:v.available}]).map(p=>[a.name,a.bank,v.date,(p.value/100).toFixed(2),p.available===null?"":(p.available/100).toFixed(2),sourceName(v.source),p.label]);});
+ await saveFile("mes-avoirs-"+C.today()+".csv","text/csv","\uFEFF"+[header,...rows].map(row=>row.map(csvCell).join(";")).join("\r\n"));toast("Export des valeurs préparé (CSV non chiffré).");
+}
+function cryptoModal(){
+ const c=db.cryptoSettings,accounts=db.accounts.filter(a=>a.role==="crypto"&&sameBank(a.bank,"Crypto.com"));
+ modal("Connexion Crypto.com App",'<p class="muted">La connexion récupère les valorisations publiées par Crypto.com App. Elle ne récupère pas les dépenses de la carte et n’utilise pas les clés Crypto.com Exchange.</p><ol class="howto"><li>Dans Crypto.com App, ouvre <strong>Plus → Agent Key</strong>.</li><li>Désactive <strong>Execute trades</strong>. L’accès aux soldes reste actif.</li><li>Renseigne les deux clés ici. Choisis EUR comme devise d’affichage dans Crypto.com.</li></ol><label for="crypto-account">Compte destinataire</label><select id="crypto-account">'+accounts.map(a=>'<option value="'+esc(a.id)+'"'+(c.accountId===a.id?" selected":"")+'>'+esc(a.name)+'</option>').join("")+'<option value="new">Créer un portefeuille Crypto.com App</option></select><label for="crypto-key">Clé API</label><input id="crypto-key" type="password" autocomplete="new-password" placeholder="'+(c.key?"Clé enregistrée · vide pour conserver":"Clé API App")+'"><label for="crypto-secret">Clé secrète</label><input id="crypto-secret" type="password" autocomplete="new-password" placeholder="'+(c.secret?"Secret enregistré · vide pour conserver":"Clé secrète App")+'"><p class="field-note">Clés chiffrées sur cet appareil, exclues des sauvegardes. Aucun achat, vente, transfert ou retrait n’est autorisé par Mes dépenses.</p><p class="small-note">Le résultat dépend de l’accès disponible sur ton compte et du périmètre renvoyé par Crypto.com. Une erreur conserve les dernières valeurs enregistrées.</p><div class="actions"><button id="crypto-save" class="btn primary"'+(demo||!transportAvailable()?" disabled":"")+'>Enregistrer et actualiser</button><button id="crypto-remove" class="btn">Retirer les clés locales</button></div>'+
+ (!transportAvailable()?'<p class="field-note">Connexion disponible dans l’APK ou avec le lanceur ordinateur.</p>':""));
+ $("#crypto-save").onclick=()=>perform(async()=>{
+  const key=$("#crypto-key").value.trim(),secret=$("#crypto-secret").value.trim();
+  if(!!key!==!!secret)throw Error("Renseigne les deux nouvelles clés ensemble, ou laisse les deux champs vides pour les conserver.");
+  let id=$("#crypto-account").value;
+  if(id==="new"){const a={id:crypto.randomUUID(),name:"Portefeuille Crypto.com App",bank:"Crypto.com",role:"crypto",sourceMode:"csv",iban:"",currency:"EUR"};db.accounts.push(a);id=a.id;}
+  db.cryptoSettings={key:key||c.key,secret:secret||c.secret,accountId:id};
+  if(!db.cryptoSettings.key||!db.cryptoSettings.secret)throw Error("Renseigne les deux clés Crypto.com App.");
+  await persist();await syncCrypto();closeModal();render();toast("Valorisation Crypto.com actualisée.");
+ });
+ $("#crypto-remove").onclick=()=>perform(async()=>{db.cryptoSettings={key:"",secret:"",accountId:""};await persist();closeModal();render();toast("Clés locales retirées. Les valorisations sont conservées.");});
+}
+async function syncCrypto(){
+ const id=db.cryptoSettings.accountId,a=db.accounts.find(a=>a.id===id&&a.role==="crypto"&&sameBank(a.bank,"Crypto.com"));
+ if(!a)throw Error("Choisis le portefeuille Crypto.com à actualiser.");
+ const v=await cryptoClient.snapshot();
+ C.recordValuation(db,{accountId:id,date:C.today(),...v,source:"crypto",note:"Produits valorisés par Crypto.com App. Périmètre fourni par l’API, sans addition séparée des sous-portefeuilles."});
+ audit("Valorisation Crypto.com App actualisée.");await persist();render();
+}
+async function syncAll(){
+ if(demo)throw Error("Les connexions sont désactivées en démonstration.");
+ const accounts=db.accounts.filter(a=>a.role==="current"&&a.apiUid),errors=[];let success=0;
+ if(!accounts.length&&!db.cryptoSettings.key)throw Error("Configure une connexion dans Comptes ou dans Mes avoirs.");
+ for(const a of accounts){try{await syncAccount(a.id);success++;}catch(e){if(!db||!vault.unlocked)throw e;db=JSON.parse(committedDB);errors.push(a.name+" : "+e.message);}}
+ if(db.cryptoSettings.key){try{await syncCrypto();success++;}catch(e){if(!db||!vault.unlocked)throw e;db=JSON.parse(committedDB);errors.push("Crypto.com : "+e.message);}}
+ closeModal();render();
+ $("#status").innerHTML='<div class="notice '+(errors.length?"":"neutral")+'">'+success+' connexion(s) actualisée(s).'+(errors.length?'<br>'+errors.map(esc).join("<br>"):"")+'</div>';
+}
+function bindWealth(){
+ if($("#edit-budget"))$("#edit-budget").onclick=budgetModal;
+ document.querySelectorAll("[data-value]").forEach(el=>el.onclick=()=>valuationModal(el.dataset.value));
+ document.querySelectorAll("[data-asset-history]").forEach(el=>el.onclick=()=>assetHistory(el.dataset.assetHistory));
+ document.querySelectorAll("[data-add-bank]").forEach(el=>el.onclick=()=>accountModal(null,el.dataset.addBank));
+ document.querySelectorAll("[data-crypto-settings]").forEach(el=>el.onclick=cryptoModal);
+ document.querySelectorAll("[data-asset-import]").forEach(el=>el.onclick=()=>{assetImportAccount=el.dataset.assetImport;$("#asset-file").value="";$("#asset-file").click();});
+ if($("#wealth-export"))$("#wealth-export").onclick=()=>perform(exportWealth);
+}
+
 async function lock() {
- epoch++;busy=false;vault.lock();db=null;committedDB=null;demo=false;settingPEM="";bankList=[];bankAccountSelection=null;closeModal();$("#main-content").innerHTML="";$("#status").innerHTML="";$("#busy").hidden=true;authScreen();
+ epoch++;assetImportAccount="";busy=false;vault.lock();db=null;committedDB=null;demo=false;settingPEM="";bankList=[];bankAccountSelection=null;closeModal();$("#main-content").innerHTML="";$("#status").innerHTML="";$("#busy").hidden=true;authScreen();
  $("#auth-submit").disabled=true;await vault.queue.catch(()=>{});$("#auth-submit").disabled=false;
 }
 function measureNavigation() {const h=$("#mobile-nav").getBoundingClientRect().height;if(h>0)document.documentElement.style.setProperty("--nav-height",h+"px");}
@@ -805,6 +1072,8 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!busy&&!$("#modal")
 document.querySelectorAll("[data-view]").forEach(el=>el.onclick=()=>{if(db)showView(el.dataset.view);});
 document.querySelectorAll('[data-action="settings"]').forEach(el=>el.onclick=settingsModal);
 $("#global-import").onclick=()=>chooseCSV();
+$("#global-sync").onclick=()=>perform(syncAll);
+$("#asset-file").onchange=()=>perform(async()=>{const file=$("#asset-file").files[0];if(!file)return;const generation=epoch,parsed=C.csv(await readFile(file));if(generation!==epoch||!db)return;assetImportModal(parsed,file.name);});
 $("#restore-auth").onclick=()=>{$("#backup-file").value="";$("#backup-file").click();};
 $("#csv-file").onchange=()=>perform(async()=>{const file=$("#csv-file").files[0];if(!file)return;const parsed=C.csv(await readFile(file));importModal(parsed,file.name);});
 $("#pem-file").onchange=()=>perform(async()=>{const file=$("#pem-file").files[0];if(!file)return;if(file.size>20000)throw Error("Fichier de clé privée trop volumineux.");settingPEM=await file.text();if(!settingPEM.includes("-----BEGIN PRIVATE KEY-----"))throw Error("Le fichier doit être une clé privée PEM PKCS#8.");if($("#pem-state"))$("#pem-state").textContent="Clé chargée : "+file.name+" · à enregistrer et vérifier";});

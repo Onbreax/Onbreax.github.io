@@ -47,12 +47,13 @@ function category(label,mcc) {
  if(["5812","5814"].includes(String(mcc)))return "Restaurants";
  return "À classer";
 }
-function empty() {return {schema:1,accounts:[],transactions:[],overrides:{},connections:[],settings:{appId:"",pem:"",redirect:"https://onbreax.github.io/mes-depenses-retour.html"},pendingAuth:null,audit:[]};}
+function empty() {return {schema:2,accounts:[],transactions:[],overrides:{},connections:[],settings:{appId:"",pem:"",redirect:"https://onbreax.github.io/mes-depenses-retour.html"},pendingAuth:null,audit:[],valuations:[],budgets:{},cryptoSettings:{key:"",secret:"",accountId:""}};}
 function validate(db) {
- if(!db||db.schema!==1||!Array.isArray(db.accounts)||!Array.isArray(db.transactions)||db.accounts.length>100||db.transactions.length>60000)throw Error("Données incompatibles ou trop volumineuses.");
+ if(!db||![1,2].includes(db.schema)||!Array.isArray(db.accounts)||!Array.isArray(db.transactions)||db.accounts.length>100||db.transactions.length>60000)throw Error("Données incompatibles ou trop volumineuses.");
+ if(db.schema===1){db.valuations=[];db.budgets={};db.cryptoSettings={key:"",secret:"",accountId:""};db.schema=2;}
  const ids=new Set(),byId=new Map();
  for(const a of db.accounts){
-  if(!a||typeof a.id!=="string"||!a.id||a.id.length>200||ids.has(a.id)||typeof a.name!=="string"||a.name.length>200||typeof a.bank!=="string"||typeof a.iban!=="string"||!["current","savings","excluded"].includes(a.role)||!["csv","api"].includes(a.sourceMode))throw Error("Compte invalide.");
+  if(!a||typeof a.id!=="string"||!a.id||a.id.length>200||ids.has(a.id)||typeof a.name!=="string"||a.name.length>200||typeof a.bank!=="string"||a.bank.length>200||typeof a.iban!=="string"||!["current","savings","crypto","employee","excluded"].includes(a.role)||!["csv","api"].includes(a.sourceMode))throw Error("Compte invalide.");
   if(a.balance&&(!Number.isSafeInteger(a.balance.amount)||typeof a.balance.currency!=="string"||!/^[A-Z]{3}$/.test(a.balance.currency)||typeof a.balance.at!=="string"||!Number.isFinite(Date.parse(a.balance.at))))throw Error("Solde enregistré invalide.");
   if(a.lastSync){date(a.lastSync.from);date(a.lastSync.to);if(!Number.isFinite(Date.parse(a.lastSync.at)))throw Error("Date de synchronisation invalide.");}
   ids.add(a.id);
@@ -68,6 +69,7 @@ function validate(db) {
  if(!db.settings||typeof db.settings.appId!=="string"||typeof db.settings.pem!=="string"||db.settings.pem.length>20000)throw Error("Paramètres invalides.");
  if(!Array.isArray(db.audit)||db.audit.length>80||db.audit.some(a=>!a||typeof a.text!=="string"||a.text.length>3000||!Number.isFinite(Date.parse(a.at))))throw Error("Historique local invalide.");
  if(db.pendingAuth!==null&&(!db.pendingAuth||typeof db.pendingAuth.state!=="string"||!Number.isFinite(db.pendingAuth.at)||!db.pendingAuth.aspsp))throw Error("Autorisation invalide.");
+ validateWealth(db,ids);
  return db;
 }
 function visible(db) {
@@ -80,7 +82,7 @@ function classify(db,t) {
  const cat=override?.category||t.category||category(t.label,t.mcc);
  let flow=override?.flow||"auto",reason="Classement local";
  if(flow==="auto") {
-  if(own){flow=own.role==="savings"?"savings":"internal";reason="Compte destinataire ou émetteur identifié parmi tes comptes";}
+  if(own){flow=["savings","crypto","employee"].includes(own.role)?"savings":"internal";reason="Compte destinataire ou émetteur identifié parmi tes comptes";}
   else if(t.amount<0)flow="expense";
   else if(/\brefund\b|\bremb(?:oursement)? (?:cb|carte|achats?)\b/.test(normalize(t.label)))flow="refund";
   else flow="income";
@@ -203,8 +205,90 @@ function importRows(db,accountId,parsed,map,currency="EUR") {
 function backup(db) {
  const copy=JSON.parse(JSON.stringify(db));
  copy.connections=[];copy.pendingAuth=null;copy.settings={appId:"",pem:"",redirect:"https://onbreax.github.io/mes-depenses-retour.html"};
+ copy.cryptoSettings={key:"",secret:"",accountId:""};
  for(const a of copy.accounts){delete a.apiUid;delete a.connectionId;delete a.sessionId;delete a.lastSync;}
  return validate(copy);
+}
+const institutions=["La Banque Postale","Revolut","BoursoBank","Crypto.com","Esalia","Fédéral Finance"];
+const assetRoles=["savings","crypto","employee"];
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
+function validValue(n){return Number.isSafeInteger(n)&&Math.abs(n)<=100000000000;}
+function checkValuation(v,ids){
+ if(!v||typeof v.id!=="string"||!v.id||!ids.has(v.accountId)||!validValue(v.value)||!["manual","csv","bank","crypto"].includes(v.source)||typeof v.note!=="string"||v.note.length>2000)throw Error("Valorisation invalide.");
+ if(date(v.date)!==v.date)throw Error("La date de valorisation doit être une date civile.");
+ if(v.available!==null&&(!validValue(v.available)||v.available<0||v.available>v.value))throw Error("Le montant disponible doit être compris entre zéro et la valeur totale.");
+ if(!Array.isArray(v.details)||v.details.length>500)throw Error("Détail de valorisation invalide.");
+ for(const p of v.details)if(!p||typeof p.label!=="string"||p.label.length>200||!validValue(p.value)||p.value<0||(p.available!==null&&(!validValue(p.available)||p.available<0||p.available>p.value)))throw Error("Support de placement invalide.");
+ if(v.details.length&&v.details.reduce((s,p)=>s+p.value,0)!==v.value)throw Error("Le total des supports diffère du montant déclaré.");
+ if(v.details.length&&v.available!==null&&(v.details.some(p=>p.available===null)||v.details.reduce((s,p)=>s+p.available,0)!==v.available))throw Error("Disponibilité des supports incohérente.");
+}
+function validateWealth(db,ids){
+ if(!Array.isArray(db.valuations)||db.valuations.length>10000)throw Error("Historique des avoirs invalide.");
+ const keys=new Set(),valuationIds=new Set();
+ for(const v of db.valuations){
+  checkValuation(v,ids);const k=v.accountId+":"+v.date;
+  if(keys.has(k)||valuationIds.has(v.id))throw Error("Valorisation dupliquée.");
+  keys.add(k);valuationIds.add(v.id);
+  if(v.value<0&&db.accounts.find(a=>a.id===v.accountId).role!=="current")throw Error("Une valorisation de placement ne peut pas être négative.");
+ }
+ if(!db.budgets||typeof db.budgets!=="object"||Array.isArray(db.budgets)||Object.keys(db.budgets).length>600)throw Error("Budgets invalides.");
+ for(const [m,b] of Object.entries(db.budgets)){
+  if(!/^\d{4}-(0[1-9]|1[012])$/.test(m)||!b||(b.total!==null&&(!validValue(b.total)||b.total<0))||!b.categories||typeof b.categories!=="object"||Array.isArray(b.categories))throw Error("Budget mensuel invalide.");
+  for(const [c,n] of Object.entries(b.categories))if(!categories.includes(c)||!validValue(n)||n<0)throw Error("Budget de catégorie invalide.");
+ }
+ const c=db.cryptoSettings;
+ if(!c||typeof c.key!=="string"||c.key.length>500||typeof c.secret!=="string"||c.secret.length>2000||typeof c.accountId!=="string"||(c.accountId&&!ids.has(c.accountId)))throw Error("Paramètres Crypto.com invalides.");
+}
+function recordValuation(db,input){
+ const a=db.accounts.find(a=>a.id===input.accountId);if(!a||a.role==="excluded")throw Error("Choisis un compte suivi.");
+ const v={id:input.accountId+":"+date(input.date),accountId:input.accountId,date:date(input.date),value:input.value,available:input.available??null,source:input.source||"manual",note:input.note||"",details:input.details||[]};
+ checkValuation(v,new Set(db.accounts.map(a=>a.id)));
+ if(v.date>today())throw Error("Une valorisation doit être datée d’aujourd’hui ou d’un jour passé.");
+ if(v.value<0&&a.role!=="current")throw Error("La valeur d’un placement ne peut pas être négative.");
+ db.valuations=db.valuations.filter(old=>old.accountId!==v.accountId||old.date!==v.date);db.valuations.push(v);
+ return v;
+}
+function wealth(db,asOf=today()){
+ date(asOf);
+ const items=db.accounts.filter(a=>a.role!=="excluded").map(account=>{
+  let valuation=db.valuations.filter(v=>v.accountId===account.id&&v.date<=asOf).sort((a,b)=>b.date.localeCompare(a.date))[0]||null;
+  const b=account.balance;
+  if(!valuation&&b?.currency==="EUR"&&["CLBD","ITBD"].includes(b.type)&&date(b.at)<=asOf)valuation={date:date(b.at),value:b.amount,available:null,source:"bank",details:[],note:""};
+  return {account,valuation,stale:!!valuation&&(Date.parse(asOf)-Date.parse(valuation.date))/86400000>30};
+ });
+ const known=items.filter(i=>i.valuation);
+ const sum=fn=>{const n=known.filter(fn).reduce((s,i)=>s+i.valuation.value,0);if(!Number.isSafeInteger(n))throw Error("Total des avoirs hors limite.");return n;};
+ return {items,total:sum(()=>true),bank:sum(i=>i.account.role==="current"),invested:sum(i=>assetRoles.includes(i.account.role)),missing:items.length-known.length,known:known.length,stale:items.filter(i=>i.stale).length};
+}
+function valuationCSV(db,accountId,parsed,map){
+ if(!db.accounts.some(a=>a.id===accountId&&a.role!=="excluded"))throw Error("Choisis un compte.");
+ if(map.date<0||map.label<0||map.value<0)throw Error("Associe Date, Support et Valeur en EUR.");
+ if(!parsed.rows.length||parsed.rows.length>500)throw Error("Le relevé doit contenir entre 1 et 500 supports.");
+ for(const index of parsed.headers.map((h,i)=>/^(compte|account|etablissement)$/.test(normalize(h))?i:-1).filter(i=>i>=0)){
+  if(new Set(parsed.rows.map(r=>normalize(r[index]))).size>1)throw Error("Le fichier contient plusieurs comptes ou établissements. Sépare les relevés avant de choisir le compte destinataire.");
+ }
+ const groups=new Map();
+ for(let i=0;i<parsed.rows.length;i++){
+  const r=parsed.rows[i];
+  try{
+   const day=date(r[map.date]),label=String(r[map.label]||"").trim();
+   if(!label||label.length>200)throw Error("Support manquant ou trop long.");
+   if(map.currency>=0&&String(r[map.currency]).trim().toUpperCase()!=="EUR")throw Error("Seules les valorisations EUR sont acceptées.");
+   const value=money(r[map.value]),available=map.available>=0&&String(r[map.available]||"").trim()?money(r[map.available]):null;
+   if(value<0||available!==null&&(available<0||available>value))throw Error("Valeur ou disponibilité incohérente.");
+   if(day>today())throw Error("Date à venir.");
+   if(!groups.has(day))groups.set(day,[]);
+   const details=groups.get(day);
+   if(details.some(p=>normalize(p.label)===normalize(label)))throw Error("Support répété pour la même date : distingue les lignes ou retire le doublon.");
+   details.push({label,value,available});
+  }catch(e){throw Error("Ligne "+(i+2)+" : "+e.message);}
+ }
+ return [...groups].map(([day,details])=>({accountId,date:day,value:details.reduce((s,p)=>s+p.value,0),available:details.every(p=>p.available!==null)?details.reduce((s,p)=>s+p.available,0):null,source:"csv",note:"Relevé de valorisation importé",details}));
+}
+function budgetSummary(db,month){
+ const totals=summary(db,month),b=db.budgets[month]||{total:null,categories:{}};
+ const line=(limit,spent)=>({limit,spent:Math.max(0,spent),remaining:limit===null?null:limit-Math.max(0,spent),ratio:limit===null||limit===0?null:Math.max(0,spent)/limit});
+ return {total:line(b.total,totals.net),categories:Object.entries(b.categories).map(([category,limit])=>({category,...line(limit,totals.categories[category]||0)}))};
 }
 function demo(month) {
  const db=empty();
@@ -223,8 +307,13 @@ function demo(month) {
  ["demo-bourso",13,-3500,"Achats","Achats"],["demo-bourso",14,1500,"Remboursement achats","Achats"],
  ["demo-revolut",15,-1790,"Pharmacie","Santé"],["demo-postale",16,-400,"Frais de tenue de compte","Frais bancaires"]];
  db.transactions=entries.map((e,i)=>({id:"demo:"+i,accountId:e[0],date:month+"-"+String(e[1]).padStart(2,"0"),dateBasis:"booking",amount:e[2],currency:"EUR",label:e[3],category:e[4],counterpartyIban:e[5]||"",status:"BOOK",source:"csv",entryRef:""}));
+ for(const [i,bank] of ["Crypto.com","Esalia","Fédéral Finance"].entries()){
+  const a={id:"demo-asset-"+i,name:["Portefeuille crypto","Épargne salariale","Épargne salariale"][i],bank,role:i===0?"crypto":"employee",sourceMode:"csv",iban:"",currency:"EUR"};db.accounts.push(a);
+  recordValuation(db,{accountId:a.id,date:today(),value:[123450,856000,432100][i],available:i===0?null:[0,250000,100000][i],source:"manual",note:"Donnée fictive"});
+ }
+ db.budgets[month]={total:160000,categories:{Courses:30000,Restaurants:10000}};
  return db;
 }
-const api={categories,flows,normalize,iban,money,date,hash,category,empty,validate,visible,classify,candidates,summary,normalizeAPI,replaceAPI,csv,guessColumns,importRows,backup,demo};
+const api={categories,flows,normalize,iban,money,date,hash,category,empty,validate,visible,classify,candidates,summary,normalizeAPI,replaceAPI,csv,guessColumns,importRows,backup,demo,institutions,assetRoles,today,recordValuation,wealth,valuationCSV,budgetSummary};
 if(typeof module!=="undefined"&&module.exports)module.exports=api;else root.SpendingCore=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

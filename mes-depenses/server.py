@@ -12,6 +12,7 @@ import urllib.request
 import webbrowser
 
 BASE = "https://api.enablebanking.com"
+CRYPTO_BASE = "https://wapi.crypto.com"
 ROOT = Path(__file__).resolve().parent
 HTML = ROOT / "mes-depenses.html"
 if not HTML.exists():
@@ -40,8 +41,40 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
+def crypto_allowed(path, method):
+    return method == "GET" and path in ("/v1/portfolio", "/v1/crypto-account", "/v1/fiat-account")
+
+
+def upstream_request(request):
+    path, method = request["path"], request["method"]
+    headers = {"Accept": "application/json", "Content-Type": "application/json", "User-Agent": "MesDepenses/1.1.0"}
+    if request.get("provider", "bank") == "crypto":
+        if not crypto_allowed(path, method):
+            raise ValueError()
+        supplied = request["headers"]
+        for field, pattern in (("Cdc-Api-Key", r"[!-~]{1,500}"), ("Cdc-Api-Timestamp", r"[0-9]{13}"), ("Cdc-Api-Signature", r"[a-zA-Z0-9+/]{43}=")):
+            value = supplied[field]
+            if not isinstance(value, str) or not re.fullmatch(pattern, value):
+                raise ValueError()
+            headers[field] = value
+        return urllib.request.Request(CRYPTO_BASE + path, method="GET", headers=headers)
+    if request.get("provider", "bank") != "bank":
+        raise ValueError()
+    token = request["token"]
+    if not isinstance(path, str) or not allowed(path, method) or not isinstance(token, str) or len(token) > 20000 or not re.fullmatch(r"[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+", token):
+        raise ValueError()
+    body = request.get("body")
+    payload = None
+    if method == "POST":
+        if not isinstance(body, str) or len(body.encode()) > 100000:
+            raise ValueError()
+        payload = body.encode()
+    headers["Authorization"] = "Bearer " + token
+    return urllib.request.Request(BASE + path, data=payload, method=method, headers=headers)
+
+
 class Handler(BaseHTTPRequestHandler):
-    server_version = "MesDepenses/1.0.0"
+    server_version = "MesDepenses/1.1.0"
 
     def log_message(self, *args):
         # Bank request paths, authorization codes and tokens are never logged.
@@ -78,20 +111,7 @@ class Handler(BaseHTTPRequestHandler):
             if not 0 < size <= 200000:
                 raise ValueError()
             request = json.loads(self.rfile.read(size))
-            path, method, token = request["path"], request["method"], request["token"]
-            if not isinstance(path, str) or not allowed(path, method) or not isinstance(token, str) or len(token) > 20000 or not re.fullmatch(r"[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+", token):
-                raise ValueError()
-            body = request.get("body")
-            if method == "POST":
-                if not isinstance(body, str) or len(body.encode()) > 100000:
-                    raise ValueError()
-                payload = body.encode()
-            else:
-                payload = None
-            req = urllib.request.Request(BASE + path, data=payload, method=method, headers={
-                "Authorization": "Bearer " + token, "Accept": "application/json",
-                "Content-Type": "application/json", "User-Agent": "MesDepenses/1.0.0"
-            })
+            req = upstream_request(request)
             opener = urllib.request.build_opener(NoRedirect())
             deadline = time.monotonic() + 50
             try:

@@ -13,6 +13,19 @@ spec.loader.exec_module(module)
 
 
 class PolicyTest(unittest.TestCase):
+    def test_crypto_read_only(self):
+        self.assertTrue(module.crypto_allowed("/v1/portfolio", "GET"))
+        for path, method in [("/v1/portfolio", "POST"), ("/v1/order", "GET"), ("/v1/portfolio?x=1", "GET"), ("//evil.test", "GET")]:
+            self.assertFalse(module.crypto_allowed(path, method))
+        signed = {"provider": "crypto", "path": "/v1/portfolio", "method": "GET", "headers": {"Cdc-Api-Key": "fake", "Cdc-Api-Timestamp": "1793440800123", "Cdc-Api-Signature": "a" * 43 + "="}}
+        req = module.upstream_request(signed)
+        self.assertEqual(req.full_url, "https://wapi.crypto.com/v1/portfolio")
+        self.assertIsNone(req.data)
+        self.assertNotIn("Authorization", req.headers)
+        signed["headers"]["Cdc-Api-Key"] = "fake\r\nInjected: header"
+        with self.assertRaises(ValueError):
+            module.upstream_request(signed)
+
     def test_read_only_policy(self):
         self.assertTrue(module.allowed("/application", "GET"))
         self.assertTrue(module.allowed("/auth", "POST"))

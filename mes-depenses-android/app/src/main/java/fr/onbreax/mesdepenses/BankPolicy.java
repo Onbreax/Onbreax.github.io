@@ -4,6 +4,13 @@ import java.net.URI;
 
 /** Network access is restricted to the account-information workflow. */
 final class BankPolicy {
+ static boolean cryptoAllowed(URI uri, String method) {
+  if (!"GET".equals(method) || !"https".equals(uri.getScheme()) || !"wapi.crypto.com".equals(uri.getHost())
+   || uri.getUserInfo()!=null || uri.getFragment()!=null || uri.getRawQuery()!=null
+   || (uri.getPort()!=-1 && uri.getPort()!=443)) return false;
+  String path=uri.getRawPath();
+  return "/v1/portfolio".equals(path) || "/v1/crypto-account".equals(path) || "/v1/fiat-account".equals(path);
+ }
  static boolean allowed(URI uri, String method) {
   if (!"https".equals(uri.getScheme()) || !"api.enablebanking.com".equals(uri.getHost())
    || uri.getUserInfo() != null || (uri.getPort() != -1 && uri.getPort() != 443) || uri.getFragment() != null) return false;
