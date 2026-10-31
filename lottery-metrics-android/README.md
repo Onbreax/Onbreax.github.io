@@ -1,7 +1,15 @@
 # Lottery Metrics Android
 
-Version 1.1.0 personnelle (`versionCode 2`), Android 8 minimum (API 26), cible Android 15 (API 35).
+Version 1.2.0 personnelle (`versionCode 3`), Android 8 minimum (API 26), cible Android 15 (API 35).
 Identifiant : `fr.onbreax.lotterymetrics`. Source partagée : `../lottery-metrics.html`.
+
+## Nouveautés 1.2.0
+
+- Bouton Actualiser en haut à droite, même opération que le bouton détaillé du jeu affiché ; état et erreurs visibles en haut.
+- Historique des quatre grilles proposées, par jeu/date/lot, avec comparaison au résultat, gains indicatifs et solde après mise. Les anciennes dates sans propositions enregistrées sont explicitement indisponibles.
+- Options Keno enregistrées avec le lot (mise, Multiplicateur). Rentes EuroDreams séparées du paiement immédiat. Codes Loto/My Million et options non calculables à partir des seuls numéros exclus du bilan historique.
+- Corrections des jackpots Loto partagés, de My Million dans le modèle de retour, des ventilations par rang, des tranches et des compteurs d'absence. Comparaisons financières reformulées comme estimations.
+- Migration IndexedDB v1 → v2, ancien magasin de résultats conservé. Les sauvegardes JSON v2 contiennent aussi les propositions ; les anciennes sauvegardes v1 restent importables.
 
 ## Fonctionnement
 
@@ -21,7 +29,7 @@ Les statistiques descriptives et les grilles ne prédisent pas les tirages. La v
 
 Le moteur partagé 1.1.0 (11 octobre 2026) corrige le backtest chronologique, normalise le bonus de paires, étend la recherche par échanges locaux et désactive la popularité au Keno. Les p-values du backtest utilisent une convolution hypergéométrique exacte et Holm. Les explications et limites figurent dans [`../lottery-metrics-statistics.md`](../lottery-metrics-statistics.md).
 
-L’APK 1.1.0 intègre ce moteur dans ses assets locaux. Pour cette livraison, le composant Android compilé de l’APK 1.0.0 est conservé, avec ses ressources et dépendances ; seuls le moteur HTML et le numéro de version du manifeste sont remplacés, puis le paquet est réaligné et signé à nouveau. Le certificat de signature, l’identifiant et l’origine WebView sont identiques à ceux de la version 1.0.0. La base IndexedDB conserve le même nom et la même version. Installer la mise à jour par-dessus l’application existante.
+L’APK 1.2.0 intègre ce moteur 1.2.0 dans ses assets locaux. Pour cette livraison, le composant Android compilé de l’APK 1.1.0 est conservé, avec ses ressources et dépendances ; seuls le moteur HTML et le numéro de version du manifeste sont remplacés, puis le paquet est réaligné et signé à nouveau. Le certificat de signature, l’identifiant et l’origine WebView sont identiques à ceux de la version 1.0.0. La base IndexedDB conserve le même nom ; la migration v2 crée seulement le magasin des propositions. Installer la mise à jour par-dessus l’application existante.
 
 Pour une reconstruction complète depuis les sources, régénérer les assets avec le script ci-dessous ; un changement du fichier HTML sur GitHub ne met pas à jour une APK installée.
 
@@ -51,6 +59,10 @@ Tests : `tests/lottery-metrics.cjs` (parsing, dates, analyse, grilles, fusion) e
 
 `node tests/lottery-statistics.cjs` vérifie les corrections statistiques : absence de fuite depuis les tirages futurs, recherche locale sur tous les numéros, diversité, sept tailles Keno, p-values exactes et correction des comparaisons multiples.
 
-Livraison Android 1.1.0 : signature v2/v3 vérifiée, certificat comparé à l’APK 1.0.0, manifeste et alignement vérifiés, assets comparés au moteur 1.1.0 et aux dépendances avec SHA-256. Tous les autres fichiers compilés de l’APK initiale sont inchangés. Ces vérifications ne remplacent pas un essai d’installation et d’utilisation sur téléphone, non réalisé dans cet environnement.
+Livraison Android 1.2.0 : signature v2/v3 vérifiée, certificat comparé à l’APK 1.1.0, manifeste et alignement vérifiés, assets comparés au moteur 1.2.0 et aux dépendances avec SHA-256. Tous les autres fichiers compilés de l’APK initiale sont inchangés. Ces vérifications ne remplacent pas un essai d’installation et d’utilisation sur téléphone, non réalisé dans cet environnement.
 
 Pour les fixtures officielles : `python3 tests/lottery-download-fixtures.py`, puis préparer les assets et lancer les deux scripts avec Node.js. Playwright est nécessaire au test mobile ; définir `CHROME_EXECUTABLE` si Chromium n’est pas installé à son emplacement par défaut.
+
+Le paquet livré est préparé par `repack.py BASE.apk UNSIGNED.apk`, puis aligné et signé avec la même clé hors dépôt. Ce script vérifie que les fichiers compilés autres que le manifeste et les assets restent identiques ; il refuse une modification de longueur du nom de version, qui nécessite une reconstruction Android complète. Les clés et mots de passe ne sont jamais intégrés aux sources ou à l’APK.
+
+Tests supplémentaires : `node tests/lottery-history.cjs` et `node tests/lottery-history-mobile.cjs`. `FDJ_FIXTURES` peut désigner le répertoire des quatre CSV publics. Méthodes, limites et sources : [`../lottery-metrics-statistics.md`](../lottery-metrics-statistics.md).

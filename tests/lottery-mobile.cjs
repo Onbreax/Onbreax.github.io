@@ -7,7 +7,7 @@ const {chromium}=require('playwright'),fs=require('fs'),http=require('http'),pat
  try{
  const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.route('https://**/*',r=>r.abort());await page.addInitScript(()=>{window.nativeMessages=[];window.LotteryNative={postMessage:x=>nativeMessages.push(JSON.parse(x))};localStorage.setItem('lottery-auto-sync','false')});
  await page.goto(`http://127.0.0.1:${server.address().port}`);await page.evaluate(()=>probe.startup);
- const csv=fs.readFileSync(path.join(__dirname,'../fdj-samples/eurodreams.csv'),'utf8'),lines=csv.trim().split(/\r?\n/),old=[lines[0],...lines.slice(4)].join('\n');
+ const csv=fs.readFileSync(path.join(process.env.FDJ_FIXTURES||path.join(__dirname,'../fdj-samples'),'eurodreams.csv'),'utf8'),lines=csv.trim().split(/\r?\n/),old=[lines[0],...lines.slice(4)].join('\n');
  await page.evaluate(async text=>probe.handleFile(new File([text],'eurodreams.csv')),old);
  assert.equal(await page.evaluate(()=>probe.current.parsed.rows.length),lines.length-4);assert.deepEqual(errors,[]);console.log('IMPORT AND PERSIST PASS');
  await page.reload();await page.evaluate(()=>probe.startup);assert.equal(await page.evaluate(()=>probe.current.parsed.rows.length),lines.length-4);console.log('REOPEN RESTORE PASS');
